@@ -1,0 +1,104 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" >
+    
+    <aura:attribute name="ReportType" type="string" default="none"/>
+    <aura:attribute name="showForm" type="boolean" default="false"/>
+   <aura:attribute name="showFormPL" type="boolean" default="false"/>
+   <aura:attribute name="RecordId" type="string"/>
+   <aura:attribute name="selectedSunShineCentre" type="string"/>
+   <aura:attribute name="empId" type="string"/>
+   <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    
+    <aura:if isTrue="{!or(v.ReportType=='none',v.returntoMain)}">
+ <div class="slds-align_absolute-center" style="margin-bottom:3%;">
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Chapters Capistrano')}">
+                        <img src="{!$Resource.Chapters_Logo}" style="width: 200px; height:200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Mountain Springs Recovery')}">
+                        <img src="{!$Resource.MountainSpringsLogo}" style="width: 200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Willowsprings Recovery')}">
+                        <img src="{!$Resource.Willow_Logo}" style="width: 200px;height:200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Monarch Shores')}">
+                        <img src="{!$Resource.MonarchShoresLogo}" style="width: 200px;"/>
+                    </aura:if>
+                </div>
+
+    <fieldset class="slds-form-element">
+  <legend class="slds-form-element__legend slds-form-element__label"></legend>
+  <div class="slds-form-element__control slds-align_absolute-center">
+    <div class="slds-visual-picker slds-visual-picker_medium"  aura:id="SelectionTag"  onclick="{!c.selectIncidentReport}">
+      <input type="radio" id="visual-picker-93" value="visual-picker-93" name="options" />
+      <label for="visual-picker-102">
+        <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
+          <span>
+              <img style="width:100px;height:100px" src="{!$Resource.IncidentReport}" alternativeText="John Smith"/>
+            <span class="slds-text-heading_small">Incident Report</span>
+           
+          </span>
+        </span>
+        <span class="slds-visual-picker__body">
+      
+        </span>
+        <span class="slds-icon_container slds-visual-picker__text-check">
+
+        </span>
+      </label>
+    </div>
+    <div class="slds-visual-picker slds-visual-picker_medium" aura:id="SelectionTag" onclick="{!c.selectIncfectionControlReport}">
+      <input type="radio" id="visual-picker-94" value="visual-picker-94" name="options" />
+       <label for="visual-picker-102">
+        <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
+          <span>
+              <img style="width:100px;height:100px" src="{!$Resource.InfectionControl}" alternativeText="John Smith"/>
+            <span class="slds-text-heading_small">Infection Control Report</span>
+           
+          </span>
+        </span>
+        <span class="slds-visual-picker__body">
+      
+        </span>
+        <span class="slds-icon_container slds-visual-picker__text-check">
+
+        </span>
+      </label>    </div>
+      
+          <div class="slds-visual-picker slds-visual-picker_medium" aura:id="SelectionTag" onclick="{!c.selectHandHygieneReport}">
+      <input type="radio" id="visual-picker-94" value="visual-picker-94" name="options" />
+       <label for="visual-picker-102">
+        <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
+          <span>
+              <img style="width:100px;height:100px" src="{!$Resource.HandHygiene}" alternativeText="John Smith"/>
+            <span class="slds-text-heading_small">Hand Hygiene Report</span>
+           
+          </span>
+        </span>
+        <span class="slds-visual-picker__body">
+      
+        </span>
+        <span class="slds-icon_container slds-visual-picker__text-check">
+
+        </span>
+      </label>    </div>
+    
+  </div>
+</fieldset>
+
+<aura:set attribute="else">
+    <aura:if isTrue="{!v.ReportType=='IncidentReport'}">
+    <c:IncidentForm_Cmp selectedSunShineCentre="{!v.selectedSunShineCentre}" returntoMain="{!v.returntoMain}"></c:IncidentForm_Cmp>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.ReportType=='IncfectionControlReport'}">
+      
+    <c:InfectionControlReportForm_Cmp selectedSunShineCentre="{!v.selectedSunShineCentre}" returntoMain="{!v.returntoMain}"  ></c:InfectionControlReportForm_Cmp>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.ReportType=='HandHygieneReport'}">
+    <c:HandHygieneReportForm selectedSunShineCentre="{!v.selectedSunShineCentre}" returntoMain="{!v.returntoMain}"></c:HandHygieneReportForm>
+    </aura:if>
+    </aura:set>
+    
+    </aura:if>
+  
+</aura:component>

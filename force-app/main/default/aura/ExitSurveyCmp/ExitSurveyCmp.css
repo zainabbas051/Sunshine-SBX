@@ -1,0 +1,19 @@
+.THIS .slds-radio {
+	display: inline-block !important;
+}
+.THIS .uiInputCheckbox{
+  display: inline-block;
+  float: left;
+}
+
+.THIS .slds-spinner {
+    position: fixed;
+}
+
+.THIS .slds-spinner_container {
+    position: fixed;
+}
+
+.THIS .body{
+  padding-bottom: 50px;
+}

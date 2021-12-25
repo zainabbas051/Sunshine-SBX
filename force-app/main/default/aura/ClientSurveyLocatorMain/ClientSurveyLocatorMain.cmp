@@ -1,0 +1,17 @@
+<aura:component access="global" implements="force:appHostable">
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+     <aura:attribute name="sunshineCenter" type="String[]" default="['Monarch Shores','Mountain Springs Recovery']"/>
+    
+    <div class="slds-theme_default" style="margin:5px;">
+      <c:ClientsforStaisfactionSurvey />
+  </div>
+
+  <!--  <div class="slds-theme_default">
+      <c:ClientSatifaction_GridView />
+  </div> -->
+     <div class="slds-theme_default">
+      <c:Client_Satisfaction_Surveys_Cmp />
+  </div>
+    
+   
+</aura:component>

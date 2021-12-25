@@ -1,0 +1,53 @@
+<aura:component implements="force:appHostable" controller="CleanessChecklistCtrl">
+
+<!-- Event Handler Start-->
+<aura:handler name="ShowActivitiesEvent" event="c:Evt_ShowActivities" action="{!c.enableActivities}"/>
+<aura:handler name="ShowBedroomListEvent" event="c:Evt_ShowBedroomList" action="{!c.HideActivities}"/>
+<aura:handler name="GoBackEvent" event="c:Evt_GoBack" action="{!c.ToggleScreen}"/>
+<aura:handler name="showHouseGrid_Evt" event="c:showHouseGrid_Evt" action="{!c.enableHouseGridAccess}"/>
+<!-- Event Handler End-->
+  <!-- Handler Start-->
+  <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+  <!-- Handler End-->
+<!--Variable Start-->
+<aura:attribute name="isActivitiesEnabled" type="boolean" default="false"/>
+<aura:attribute name="isBedroomListEnabled" type="boolean" default="false"/>
+<aura:attribute name="selectedHouse" type="string"/>
+<aura:attribute name="enableHouseGrid" type="boolean" default="false"/>
+<aura:attribute name="HouseLineItemType" type="string"/>
+<aura:attribute name="viewType" type="string"/>
+<aura:attribute name="HouseLineItems" type="House_Line_Items__c[]"/>
+<aura:attribute name="AccessType" type="string"/>
+<aura:attribute name="loaded" type="Boolean" default="false" />
+
+<!-- Variable End-->
+
+    <div class="slds-box slds-theme_default">
+        <div class="spinner">
+            <aura:if isTrue="{! v.loaded }">
+                    <lightning:spinner alternativeText="Loading" />
+               
+            </aura:if>
+        </div>
+        <aura:if isTrue="{!v.enableHouseGrid==false}">
+         <c:Cmp_CheckStaffType />
+        </aura:if>
+        <aura:if isTrue="{!v.isActivitiesEnabled}">
+           
+            <c:CmpActivities selectedHouse="{!v.selectedHouse}" viewType="{!v.viewType}" aura:id="activitiesCmp" accessType="{!v.AccessType}" loaded="{!v.loaded}" />
+        </aura:if>
+        <aura:if isTrue="{!v.enableHouseGrid}">
+        <aura:if isTrue="{!and(!v.isActivitiesEnabled,!v.isBedroomListEnabled)}">
+            
+            <c:CmpHouseGrid loaded="{!v.loaded}" AccessType="{!v.AccessType}" />
+            
+            </aura:if>
+        </aura:if>
+        <aura:if isTrue="{!v.isBedroomListEnabled}">
+        <c:BedroomList aura:id="bedroomCmp" selectedHouse="{!v.selectedHouse}" viewType="{!v.viewType}" HouseLineItems="{!v.HouseLineItems}" HouseLineItemType="{!v.HouseLineItemType}"
+        AccessType="{!v.AccessType}" loaded="{!v.loaded}"/>
+        
+        </aura:if>
+    </div>
+
+</aura:component>

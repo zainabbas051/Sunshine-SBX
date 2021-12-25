@@ -1,0 +1,79 @@
+<aura:component controller="Ctrl_Clinical_Certification">
+    <aura:attribute name="NewRequest" type="boolean"/>
+     <aura:attribute name="NewReimbursRequest" type="boolean"/>
+    <aura:attribute name="NewCompleteRequest" type="boolean"/>
+    <aura:attribute name="showModal" type="boolean" default="false"/> 
+    <aura:attribute name="employeeColumn" type="List"/>
+   <aura:attribute name="employeeData" type="Object"/>
+   <aura:attribute name="empID" type="string"/>
+   <aura:attribute name="selectedRowsT1" type="object"/>
+   <aura:attribute name="selectedRowsT2" type="object"/>
+   <aura:attribute name="IsAuthenticated" type="boolean"/>  
+   <aura:handler name="cmpRefreshEvent" event="c:RefreshEvent" action="{!c.doInit}"/>
+
+   <aura:attribute name="approveBtnDisabled" type="boolean" default = "true"/>
+   <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+    
+    <div class="slds-section slds-is-open" >
+     <span  class="slds-truncate slds-p-horizontal_small slds-text-heading_large slds-section__title slds-theme_shade" style="color: darkorange;font-weight: bold;" title="Section Title">Training Requests</span>
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+      <div class="slds-clearfix slds-page-header" role="banner">
+      <div class="slds-float_right">
+          
+       <div class="slds-grid slds-wrap slds-grid_pull-padded-medium">
+           <div class="slds-col slds-p-horizontal_medium slds-p-bottom_small">
+                <lightning:button variant="brand" label="New Certification Requests" title="Primary action" class="slds-m-left-small" onclick="{!c.showNewCertRequest}" ></lightning:button>
+                  <span class="Col2">
+                    <span class="counterLabel">{!v.employeeData.lstNewCert.length}</span>
+                    </span> 
+           </div>
+            <div class="slds-col slds-p-horizontal_medium slds-p-bottom_small">
+             <lightning:button variant="brand" label="Completed Certification Requests" onclick="{!c.showCompletedCertRequest}" title="Primary action" class="slds-m-left-small"></lightning:button>
+  <span class="Col2">
+    <span class="counterLabel">{!v.employeeData.lstCompletedCert.length}</span>
+    </span>
+           </div>
+           
+            <div class="slds-col slds-p-horizontal_medium slds-p-bottom_small">
+                 <lightning:button variant="brand" label="Reimbursement Requests" onclick="{!c.showReimbursRequest}" title="Primary action" class="slds-m-left-small"></lightning:button>
+  <span class="Col2">
+    <span class="counterLabel">{!v.employeeData.lstReimbursementCert.length}</span>
+    </span> 
+           </div>
+       </div>
+    <!--<ul class="slds-list_horizontal slds-has-inline-block-links_space" style="margin-top:0.5rem;margin-bottom:0.5rem;">
+        <li>
+        <lightning:button variant="brand" label="New Certification Requests" title="Primary action" class="slds-m-left-small" onclick="{!c.showNewCertRequest}" ></lightning:button>
+  <span class="Col2">
+    <span class="counterLabel">{!v.employeeData.lstNewCert.length}</span>
+    </span> 
+        </li>
+        <li padding="2">
+        <lightning:button variant="brand" label="Completed Certification Requests" onclick="{!c.showCompletedCertRequest}" title="Primary action" class="slds-m-left-small"></lightning:button>
+  <span class="Col2">
+    <span class="counterLabel">{!v.employeeData.lstCompletedCert.length}</span>
+    </span> 
+        </li>
+                <li padding="2">
+        <lightning:button variant="brand" label="Reimbursement Requests" onclick="{!c.showReimbursRequest}" title="Primary action" class="slds-m-left-small"></lightning:button>
+  <span class="Col2">
+    <span class="counterLabel">{!v.employeeData.lstReimbursementCert.length}</span>
+    </span> 
+        </li>
+    </ul>-->
+        </div>
+        </div>
+        
+       <!-- Modal/Popup Box starts here-->
+ <aura:if isTrue="{!v.showModal}">
+   <c:ApproveRejectRequests showModal="{!v.showModal}" isNewRequest="{!v.NewRequest}"
+    isCompletedRequest="{!v.NewCompleteRequest}"
+     isReimbursRequest="{!v.NewReimbursRequest}"
+      empID="{!v.empID}" ></c:ApproveRejectRequests>
+    
+     </aura:if>
+       
+   </div>
+   
+</aura:component>

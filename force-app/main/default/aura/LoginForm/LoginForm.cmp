@@ -1,0 +1,72 @@
+<aura:component controller="Ctrl_Clinical_Certification" 
+   implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" 
+   access="global"  >
+   <aura:attribute name="Username" type="string"/>
+   <aura:attribute name="Password" type="string"/>
+   <aura:attribute name="empID" type="string" />
+   <aura:attribute name="empTier" type="string" />
+   <aura:attribute name="totalBudget" type="decimal" />
+   <aura:attribute name="isEmployeeRedirect" type="Boolean" default="false" />
+   <aura:attribute name="isSupervisor" type="Boolean" default="false" />
+   <aura:attribute name="isReset" type="Boolean" default="false"/>
+   <aura:attribute name="selectedEmployeeId" type="string"/>
+   <ltng:require styles="../resource/1622021842000/ClinicalStyle"/>
+   <aura:attribute name="IsAuthenticated" type="boolean"/>
+   <aura:attribute name="isError" type="boolean"/>
+   <aura:attribute name="ipAddress" type="string"/>
+   <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+    <div style="display: flex; justify-content: center; " class="c-container .slds-align--absolute-center custom-box slds-theme_shade .slds-theme_backgroundColor-lightblue">
+      <div style="width:45% ; padding:1rem;">
+          
+          <div class="slds-grid slds-grid_vertical" style="border: 2px solid #d8dde6;border-radius: 25px;background-color: #f4f6f9;">
+              <div class="slds-col" style="padding-top: 3%;padding-left: 30%; margin-bottom:5%">
+     <img style="max-width: 45%" src="{!$Resource.Sunshine_BH_LOGO}"/>
+   </div>
+   <div class="slds-col" style="padding-left: 15%;margin-bottom:5%">
+     <span class="slds-text-heading_large" style="color:coral;">Clinical Certifications Portal</span>
+   </div>
+   <div class="slds-col" style="padding-left: 15%;">
+         <div class="slds-form-element">
+            <label class="slds-form-element__label" for="form-element-01">Username</label>
+            <div class="slds-form-element__control" style="width:70%;">
+               <ui:inputText  aura:id="reqField" required="true" class="slds-input" value="{!v.Username}" />
+               <aura:if isTrue="{!and(v.Username == undefined,v.isError)}">
+                  <div style="color:red">Complete this field.</div>
+               </aura:if>
+            </div>
+         </div>
+         </div>
+         <aura:if isTrue="{!!v.isReset}">
+            <div class="slds-col" style="padding-left: 15%;">
+            <div class="slds-form-element">
+               <label class="slds-form-element__label" for="form-element-02">Password</label>
+               <div class="slds-form-element__control" style="width:70%;">
+                  <ui:inputSecret aura:id="reqField"  class="slds-input" value="{!v.Password}" />
+                  <aura:if isTrue="{!and(v.Password == undefined,v.isError)}">
+                  <div style="color:red">Complete this field.</div>
+               </aura:if>
+               </div>
+            </div>
+            </div>
+         </aura:if>
+         
+         <br/>
+         <div class="slds-col" style="padding-left: 15%;padding-top: 3%;padding-bottom: 3%;">  
+         <div class="slds-form-element">
+            <div class="slds-form-element__control">
+              
+               <aura:if isTrue="{!!v.isReset}">
+                  <ui:button class="slds-button slds-button_brand" press="{!c.login}" >Login</ui:button>
+                  <a style="margin-left:1%; text-decoration: underline;" onclick="{!c.showResetForm}">Reset Password</a>
+                  <aura:set attribute="else">
+                     <ui:button class="slds-button slds-button_brand" press="{!c.Reset}" >Reset</ui:button>
+                  </aura:set>
+               </aura:if>
+            </div>
+         </div>
+         </div>
+      </div>
+   </div>
+   </div>
+</aura:component>

@@ -1,0 +1,195 @@
+<aura:component controller="Ctrl_Clinical_Certification" implements="force:appHostable">
+   <aura:attribute name="isNewRequest" type="boolean" default="true"/>
+    <aura:attribute name="isReimbursRequest" type="boolean" default="false"/>
+   <aura:attribute name="isCompletedRequest" type="boolean" default="false"/>
+   <aura:attribute name="progressIndicatorFlag" type="String" />
+   <aura:attribute name="employeeCertData" type="Object"/>
+   <aura:attribute name="SelectedEmployeeCertdata" type="Object"/>
+   <aura:attribute name="EmployeeCertcolumns" type="List"/>
+   <aura:attribute name="empID" type="String" default="a3D3C0000013etO"/>
+   <aura:attribute name="EmployeeCertSelected" type="Employee_Certifications__c" default="{'Id':''}" />
+   <aura:attribute name="selectedRowsT1" type="object"/>
+   <aura:attribute name="selectedRowsT2" type="object"/>
+    <aura:attribute name="selectedRowsT3" type="object"/>
+   <aura:attribute name="approveBtnDisabled" type="boolean" default = "true"/>
+   <aura:attribute name="showModal" type="boolean"/>
+   <aura:attribute name="dateOfTraining" type="Date"/>
+    <aura:attribute name="payoutDate" type="Date"/>
+    <aura:attribute name="dateOfCompletion" type="Date"/>
+   <aura:attribute name="Notes" type="string"/>
+   <aura:attribute name="PaidBy" type="string"/>
+    <aura:attribute name="EmpAmt" type="Decimal"/>
+    <aura:attribute name="ReimbursAmt" type="Decimal"/>
+   <aura:attribute name="AvailableBudget" type="Decimal"/>
+   <aura:attribute name="CertCost" type="Decimal"/>
+   <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+   <aura:registerEvent name="cmpRefreshEvent" type="c:RefreshEvent"/>
+   <lightning:messages />
+   <lightning:notificationsLibrary aura:id="notifLib"/>
+   <div >
+      <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+         aria-modal="true" aria-describedby="modal-content-id-1" 
+         class="slds-modal slds-fade-in-open">
+         <div class="slds-modal__container demo-only">
+
+            <header class="slds-modal__header">
+               <lightning:buttonIcon iconName="utility:close"
+                  onclick="{!c.closeModel}"
+                  alternativeText="close"
+                  variant="bare-inverse"
+                  class="slds-modal__close"/>
+               <aura:if isTrue="{!v.isNewRequest}">
+                  <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Certification Requests</h2>
+               </aura:if>
+               <aura:if isTrue="{!v.isCompletedRequest}">
+                  <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Completed Certification Requests</h2>
+               </aura:if>
+                <aura:if isTrue="{!v.isReimbursRequest}">
+                  <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Reimbursement Requests</h2>
+               </aura:if>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+               <lightning:progressIndicator class="slds-p-bottom_medium" type="path" currentStep="{!v.progressIndicatorFlag}">
+                  <lightning:progressStep label="Select Employee" value="step1"/>
+                  <lightning:progressStep label="Verify Details" value="step2"/>
+               </lightning:progressIndicator>
+               <div aura:id="stepOne">
+                  <aura:if isTrue="{!v.isNewRequest}">
+                     <aura:if isTrue="{!!empty(v.employeeCertData.lstNewCert)}">
+                        <lightning:datatable
+                           columns="{! v.EmployeeCertcolumns }"
+                           data="{! v.employeeCertData.lstNewCert}"
+                           keyField="id"
+                           maxRowSelection="1"
+                           onrowselection="{! c.toggleButton1 }"/>
+                     </aura:if>
+                     <aura:if isTrue="{!empty(v.employeeCertData.lstNewCert)}">
+                        <span class="slds-align_absolute-center"> No data to display </span>
+                     </aura:if>
+                  </aura:if>
+                  <aura:if isTrue="{!v.isCompletedRequest}">
+                     <aura:if isTrue="{!!empty(v.employeeCertData.lstCompletedCert)}">
+                        <lightning:datatable
+                           columns="{! v.EmployeeCertcolumns }"
+                           data="{! v.employeeCertData.lstCompletedCert}"
+                           keyField="id"
+                           maxRowSelection="1"
+                           onrowselection="{! c.toggleButton2 }"/>
+                     </aura:if>
+                     <aura:if isTrue="{!empty(v.employeeCertData.lstCompletedCert)}">
+                        <span class="slds-align_absolute-center"> No data to display </span>
+                     </aura:if>
+                  </aura:if>
+                   
+                    <aura:if isTrue="{!v.isReimbursRequest}">
+                     <aura:if isTrue="{!!empty(v.employeeCertData.lstReimbursementCert)}">
+                        <lightning:datatable
+                           columns="{! v.EmployeeCertcolumns }"
+                           data="{! v.employeeCertData.lstReimbursementCert}"
+                           keyField="id"
+                           maxRowSelection="1"
+                           onrowselection="{! c.toggleButton3 }"/>
+                     </aura:if>
+                     <aura:if isTrue="{!empty(v.employeeCertData.lstReimbursementCert)}">
+                        <span class="slds-align_absolute-center"> No data to display </span>
+                     </aura:if>
+                  </aura:if>
+                  <div  class="slds-p-top_medium">
+                     <lightning:button aura:id="btnNext"  label="Next" onclick="{!c.goToStepTwo}" disabled="true" variant="brand"/>
+                  </div>
+               </div>
+               <div aura:id="stepTwo">
+                  <aura:if isTrue="{!v.isNewRequest}">
+                     <lightning:layout multipleRows="true">
+                        <lightning:layoutItem padding="around-small"	 size="6">
+                           <label class="slds-form-element__label" for="budgetUtilization">Available Budget</label> 
+                           <lightning:formattedNumber  class="slds-text-heading_small slds-form-element__control" value="{!v.AvailableBudget}" style="currency" currencyCode="USD"/>
+                        </lightning:layoutItem>
+                        <lightning:layoutItem padding="around-small"	 size="6">
+                           <label class="slds-form-element__label" for="budgetUtilization">Certification Cost</label> 
+                           <lightning:formattedNumber class="slds-text-heading_small slds-form-element__control" value="{!v.CertCost}" style="currency" currencyCode="USD"/>
+                        </lightning:layoutItem>
+                          <lightning:layoutItem padding="around-small"	 size="6">
+                           <label class="slds-form-element__label" for="budgetUtilization">Due on Employee</label>
+                           <lightning:formattedNumber  class="slds-text-heading_small slds-form-element__control" value="{!v.selectedRowsT1[0].Employee_Responsibility_Amount__c}" style="currency" currencyCode="USD" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem padding="around-small"	 size="6">
+                            <div class="slds-form-element">
+                           <label class="slds-form-element__label" for="budgetUtilization">Paid By</label> 
+                           <lightning:formattedText  class="slds-text-heading_small slds-form-element__control" value="{!v.PaidBy}" />
+                                </div>
+                        </lightning:layoutItem>
+                     </lightning:layout>
+                     <lightning:Layout multipleRows="true">
+                        <lightning:LayoutItem size="12">
+                              <lightning:LayoutItem size="5">
+                                  <lightning:input  type="date" name="input1" aura:id="DoT" value="{!v.dateOfTraining}" required="true" label="Due Date/Date of Training" />
+                              </lightning:LayoutItem >
+              
+                           <lightning:LayoutItem flexibility="auto"  size="10">
+                              <lightning:textarea name="input3" aura:id="notesA" label="Notes" required="true" value="{!v.Notes}"/>
+                           </lightning:LayoutItem>
+                        </lightning:LayoutItem>
+                     </lightning:Layout>
+
+                  </aura:if>
+                    <aura:if isTrue="{!v.isCompletedRequest}">
+                        <lightning:layout multipleRows="true">
+                            <lightning:LayoutItem size="5">
+                                 <lightning:input  type="date" disabled="true" name="inputC" aura:id="DoC" value="{!v.dateOfCompletion}" label="Date of Completion" />
+                           
+                            </lightning:LayoutItem>
+
+                        </lightning:layout>
+                      </aura:if>
+                   <aura:if isTrue="{!v.isReimbursRequest}">
+                                            <lightning:layout multipleRows="true">
+
+                        <lightning:layoutItem padding="around-small"	 size="6">
+                           <label class="slds-form-element__label" for="budgetUtilization">Certification Cost</label> 
+                           <lightning:formattedNumber class="slds-text-heading_small slds-form-element__control" value="{!v.CertCost}" style="currency" currencyCode="USD"/>
+                        </lightning:layoutItem>
+
+                          <lightning:layoutItem padding="around-small"	 size="6">
+                           <label class="slds-form-element__label" for="budgetUtilization">Due on Employee</label>
+                           <lightning:formattedNumber  class="slds-text-heading_small slds-form-element__control" value="{!v.selectedRowsT3[0].Employee_Responsibility_Amount__c}" style="currency" currencyCode="USD" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem padding="around-small"	 size="6">
+                           <label class="slds-form-element__label" for="budgetUtilization">Reimbursement Amount</label> 
+                      
+                               <lightning:formattedNumber aura:id="RAmt"  class="slds-text-heading_small slds-form-element__control" value="{!v.ReimbursAmt}" style="currency" currencyCode="USD" />
+           
+                        </lightning:layoutItem>
+					  <lightning:layoutItem padding="around-small"	 size="6">
+                          <div class="slds-form-element">
+                           <label class="slds-form-element__label">Paid By</label> 
+                           <lightning:formattedText  class="slds-text-heading_small slds-form-element__control" value="{!v.PaidBy}" />
+                              </div>
+                        </lightning:layoutItem>
+                     </lightning:layout>
+                        <lightning:layout multipleRows="true">
+                            <lightning:LayoutItem size="5">
+                                 <lightning:input  type="date"  name="inputP" aura:id="PoD" value="{!v.payoutDate}" label="Pay out Date" />
+                           
+                            </lightning:LayoutItem>
+
+                        </lightning:layout>
+                   </aura:if>
+                   <lightning:layout>
+                                 <lightning:LayoutItem flexibility="auto"  size="10">
+                              <lightning:textarea name="input3" aura:id="notesA" label="Notes" required="true" value="{!v.Notes}"/>
+                           </lightning:LayoutItem>
+                   </lightning:layout>
+                  <div  class="slds-p-top_medium">
+                     <lightning:button label="Back" onclick="{!c.goBackToStepOne}" />
+                     <lightning:button  variant="brand" label="Approve" title="Approve Request" onclick="{! c.handleApproveCert }" />
+                     <!-- Brand variant: Identifies the primary action in a group of buttons -->
+                     <lightning:button variant="destructive"  label="Reject" title="Reject Request" onclick="{! c.handleRejectCert }"  />
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open overlay"></div>
+   </div>
+</aura:component>

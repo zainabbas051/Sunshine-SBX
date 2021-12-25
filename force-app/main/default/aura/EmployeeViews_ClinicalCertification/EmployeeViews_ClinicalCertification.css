@@ -1,0 +1,24 @@
+.THIS {
+}
+.THIS .slds-box{
+    
+    box-shadow: 0px 0px 5px 0px rgb(0 0 0 / 50%);
+
+}
+
+.THIS .headSL .slds-tile__meta{
+    color:  #747e96;
+}
+
+.THIS .slds-tile__detail{
+    
+    margin-top:5px;
+}
+
+.THIS .sldiv{
+    
+    background-color:#e6eeff;
+}
+.THIS .slds-accordion__summary-heading{
+   max-width: 20px;
+}

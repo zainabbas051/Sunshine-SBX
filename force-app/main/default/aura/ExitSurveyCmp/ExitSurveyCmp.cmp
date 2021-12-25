@@ -1,0 +1,740 @@
+<aura:component controller="Ctrl_Client_Exit_Survey" 
+				implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" 
+				access="global"  >
+    <aura:attribute name="isLoading" type="boolean" default="false"/>
+    <aura:attribute name="SurveyId" type="string"/>
+    <aura:attribute name="oppID" type="string" />
+    <aura:attribute name="clientName" type="string" />
+    <aura:attribute name="clientAdmissionDate" type="string" />
+    <aura:attribute name="clientEmail" type="string" />
+    <aura:attribute name="clientPhone" type="string" />
+    <aura:attribute name="AccountType" type="string"/>
+    <aura:attribute name="SurveyStatus" type="string"/>
+    <aura:attribute name="IsAuthenticated" type="Boolean" default="true"/>
+    <aura:attribute name="IsReadOnly" type="Boolean" default="false"/>
+    <aura:attribute name="returnCmp" type="string" default="view"/>
+    <aura:handler event="c:ShowExitSurvey_Event" action="{!c.handleApplicationEvent}"/>
+    <aura:handler event="c:ShowExitSurvey_Event_Invert" action="{!c.handleApplicationEventInvert}"/>
+    <aura:registerEvent name="ShowExitSurvey_Event_Invert" type="c:ShowExitSurvey_Event_Invert"/>
+   <aura:attribute name="options" type="List" default="[
+    {'label': '1', 'value': '1'},
+    {'label': '2', 'value': '2'},
+    {'label': '3', 'value': '3'},
+    {'label': '4', 'value': '4'},
+    {'label': '5', 'value': '5'},
+    {'label': '6', 'value': '6'},
+    {'label': '7', 'value': '7'},
+    {'label': '8', 'value': '8'},
+    {'label': '9', 'value': '9'},
+    {'label': '10', 'value': '10'}                                                       
+                                                       
+    ]"/>
+     <aura:attribute name="options2" type="List" default="[
+             {'label': 'Yes', 'value': 'Yes'},
+             {'label': 'No', 'value': 'No'}
+       ]"/> 
+    <aura:attribute name="opt_how_to_contact" type="List" default="[
+             {'label': 'Email', 'value': 'Email'},
+             {'label': 'Phone', 'value': 'Phone'}
+       ]"/> 
+
+    <aura:attribute name="ClientExitSurveyObj" access="PUBLIC" type="Client_Exit_Surveys__c" default="{ 
+                       																'sobjectType': 'Client_Exit_Surveys__c',
+                                                                                              }"  />
+   <aura:attribute name="ClientOutcomeSurveyObj" access="PUBLIC" type="Client_Outcome_Survey__c"  default="{ 'sobjectType': 'Client_Outcome_Survey__c',
+                                                                                                                                       }" /> 
+        <br/>
+    <aura:if isTrue="{!v.isLoading}">
+        <lightning:spinner aura:id="mySpinner" style="position: fixed !important;" variant="brand" />
+    </aura:if>
+    <aura:if isTrue="{!v.oppID != null}">
+       <div class="slds-scrollable_y">
+        <div class="slds-align_absolute-center" >
+       
+        </div>
+        <div class="slds-align_absolute-center" >
+                 
+        <aura:if isTrue="{!v.AccountType =='Monarch Shores'}">
+        
+             <img style="max-width: 15%" src="{!$Resource.MonarchShoresLogo}"/>
+        
+    </aura:if>
+       <aura:if isTrue="{!v.AccountType =='Mountain Springs Recovery'}">
+        <img style="max-width: 15%" src="{!$Resource.MountainSpringsLogo}"/>
+    </aura:if>
+             <aura:if isTrue="{!v.AccountType =='Willowsprings Recovery'}">
+        <img style="max-width: 15%" src="{!$Resource.Willow_Logo}"/>
+    </aura:if>
+             <aura:if isTrue="{!v.AccountType =='Chapters Capistrano'}">
+        <img style="max-width: 15%" src="{!$Resource.Chapters_Logo}"/>
+    </aura:if>
+           
+           
+           </div>
+           <br/>
+	<div class="slds-text-align_center slds-text-title_bold">Exit Survey</div>
+    <div style="max-width: 90%" class="slds-align_absolute-center"> {!v.AccountType} is committed to providing the best possible treatment experience for every client so that maximum benefit can be achieved from the program. As a part of our quality control program  {!v.AccountType} does recognize the importance of client feedback and the administration cares deeply about the experience of the individual. Please help us to maintain a world-class standard by providing input based on your experience. This information is completely confidential and will only be used for evaluation purposes.</div>
+   
+    <br/>
+    <br/>
+         
+ 
+ <div class="slds-align_absolute-center" style="max-width: 80%;word-wrap:break-word;padding-bottom:50px;" >
+  
+<div class="slds-form" >
+    
+    <div>
+<fieldset class="slds-form-element slds-form-element_compound">
+  
+    <div class="slds-form-element__row">
+      <div class="slds-size_1-of-2">
+        <div class="slds-form-element">
+          <label class="slds-form-element__label" for="input-01">Client Name:</label>
+          <div class="slds-form-element__control">
+            <ui:inputText class="slds-input" value="{! v.clientName}" />
+          </div>
+        </div>
+      </div>
+      <div class="slds-size_1-of-2">
+        <div class="slds-form-element">
+          <label class="slds-form-element__label" for="input-02">Age:</label>
+          <div class="slds-form-element__control" style="width:10%">
+            <ui:inputText  class="slds-input" value="{! v.ClientExitSurveyObj.Client_Age__c}" />
+          </div>
+        </div>
+      </div>
+    </div>
+    
+        <div class="slds-form-element__row">
+      <div class="slds-size_1-of-2">
+        <div class="slds-form-element">
+          <label class="slds-form-element__label" for="input-01">City:</label>
+          <div class="slds-form-element__control">
+            <ui:inputText class="slds-input" value="{! v.ClientExitSurveyObj.Client_City__c}" />
+          </div>
+        </div>
+      </div>
+      <div class="slds-size_1-of-2">
+        <div class="slds-form-element">
+          <label class="slds-form-element__label" for="input-02">State:</label>
+          <div class="slds-form-element__control" style="width:30%">
+            <ui:inputText  class="slds-input" value="{! v.ClientExitSurveyObj.Client_State__c}" />
+          </div>
+        </div>
+      </div>
+    </div>
+     <div class="slds-form-element__row">
+      <div class="slds-size_1-of-3">
+        <div class="slds-form-element">
+          <label class="slds-form-element__label" for="input-01">Length of Stay:</label>
+          <div class="slds-form-element__control">
+            <ui:inputText class="slds-input" value="{! v.ClientExitSurveyObj.Client_Length_Of_Stay__c}" />
+          </div>
+        </div>
+      </div>
+      <div class="slds-size_1-of-3">
+        <div class="slds-form-element">
+          <div class="slds-form-element__control">
+          <!--  <lightning:input type="date" dateStyle="short" label= "Admission Date" class="slds-input"  value="{! v.clientAdmissionDate}" disabled="true" />
+         --> 
+            <lightning:input type="date" dateStyle="short" name="input1" label="Admission Date" value="{! v.clientAdmissionDate}"  />
+            </div>
+        </div>
+      </div>
+          <div class="slds-size_1-of-3">
+        <div class="slds-form-element">
+          <div class="slds-form-element__control">
+           <lightning:input type="date" dateStyle="short" name="input1" label="Planned Discharge Date" value="{! v.ClientExitSurveyObj.Planned_Discharge_Date__c}" />
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="slds-form-element__row">
+ <div class="slds-size_1-of-1">
+        <div class="slds-form-element">
+          <label class="slds-form-element__label" for="input-01">How did the client hear about {!v.AccountType}?</label>
+          <div class="slds-form-element__control">
+            <ui:inputTextArea class="slds-input" value="{! v.ClientExitSurveyObj.How_did_the_client_hear_about_MS__c}" />
+          </div>
+        </div>
+      </div>
+    
+    </div>
+</fieldset>
+        <span>Please rate the following program components and answer the questions to the best of your ability. This survey is entirely confidential and will only be used by the owner to continuously improve the {!v.AccountType} program</span>
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q1"
+        label="1. Pre-Admission Experience"
+        name="radioButtonGroup1"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Pre_Admission_Experience__c}"
+        disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+ <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" for="form-element-03">Comments</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03"  value="{! v.ClientExitSurveyObj.Pre_Admission_Experience_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+		</div>   
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q2"
+        label="2. Intake Process"
+        name="radioButtonGroup2"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Intake_Process__c}"
+        disabled="{! v.IsReadOnly }"
+        required="true"
+                   />
+    </div>
+  </fieldset>
+        <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" for="form-element-03">Comments</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03"  value="{! v.ClientExitSurveyObj.Intake_Process_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+		</div> 
+       
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q3"
+        label="3. Detox/Physician(s)*"
+        name="radioButtonGroup3"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Detox_Physician__c}"
+        disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+   <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >a.	How did the Nursing Staff respond to your needs?  </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Nursing_Staff_Response_to_Needs__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+		</div>
+        
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >b.	Who was your detoxing physician(s)? </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Detox_Phys_Name__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+		</div>
+        
+      <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >c.	Was your physician(s) helpful and did they meet all of you medical needs? </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Was_your_physician_helpful__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+		</div>    
+      <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >d.	Do you feel you received quality psychiatric care?  </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Detox_Phys_Quality_of_psychiatric_care__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+		</div> 
+       <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >e.	Do you feel the Medication Technician’s provided adequate feedback and service?  </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Medication_Technician_feedback__c	}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+		</div> 
+        
+        <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Detox_Phys_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+		</div> 
+
+<fieldset class="slds-form-element slds-form-element_stacked">
+    
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q4"
+        label="4. Individual Therapy*"
+        name="radioButtonGroup4"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Individual_Therapy__c }"
+        disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+    
+     <div class="slds-form-element slds-form-element_stacked">
+  		<!--	<label class="slds-form-element__label" >a.	Do you feel that all of your primary issues were addressed? </label> -->
+  				<div class="slds-form-element__control">
+                    <lightning:textarea required="true" value="{! v.ClientExitSurveyObj.Individual_Therapy_primary_Issues__c}" label="a. Do you feel that all of your primary issues were addressed?" />
+    				 <!-- <ui:inputTextArea required="True" value="{! v.ClientExitSurveyObj.Individual_Therapy_primary_Issues__c}" disabled="{! v.IsReadOnly }" class="slds-input"  /> -->
+  				</div>
+	</div>
+    
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >b.	Do you feel you like you have tangible solutions to the issues presented in therapy? </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Individual_Therapy_tangible_solutions__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>    
+    
+    <div class="slds-form-element slds-form-element_stacked">
+  		<!--	<label class="slds-form-element__label" >c.	Who was you primary therapist? </label> -->
+  				<div class="slds-form-element__control">
+    				<lightning:textarea required="true" value="{! v.ClientExitSurveyObj.Individual_Therapy_primary_therapist__c}" label="c. Who was you primary therapist?" />
+                    <!-- <ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Individual_Therapy_primary_therapist__c}" disabled="{! v.IsReadOnly }" class="slds-input"  /> -->
+  				</div>
+	</div> 
+        
+     <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Individual_Therapy_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q5"
+        label="5. Group Therapy"
+        name="radioButtonGroup5"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Group_Therapy__c }"
+        disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >a.	Do you feel you learned a lot and were able to process you issues in Group Therapy? </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Group_Therapy_Learning__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>    
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >b.	Do you feel the flow of Group Therapy was focused and productive? </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Group_Therapy_flow_focus_and_productive__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<!-- <label class="slds-form-element__label" >c.	What groups did you enjoy/not enjoy? </label> -->
+  				<div class="slds-form-element__control">
+    				<lightning:textarea required="true" value="{! v.ClientExitSurveyObj.Group_Therapy_Enjoyment__c}" label="c. What groups did you enjoy/not enjoy?" />
+                  <!--  <ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Group_Therapy_Enjoyment__c}" disabled="{! v.IsReadOnly }" class="slds-input"  /> -->
+  				</div>
+	</div>    
+     <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Group_Therapy_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>      
+
+<fieldset class="slds-form-element slds-form-element_stacked">
+
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q6"
+        label="6. Case Management"
+        name="radioButtonGroup6"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Case_Management__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+    </div>    
+     <div class="slds-form-element slds-form-element_stacked">
+  			<!-- <label class="slds-form-element__label" >a.	Do you feel you are properly educated on your primary issues by your Case Manager? </label> -->
+  				<div class="slds-form-element__control">
+    				<lightning:textarea required="true" value="{! v.ClientExitSurveyObj.Case_Management_education_prim_issues__c}" label="a. Do you feel you are properly educated on your primary issues by your Case Manager?" />
+                   <!-- <ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Case_Management_education_prim_issues__c}" disabled="{! v.IsReadOnly }" class="slds-input"  /> -->
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >b.	Do you feel you received adequate discharge planning and are you confident in your ability to handle life moving forward? </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Case_Management_Discharge_plannings__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >c.	Do you feel you received enough one-on-one attention from your Case Manager? </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Case_Management_Attention_From_Case_Mngr__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  		<aura:if isTrue="{!v.AccountType !='Willowsprings Recovery'}">	
+        <!-- <label class="slds-form-element__label" >d.	Who was your Case Manager?   </label> -->
+  				<div class="slds-form-element__control">
+    				<lightning:textarea required="true" value="{! v.ClientExitSurveyObj.Case_Management_Manager_Name__c}" label="d. Who was your Case Manager?" />
+                    <!-- <ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Case_Management_Manager_Name__c}" disabled="{! v.IsReadOnly }" class="slds-input"  /> -->
+  				</div>
+        </aura:if>
+        <aura:if isTrue="{!v.AccountType =='Willowsprings Recovery'}">	
+        <label class="slds-form-element__label" >d.	Who was your Case Manager?   </label>
+  				<div class="slds-form-element__control">
+    				
+                    <ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Case_Management_Manager_Name__c}" disabled="{! v.IsReadOnly }" class="slds-input"  /> 
+  				</div>
+        </aura:if>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments  </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Case_Management_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q7"
+      	label="7. Food"
+        name="radioButtonGroup7"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Food__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >a.	Did you enjoy the food? </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Food_Enjoyment__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >b.	Do you feel your nutritional needs were met?</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Food_Nutritional_Needs__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >c.	Was the food ready and prepared in a timely fashion?  </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Food_Ready_On_Time__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments  </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Food_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q8"
+        label="{!'8. Did you enjoy your room and the facilities at '+ v.AccountType +'?'}"
+        name="radioButtonGroup8"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Facilities__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+    
+
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+	<lightning:radioGroup
+        aura:id="Q9"
+        label="9. Gym"
+        name="radioButtonGroup9"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Gym__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+     <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >a.	Did you enjoy the gym </label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Gym_Enjoyment__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Gym_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q10"
+        label="10. Support Meetings"
+        name="radioButtonGroup10"
+        options="{! v.options }"
+        value="{!v.ClientExitSurveyObj.Support_Meetings__c}"
+         disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >a. Did you attend support meeting during your stay?</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Support_Meetings_Attendance__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >b. Were the support meetings beneficial in your recovery?</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Support_Meetings_Benefits__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Support_Meetings_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    
+    
+    <br/>
+    <fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q11"
+        label="11. BHT's"
+        name="radioButtonGroup11"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Client_Advisors__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<!-- <label class="slds-form-element__label" >a.	Who was your favorite support staff member?</label> -->
+  				<div class="slds-form-element__control">
+    				<lightning:textarea required="true" value="{! v.ClientExitSurveyObj.Client_Advisors_Fvt_Staff_Member_Name__c}" label="a. Who was your favorite support staff member?" />
+                    <!-- <ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Client_Advisors_Fvt_Staff_Member_Name__c}" disabled="{! v.IsReadOnly }" class="slds-input"  /> -->
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >b.	What did that person do well?</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Client_Advisors_Fvt_Staf_Mbr_Deed__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >c.	Which support staff did you not connect with?</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Client_Advisors_Support_Staf_Connection__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >d.	Overall, was the support staff professional, caring and knowledgeable?</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Client_Advisors_Staffs_Professionalism__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Client_Advisors_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    
+   <fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q12"
+        label="12. Outings"
+        name="radioButtonGroup12"
+        options="{! v.options }"
+        value="{! v.ClientExitSurveyObj.Outings__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset> 
+     <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >a.	Were the outings enjoyable?</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Outings_Enjoyment__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+
+       <fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="Q13"
+        label="{!'13. Would you refer ' + v.AccountType + ' to a friend or loved one?'}"
+        name="radioButtonGroup13"
+        options="{! v.options2 }"
+        value="{! v.ClientExitSurveyObj.refer_Monarch_Shores_to_a_loved_ones__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" />
+    </div>
+  </fieldset> 
+     <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.refer_Monarch_Shores_Cmnts__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    
+    <fieldset class="slds-form-element slds-form-element_stacked">
+   
+     <label class="slds-form-element__label" ><b>14. What are some areas of improvement that {!v.AccountType} can work on to make your stay more enjoyable and beneficial?</b></label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Improvements_Needed_On_Monarch_Cmnt__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+  
+  </fieldset>
+    
+    <!--Outcome Survey -->
+              
+              
+    <br/>
+              <c:OutcomeSurveyRAS24 oppID="{!v.OppID}" AccountType="{!v.AccountType}"
+                IsReadOnly="false" returnCmp="view"
+                ClientOutcomeSurveyObj="{!v.ClientOutcomeSurveyObj}" aura:id="outcomeComp" />
+            
+              
+    
+
+         <div>
+    <fieldset class="slds-form-element slds-form-element_stacked">
+        
+  				<div class="slds-form-element__control">
+    				<lightning:radioGroup
+        aura:id="AlumniQ1"
+        label="Are you interested in receiving information regarding involvement in our Alumni Program?"
+        name="radioButtonGroupAlumniQ1"
+        options="{! v.options2 }"
+        value="{! v.ClientExitSurveyObj.Interested_in_Alumni_Program__c}"
+        disabled="{! v.IsReadOnly }"
+        required="true" />
+  				</div>
+  
+  </fieldset>
+    
+    <div class="slds-form-element slds-form-element_stacked">
+        
+  		<aura:if isTrue="{!v.ClientExitSurveyObj.Interested_in_Alumni_Program__c =='Yes'}">	
+        
+  				<div class="slds-form-element__control">
+    				<lightning:radioGroup
+        aura:id="AlumniQ2"
+        label="If so, how would you prefer to be contacted?"
+        name="radioButtonGroupAlumniQ2"
+        options="{! v.opt_how_to_contact}"
+        value="{! v.ClientExitSurveyObj.How_to_connect_for_alumni_program__c}"
+        disabled="{! v.IsReadOnly }"
+        required="true" /></div>
+        </aura:if>
+    </div>
+              <div class="slds-form-element__row">
+      <div class="slds-size_1-of-3">
+    <aura:if isTrue="{!and(v.ClientExitSurveyObj.Interested_in_Alumni_Program__c =='Yes',v.ClientExitSurveyObj.How_to_connect_for_alumni_program__c== 'Email')}">
+    <div class="slds-form-element slds-form-element_stacked">
+          <label class="slds-form-element__label" for="input-email">Best Email Address to Reach You?</label>
+          <div class="slds-form-element__control">
+            <ui:inputText aura:id="input-email" class="slds-input" value="{! v.clientEmail}" />
+          </div>
+        </div>
+        </aura:if>
+      <aura:if isTrue="{!and(v.ClientExitSurveyObj.Interested_in_Alumni_Program__c =='Yes',v.ClientExitSurveyObj.How_to_connect_for_alumni_program__c== 'Phone')}">
+    <div class="slds-form-element slds-form-element_stacked">
+          <label class="slds-form-element__label" for="input-phone">Best Phone Number to Reach You?</label>
+          <div class="slds-form-element__control">
+            <ui:inputText aura:id="input-email"  class="slds-input" value="{! v.clientPhone}" />
+          </div>
+        </div>
+    </aura:if>
+    </div>
+             </div>
+    </div>
+     <div class="slds-form-element slds-form-element_stacked">
+  			<label class="slds-form-element__label" >Comments</label>
+  				<div class="slds-form-element__control">
+    				<ui:inputTextArea aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Comments}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+	</div>
+    <br/>
+    <span>By signing this document, I authorize {!v.AccountType}, its staff, or affiliates to:</span>
+    <br/>
+    <br/>
+    <fieldset class="slds-form-element" >
+  <div  class="slds-form-element__control">
+    <label class="slds-checkbox">
+      <ui:inputCheckbox name="default" value="{! v.ClientExitSurveyObj.Emergency_Consent_chkbx__c}" />
+      <span class="slds-checkbox--faux"></span>
+      <span style="display:inline !important" class="slds-form-element__label">Contact me after discharge in the interest of following up on my current recovery, referral needs, satisfaction surveys, or any other contact in the interest of continuing care. In the event that I am unavailable for contact I give my consent for {!v.AccountType}, its staff, or affiliates to contact</span>
+    </label>
+  </div>
+</fieldset> 
+    <br></br>
+     <fieldset style="max-width:50%" class="slds-form-element slds-form-element_horizontal">
+   
+     <label class="slds-form-element__label" ><b>Name:</b></label>
+  				<div class="slds-form-element__control">
+    				<ui:inputText aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Emergency_Contact_Name__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+  
+  </fieldset> 
+        <br></br>
+     <fieldset style="max-width:50%" class="slds-form-element slds-form-element_horizontal">
+   
+     <label class="slds-form-element__label" ><b>Relationship:</b></label>
+  				<div class="slds-form-element__control">
+    				<ui:inputText aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Emergency_Contact_Relationship__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+  
+  </fieldset> 
+         <fieldset style="max-width:50%" class="slds-form-element slds-form-element_horizontal">
+   
+     <label class="slds-form-element__label" ><b>Phone:</b></label>
+  				<div class="slds-form-element__control">
+    				<ui:inputText aura:id="form-element-03" value="{! v.ClientExitSurveyObj.Emergency_Contact_Number__c}" disabled="{! v.IsReadOnly }" class="slds-input"  />
+  				</div>
+  
+  </fieldset> 
+   <br/>
+    <fieldset class="slds-form-element" >
+  <div  class="slds-form-element__control">
+    <label class="slds-checkbox">
+      <ui:inputCheckbox name="default" value="{! v.ClientExitSurveyObj.Use_Testimonies__c}"  />
+      <span class="slds-checkbox--faux"></span>
+      <span style="display:inline !important" class="slds-form-element__label">Use testimonies made by me, both written and verbal, for purposes which may include publication on {!v.AccountType} website, brochures, television advertisements, radio broadcasts, or any other media {!v.AccountType} utilizes</span>
+    </label>
+  </div>
+</fieldset> 
+    <br/>
+    <fieldset class="slds-form-element" >
+  <div  class="slds-form-element__control">
+    <label class="slds-checkbox">
+      <ui:inputCheckbox name="default" value="{! v.ClientExitSurveyObj.None_Of_Above__c}"  />
+      <span class="slds-checkbox--faux"></span>
+      <span style="display:inline !important" class="slds-form-element__label">None of the above</span>
+    </label>
+  </div>
+</fieldset> 
+   
+<span>The above consents will be valid for two (2) years and can be revoked at any time by notifying {!v.AccountType} in writing.</span>
+ 
+
+    
+    
+        
+
+  
+    <br/>
+       <div class="slds-docked-form-footer">
+        <ui:button disabled="{!v.isLoading}"  class="slds-button slds-button_neutral" press="{!c.back}">Back</ui:button>
+        <ui:button disabled="{!v.isLoading}" class="slds-button slds-button_brand" press="{!c.save}">Save</ui:button>
+          </div>     
+       </div>
+       
+       </div>
+       </div>	
+   </aura:if>
+</aura:component>

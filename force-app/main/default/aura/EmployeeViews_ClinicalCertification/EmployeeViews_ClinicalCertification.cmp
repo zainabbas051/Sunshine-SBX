@@ -1,0 +1,76 @@
+<aura:component controller="Ctrl_Clinical_Certification">
+   <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="WSRdata" type="Object"/>
+    <aura:attribute name="MSdata" type="Object"/>
+    <aura:attribute name="MSRdata" type="Object"/>
+    <aura:attribute name="CCdata" type="Object"/>
+   <aura:attribute name="columns" type="List"/>
+   <aura:attribute name="dataSize" type="Integer" default="20"/>
+   <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+   <aura:attribute name="isNew" type="boolean" default="false"/>
+   <aura:attribute name="isBulkAdd" type="boolean" default="false"/>
+   <aura:attribute name="TableTitle" type="String"/>
+   <aura:attribute name="selectedId" type="String"/>
+   <aura:attribute name="certificationId" type="String"/>
+   <aura:attribute name="empID" type="String"/>
+   <aura:attribute name="isEmployeeRedirect" type="Boolean" default="false"/>
+   <aura:attribute name="selectedEmployeeId" type="string" default="false"/>
+   <aura:if isTrue="{!v.isBulkAdd}">
+      <c:BulkAddTraining  empID="{!v.empID}" isBulkAdd="{!v.isBulkAdd}"/>
+   </aura:if>
+   <aura:if isTrue="{!not(empty(v.data))}">
+      <div class="slds-section slds-is-open">
+         <span  class="slds-truncate slds-p-horizontal_small slds-text-heading_large slds-section__title slds-theme_shade" style="color: darkorange;font-weight: bold;" title="Section Title">Employees</span>
+         <div class="slds-p-around_medium" align="right">
+            <lightning:button variant="brand" label="Bulk Add Training" aura:id="btnbulk"  iconName="utility:new" iconPosition="left"
+               onclick="{!c.showBulkAdd}" />
+         </div>
+
+         <div class="slds-grid slds-wrap slds-grid_pull-padded-medium">
+            <aura:iteration items="{!v.data}" var="records" >
+               <div class="slds-col slds-p-horizontal_medium slds-p-bottom_small slds-size--1-of-1 slds-medium-size--1-of-3">
+                  <lightning:tile  href="">
+                     <div class="slds-box">
+                        <article class="slds-tile slds-media">
+                           <div class="slds-media__figure">
+                              <span class="slds-avatar slds-avatar_circle slds-avatar_large">
+                                 <lightning:avatar src="{!$Resource.emp}" fallbackIconName="standard:person_account" alternativeText=""/>
+                              </span>
+                           </div>
+                           <div class="slds-media__body">
+                              <h2 class="slds-tile__title slds-truncate"  title="">
+                                 <a onclick="{!c.navigateToRecord}" data-index="{!records.Id}" style="font-size: 1.5em; text-decoration:none">{!records.Name__c}</a>
+                              </h2>
+                              <ul class="slds-list_horizontal slds-has-dividers_right">
+                                 <li style="font-weight:bold; color:coral;" class="slds-item">{!records.Designation__c}</li>
+                                 <li style="font-weight:bold; color:coral;" class="slds-item">{!records.Tier_Allocation__c}</li>
+                              </ul>
+                             
+                                    <dl class="slds-list_horizontal slds-wrap">
+                                         <dt class="slds-item_label slds-text-color_weak slds-truncate" style="width:70% !important;" title="Budget Utilization">Budget Utilization</dt>
+                                      <dd class="slds-item_detail " style="width:30% !important;" title="">
+                                        <meter id="disk_c" value="{!records.Certificate_Budget_Utilized__c}" min="0" high="{!records.Certification_Budget_Allocation__c}" max="{!records.Certification_Budget_Allocation__c}"></meter>
+                                        
+                                        </dd>
+                                          <dt class="slds-item_label slds-text-color_weak slds-truncate" style="width:80% !important;" title="Pending Approvals">Pending Approvals</dt>
+                                      <dd class="slds-item_detail slds-truncate" style="width:20% !important;" title="">{!records.Certificate_Pending_Approval__c}</dd>
+                                      <dt class="slds-item_label slds-text-color_weak slds-truncate" style="width:80% !important;" title="Completed Certificates">Completed Certificates</dt>
+                                      <dd class="slds-item_detail slds-truncate" title="" style="width:20% !important;">{!records.Finished_Certificates__c}</dd>
+                                      <dt class="slds-item_label slds-text-color_weak slds-truncate" style="width:80% !important;" title="In-Progress">In-Progress</dt>
+                                      <dd class="slds-item_detail slds-truncate" title="" style="width:20% !important;">{!records.In_Progress__c}</dd>
+                                      <dt class="slds-item_label slds-text-color_weak slds-truncate" style="width:80% !important;" title="Requested Certificates">Requested Certificates</dt>
+                                      <dd class="slds-item_detail slds-truncate" title="" style="width:20% !important;">{!records.Total_Requested_Certification__c}</dd>
+                                      <dt class="slds-item_label slds-text-color_weak slds-truncate" style="width:80% !important;" title="Pending Reimbursement Requests">Pending Reimbursement Requests</dt>
+                                      <dd class="slds-item_detail slds-truncate" title="" style="width:20% !important;">{!records.Pending_Reimbursement_Requests__c}</dd>
+                                    </dl>
+                              </div>
+                        </article>
+                     </div>
+                  </lightning:tile>
+               </div>
+            </aura:iteration>
+         </div>
+          
+      </div>
+   </aura:if>
+</aura:component>

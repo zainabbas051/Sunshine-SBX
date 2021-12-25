@@ -1,0 +1,5 @@
+<aura:component implements="force:appHostable" >
+    <c:Cmp_Housing_Rental_PPLI_Records></c:Cmp_Housing_Rental_PPLI_Records>
+    
+	
+</aura:component>

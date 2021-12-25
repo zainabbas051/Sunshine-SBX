@@ -1,0 +1,14 @@
+.THIS {
+}
+
+.THIS .custom-box {
+
+    background-color: #f4f6f9;
+    padding: 1rem;
+    border: 2px solid #d8dde6;
+    margin-bottom:5px;
+    
+}
+.THIS .slds-grow {
+  border-color:red;
+}

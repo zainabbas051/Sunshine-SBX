@@ -1,0 +1,8 @@
+<aura:component implements="force:appHostable" >
+	<div class="slds-theme_default">
+     <c:ClientsforOutcomeSurvey/>
+  </div>
+    <div class="slds-theme_default">
+      <c:ClientOutcomeSurveyCmp/>
+  </div>
+</aura:component>

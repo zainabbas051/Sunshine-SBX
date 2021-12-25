@@ -1,0 +1,154 @@
+<aura:component controller="CleanessChecklistCtrl">
+    
+    
+    <!-- Events Start-->
+    <aura:registerEvent name="ShowBedroomListEvent" type="c:Evt_ShowBedroomList"/>
+    <!-- Events End-->
+    <!-- Variable Start-->
+    <aura:attribute name="selectedHouse" type="string"/>
+    <aura:attribute name="showTask" type="boolean" default="false"/>
+    <aura:attribute name="viewType" type="string"/>
+    <aura:attribute name="accessType" type="string"/>
+    <aura:attribute name="BedRoomColor" type="string" default="slds-item GreenColor"/>
+    <aura:attribute name="BathRoomColor" type="string" default="slds-item GreenColor"/>
+    <aura:attribute name="KitchenColor" type="string" default="slds-item GreenColor"/>
+    <aura:attribute name="LivingAreaColor" type="string" default="slds-item GreenColor"/>
+    <aura:attribute name="LandscapingColor" type="string" default="slds-item GreenColor"/>
+    <aura:attribute name="VehicleCleaningColor" type="string" default="slds-item GreenColor"/>
+    <aura:attribute name="VehicleMaintenanceColor" type="string" default="slds-item GreenColor"/>
+      <aura:attribute name="ReceptionOrLobby" type="string" default="slds-item GreenColor"/>
+    <aura:attribute name="loaded" type="Boolean" />
+        <!-- Variable End-->
+    <!-- Method Start-->
+    <aura:method name="GenerateActivities" action="{!c.generateActivitiesWithColors}" access="PUBLIC" /> 
+    <!-- Method End-->
+    
+    <!--Header Component Start-->
+    <c:Cmp_Header screen="Main" title="Cleanliness Checklist" loaded="{!v.loaded}"/>
+       <!--Header Component End-->
+        <ul class="slds-grid slds-wrap slds-has-dividers_bottom-space">
+            <div class="slds-box slds-col slds-size_1-of-2">
+                <li class="{!v.BedRoomColor}" id="Bedroom" onclick="{!c.showBedroomList}">
+                    <lightning:tile  label="Bedrooms" href="" >
+                        <aura:set attribute="media">
+                           <img style="width:35px; height:35px" src="{!$Resource.BedroomIcon}"/>
+                        </aura:set>
+                        
+                    </lightning:tile>
+                </li>
+                </div>
+            <div class="slds-box slds-col slds-size_1-of-2">
+            <li class="{!v.BathRoomColor}" id="Bathroom" onclick="{!c.showBedroomList}">
+                    <lightning:tile  label="Bathrooms" href="">
+                        <aura:set attribute="media">
+                           <img style="width:35px; height:35px" src="{!$Resource.BathroomIcon}"/>
+                        </aura:set>
+                       <!-- <ul class="slds-list_horizontal slds-has-dividers_right">
+                            <li class="slds-item">Bathrooms</li>
+                                                
+                        </ul> -->
+                    </lightning:tile>
+                </li>
+                </div>
+            <div class="slds-box slds-col slds-size_1-of-2">
+
+            <li class="{!v.KitchenColor}" id="Kitchen" onclick="{!c.showBedroomList}">
+                    <lightning:tile  label="Kitchen"  >
+                        <aura:set attribute="media">
+                           <img style="width:35px; height:35px" src="{!$Resource.KitchenIcon}"/>
+                        </aura:set>
+                        
+                    </lightning:tile>
+                </li>
+                </div>
+            <div class="slds-box slds-col slds-size_1-of-2">
+              <li class="{!v.LivingAreaColor}" id="Living Area" onclick="{!c.showBedroomList}">
+                    <lightning:tile  label="Living Area" >
+                        <aura:set attribute="media">
+                           <img style="width:35px; height:35px" src="{!$Resource.LivingAreaIcon}"/>
+                        </aura:set>
+                        
+                    </lightning:tile>
+                </li>
+                </div>
+            <div class="slds-box slds-col slds-size_1-of-2">
+             <li class="{!v.LandscapingColor}" id="Landscaping" onclick="{!c.showBedroomList}">
+                    <lightning:tile  label="Landscaping" >
+                        <aura:set attribute="media">
+                           <img style="width:35px; height:35px" src="{!$Resource.LandscapingIcon}"/>
+                        </aura:set>
+                        
+                    </lightning:tile>
+                </li>
+                </div>
+            <div class="slds-box slds-col slds-size_1-of-2">
+             <li class="{!v.VehicleCleaningColor}" id="Vehicle Cleaning" onclick="{!c.showBedroomList}">
+                    <lightning:tile  label="Vehicle Cleaning" href="/bruce.html">
+                        <aura:set attribute="media">
+                           <img style="width:35px; height:35px" src="{!$Resource.VehicleCleaningIcon}"/>
+                        </aura:set>
+                        
+                    </lightning:tile>
+                </li>
+                </div>
+            <div class="slds-box slds-col slds-size_1-of-2">
+              <li class="{!v.VehicleMaintenanceColor}" id="Vehicle Maintenance" onclick="{!c.showBedroomList}">
+                    <lightning:tile  label="Vehicle Maintenance">
+                        <aura:set attribute="media">
+                           <img style="width:35px; height:35px" src="{!$Resource.VehicleMaintananceIcon}"/>
+                        </aura:set>
+                        
+                    </lightning:tile>
+                </li>
+            </div>
+             <div class="slds-box slds-col slds-size_1-of-2">
+              <li class="{!v.ReceptionOrLobby}" id="Reception or Lobby" onclick="{!c.showBedroomList}">
+                    <lightning:tile  label="Reception or Lobby">
+                        <aura:set attribute="media">
+                           <img style="width:35px; height:35px" src="{!$Resource.VehicleMaintananceIcon}"/>
+                        </aura:set>
+                        
+                    </lightning:tile>
+                </li>
+            </div>
+        </ul>
+    <!-- <aura:if isTrue="{!v.showTask}">
+            
+  		   <c:Cmp_Header screen="Activity" title="Task Line Items"/>
+                       
+             
+            <c:Cmp_TaskLineItem selectedHouseLineItem="{!v.selectedBed}" viewType="{!v.viewType}"/>
+            
+            </aura:if>-->
+   <!-- <lightning:card>
+        <aura:set attribute="title">
+            <img style="width:35px; height:35px" src="{!$Resource.BedroomIcon}"/>
+            Bedrooms
+        </aura:set>
+       
+    </lightning:card>
+    <lightning:card>
+        <aura:set attribute="title">
+            <img style="width:35px; height:35px" src="{!$Resource.BathroomIcon}"/>
+            Bedrooms
+        </aura:set>
+       
+    </lightning:card>
+    <lightning:card variant="Narrow" title="Bedroom" iconName="standard:account">
+          
+    </lightning:card>
+    <lightning:card variant="Narrow" title="Vehichle" iconName="standard:account">
+      
+    </lightning:card>
+    <lightning:card variant="Narrow" title="Activity 3" iconName="standard:account">
+      
+    </lightning:card>
+    <lightning:card variant="Narrow" title="Activity 4" iconName="standard:account">
+      
+    </lightning:card>
+    <lightning:card variant="Narrow" title="Activity 5" iconName="standard:account">
+      
+    </lightning:card>
+-->
+
+</aura:component>

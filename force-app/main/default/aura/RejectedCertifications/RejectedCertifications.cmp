@@ -1,0 +1,94 @@
+<aura:component controller="Ctrl_Clinical_Certification">
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="dataSize" type="Integer" default="20"/> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="isNew" type="boolean" default="false"/> 
+    <aura:attribute name="TableTitle" type="String"/>
+    <aura:attribute name="selectedId" type="String"/>
+    <aura:attribute name="certificationId" type="String"/>
+    <aura:attribute name="empID" type="String"/>
+    
+<!--
+    <div class="slds-col slds-size_8-of-8">
+  
+    
+        <lightning:datatable style="width: 100%;"  aura:id = "RejectedDataTable"
+                                columns = "{!v.columns}"
+                                data = "{!v.data}"
+                                keyField = "Id"
+								hideCheckboxColumn="true" 
+                                />
+                                   
+    </div>
+   
+  -->
+    <aura:if isTrue="{!not(empty(v.data))}">
+     <div class="slds-section slds-is-open">
+
+    <span  class="slds-truncate slds-p-horizontal_small slds-text-heading_large slds-section__title slds-theme_shade" style="color: darkorange;font-weight: bold;" title="Section Title">Rejected Certifications</span>
+
+     <lightning:layout multipleRows="true">  
+    <aura:iteration items="{!v.data}" var="records" >
+      <lightning:layoutItem  size="12">  
+        <div id="Tilu" class="slds-box">
+            
+            <lightning:tile label="{!records.Certification_Name__c}">
+                
+                <lightning:layout multipleRows="true">
+                      
+           
+                <lightning:layoutItem padding="around-small" size="3"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b>Status</b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Status__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="3"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b>Rejected Date</b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Date_Approved_Denied__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                                  <lightning:layoutItem padding="around-small" size="3"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b>Rejected by</b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Approved_Denied_By__r.Name} 
+                        
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                                        <lightning:layoutItem padding="around-small" size="3"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b>Reason</b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Approved_Denied_Notes__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    
+
+                    
+                </lightning:layout>
+               
+            </lightning:tile>
+        </div> 
+       </lightning:layoutItem>
+    </aura:iteration>
+ </lightning:layout>
+        </div>
+    </aura:if>
+</aura:component>

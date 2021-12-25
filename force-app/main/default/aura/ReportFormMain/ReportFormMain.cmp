@@ -1,0 +1,24 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" >
+  <aura:attribute name="RecordId" type="string"/>
+   <aura:attribute name="selectedSunShineCentre" type="string"/>
+   <aura:attribute name="empId" type="string"/>
+    <aura:attribute name="reportType" type="string"/>
+    <aura:attribute name="readOnly" type="boolean"/>
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+   <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+   
+            <aura:if isTrue="{!v.reportType=='IncidentReport'}">      
+            <c:IncidentForm_Cmp disabled ="true" RecordId="{!v.RecordId}" ></c:IncidentForm_Cmp>
+			</aura:if> 
+    
+         <aura:if isTrue="{!v.reportType=='InfectionReport'}"> 
+            <c:InfectionControlReportForm_Cmp disabled ="true"  RecordId="{!v.RecordId}" ></c:InfectionControlReportForm_Cmp>  
+   		 </aura:if>
+    
+    <aura:if isTrue="{!v.reportType=='HandHygieneReport'}"> 
+            <c:HandHygieneReportForm disabled ="true"  RecordId="{!v.RecordId}" ></c:HandHygieneReportForm>  
+   		 </aura:if>
+  
+  
+</aura:component>

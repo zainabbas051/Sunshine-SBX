@@ -1,0 +1,9 @@
+<aura:component >
+	 <div class="row">
+       
+        <lightning:input name="input1" value="{!v.referenceId}"  aura:Id="ReferenceId" style="width:20rem" label="Cash Reference ID" placeholder="XXXXXXXX"
+                          />
+          <br/>
+               
+         </div>
+</aura:component>

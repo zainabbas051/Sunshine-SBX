@@ -1,0 +1,268 @@
+<aura:component controller="CleanessChecklistCtrl">
+     <!-- Handler Start-->
+    <aura:handler name="init" value="{! this }" action="{! c.myAction }"/>
+     <!-- Handler End-->
+     <!-- Event Start-->
+    <aura:registerEvent name="GoBackEvent" type="c:Evt_GoBack"/>
+     <!-- Event End-->
+     <!--Variable Start-->
+    <aura:attribute name="selectedHouseLineItem" type="string"/>
+    <aura:attribute name="selectedHouse" type="string"/>
+    <aura:attribute name="viewType" type="string"/>
+    <aura:attribute name="HouseLineItemType" type="string"/>
+    <aura:attribute name="AccessType" type="string"/>
+     <aura:attribute name="data" type="Task_Line_Items__c[]"/>
+     <aura:attribute name="loaded" type="Boolean" />
+     <aura:attribute name="isCompleted" type="Boolean" default="true" />
+     <aura:attribute name="completedBy" type="string" default="" />
+     <aura:attribute name="ReviewedBy" type="string" default="" />
+     <aura:attribute name="showModal" type="Boolean" default="false" />
+     <aura:attribute name="errors" type="string" default="" />
+    <!--Variable End-->
+    
+    <!-- Notification library-->
+     <lightning:notificationsLibrary aura:id="notifLib"/>
+
+    <ul class="slds-has-dividers_bottom-space">   
+        <!-- the container element determine the height of the datatable -->
+       <!--- <div style="height: 300px">
+            <lightning:datatable
+                    keyField="id"
+                    data="{! v.data }"
+                    columns="{! v.columns }"
+                    hideCheckboxColumn="false"
+                    onrowselection="{!c.updateSelectedText}"
+                    aura:id="linesTable"/>
+        </div>-->
+        
+     
+        <div style="min-height: 300px">
+            <table class="slds-table slds-table--bordered slds-table--cell-buffer" role="grid">
+                <thead>  
+                    <tr class="slds-text-title--caps">
+                        <th scope="col">
+                            <div class="slds-truncate" title="Task Name">Task Name</div>
+                        </th>
+                        <aura:if isTrue="{!v.AccessType != 'Director'}">
+                        <th scope="col">
+                            <div class="slds-truncate" title="BHT Status">BHT Status</div>
+                        </th>
+                        </aura:if>
+                        <aura:if isTrue="{!v.AccessType=='Supervisor'}">
+                        <th scope="col">                    
+                            <div class="slds-truncate" title="Supervisor Status">Supervisor Status</div>                            
+                        </th>
+                        </aura:if>
+                        <aura:if isTrue="{!v.AccessType=='Director'}">
+                            <th scope="col">                    
+                                <div class="slds-truncate" title="Status">Status</div>                            
+                            </th>
+                            </aura:if>
+                        </tr>
+                </thead>
+                <tbody> 
+                    <aura:if isTrue="{!empty(v.data)}">
+             <tr>
+             <td colspan="2" >No Task Available</td>
+             </tr>
+               </aura:if>
+                    <aura:iteration items="{!v.data}" var="item">
+                        <tr>
+                        <th scope="row">
+                            <div class="slds-truncate" title="{!item.Task_Name__c}">
+                              <aura:if isTrue="{!v.AccessType=='Director'}">
+                               {!item.Task_Type__c} - 
+                                </aura:if>
+                                {!item.Task_Name__c}
+
+                                
+                            </div>
+                            
+                        </th>
+                        <aura:if isTrue="{!v.AccessType != 'Director'}">
+                        <td>
+                            <div class="slds-truncate" title="{!item.BHT_Status__c}" indexVar="index">
+                                    <lightning:input name=""
+                                       
+                                        label=""
+                                        type="toggle"
+                                        aura:id="inputToggleBHT"
+                                        messageToggleActive="Done"
+                                        messageToggleInactive="Not Done"
+                                        checked="{!item.BHT_Status__c}"
+                                        class="{!item.BHT_Status__c ? 'sldstoggleGreen' : 'sldstoggleRed'}"
+                                        disabled="{!item.Related_House_Line_Item__r.Status__c == 'Under Review'}"
+                                    />
+                                   
+                            </div>
+                        </td>
+                    </aura:if>
+                        <aura:if isTrue="{!v.AccessType =='Supervisor'}">
+                             <td>     
+                                <div class="slds-truncate" title="{!item.Supervisor_Status_chkb__c}">
+                                        <lightning:input name=""
+                                            label=""
+                                            type="toggle"
+                                            messageToggleActive="Done"
+                                            messageToggleInactive="Not Done"
+                                            class="{!item.Supervisor_Status_chkb__c ? 'sldstoggleGreen' : 'sldstoggleRed'}"
+                                            checked="{!item.Supervisor_Status_chkb__c}"
+                                            disabled="{!or(item.Related_House_Line_Item__r.Status__c == 'Completed',item.Related_House_Line_Item__r.Status__c == 'Incomplete')}"
+                                        />
+                                </div>                            
+                        </td>
+                        </aura:if>
+                        <aura:if isTrue="{!v.AccessType == 'Director'}">
+                            <td>     
+                               <div class="slds-truncate" title="{!item.Director_Status__c}">
+                              
+                                       <lightning:input name=""
+                                           label=""
+                                           type="toggle"
+                                           messageToggleActive="Done"
+                                           messageToggleInactive="Not Done"
+                                           class="{!item.Director_Status__c ? 'sldstoggleGreen' : 'sldstoggleRed'}"
+                                           checked="{!item.Director_Status__c}"
+                                           disabled="{!item.Related_House_Line_Item__r.Status__c == 'Completed'}"                              
+                                       />
+                               </div>                            
+                       </td>
+                       </aura:if>
+                    </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>
+        </div>
+        <br />
+
+            
+             
+           <div class="slds-grid">
+            <aura:if isTrue="{!and(v.AccessType !='Director',and(!empty(v.data),or(v.data[0].Related_House_Line_Item__r.Status__c == 'Under Review',v.data[0].Related_House_Line_Item__r.Status__c == 'Completed')))}">
+        <div class="slds-col slds-box"  style="margin-right:5px">
+<article class="slds-tile " style="height: 95px;">
+<h3 class="slds-tile__title slds-truncate" title="">
+<a href="javascript:void(0);">Staff Information</a>
+</h3>
+<div class="slds-tile__detail">
+<dl class="slds-list_horizontal slds-wrap">
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="First Label">Completed By: </dt>
+<dd class="slds-item_detail slds-truncate" title="Description for first label">{!v.data[0].Related_House_Line_Item__r.Staff_Completed_By__c}</dd>
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Completed Date:</dt>
+<dd class="slds-item_detail slds-truncate" title="Description for second label"><lightning:formattedDateTime value="{!v.data[0].Related_House_Line_Item__r.Staff_Completed_Date__c}" 
+    year="numeric" month="numeric" day="numeric" hour="2-digit"
+                                 minute="2-digit" timeZoneName="short" hour12="true"/></dd>
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Notes:</dt>
+<dd class="slds-item_detail slds-truncate" title="Description for second label">{!v.data[0].Related_House_Line_Item__r.Staff_Notes__c}</dd>
+</dl>
+</div>
+</article>
+            
+               </div>
+            </aura:if>
+
+               <aura:if isTrue="{!and(and(!empty(v.data),v.data[0].Related_House_Line_Item__r.Status__c == 'Completed',v.AccessType =='Supervisor'),v.AccessType !='Director')}">
+               
+                      <div class="slds-col slds-box"  style="">        
+<article class="slds-tile"  style="height: 95px;">
+<h3 class="slds-tile__title slds-truncate" title="Salesforce UX">
+<a href="javascript:void(0);">Supervisor Information</a>
+</h3>
+<div class="slds-tile__detail">
+<dl class="slds-list_horizontal slds-wrap">
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="First Label">Completed By:</dt>
+<dd class="slds-item_detail slds-truncate" title="Description for first label">{!v.data[0].Related_House_Line_Item__r.Supervisor_Reviewed_By__c}</dd>
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Completed Date:</dt>
+<dd class="slds-item_detail slds-truncate" title="Description for second label"><lightning:formattedDateTime value="{!v.data[0].Related_House_Line_Item__r.Supervisor_Completed_Date__c}"
+    year="numeric" month="numeric" day="numeric" hour="2-digit"
+    minute="2-digit" timeZoneName="short" hour12="true"/></dd>
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Notes:</dt>
+<dd class="slds-item_detail slds-truncate" title="Description for second label">{!v.data[0].Related_House_Line_Item__r.Suprevisor_Notes__c}</dd>
+</dl>
+</div>
+</article>     
+</div>
+</aura:if>
+               
+               <!--director -->
+ <aura:if isTrue="{!and(v.AccessType =='Director',and(!empty(v.data),v.data[0].Related_House_Line_Item__r.Status__c == 'Completed'))}">
+        <div class="slds-col slds-box"  style="margin-right:5px">
+<article class="slds-tile " style="height: 95px;">
+<h3 class="slds-tile__title slds-truncate" title="">
+<a href="javascript:void(0);">Director Information</a>
+</h3>
+<div class="slds-tile__detail">
+<dl class="slds-list_horizontal slds-wrap">
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="First Label">Completed By: </dt>
+<dd class="slds-item_detail slds-truncate" title="Description for first label">{!v.data[0].Related_House_Line_Item__r.Director_Name__c}</dd>
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Completed Date:</dt>
+<dd class="slds-item_detail slds-truncate" title="Description for second label"><lightning:formattedDateTime value="{!v.data[0].Related_House_Line_Item__r.Director_Completed_Date__c}" 
+    year="numeric" month="numeric" day="numeric" hour="2-digit"
+                                 minute="2-digit" timeZoneName="short" hour12="true"/></dd>
+<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Notes:</dt>
+<dd class="slds-item_detail slds-truncate" title="Description for second label">{!v.data[0].Related_House_Line_Item__r.Director_Notes__c}</dd>
+</dl>
+</div>
+</article>
+            
+               </div>
+            </aura:if>
+</div>     
+                
+               
+    </ul>
+    <aura:if isTrue="{!v.showModal}">
+             
+            <!-- Modal/Popup Box starts here-->
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- Modal/Popup Box Header Starts here-->
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModal }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Please Fill in the Following</h2>
+                    </header>
+                    <!--Modal/Popup Box Body Starts here-->
+                    <div class="slds-modal__content slds-p-around_x-small" id="modal-content-id-1">
+                        <lightning:input aura:id="inputCmp" value="{!v.completedBy}" required="true" label="Completed By" />
+                    </div>              
+                    <div class="slds-modal__content slds-p-around_x-small" id="modal-content-id-1">
+                        <lightning:textarea  value="{!v.ReviewedBy}"  label="Notes" />
+                    </div>
+                   
+                    <!--Modal/Popup Box Footer Starts here-->
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral"
+                                          label="Cancel"
+                                          title="Cancel"
+                                          onclick="{! c.closeModal }"/>
+                        <lightning:button variant="brand"
+                                          label="OK"
+                                          title="OK"
+                                          onclick="{!c.completeHouseLineItem}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+
+    <!-- Action Div Start-->
+    
+    <div class="slds-docked-form-footer"> 
+         <aura:if isTrue="{!!empty(v.data)}">
+              <aura:if isTrue="{!or(and(or(v.data[0].Related_House_Line_Item__r.Status__c == 'Incomplete',v.data[0].Related_House_Line_Item__r.Status__c == 'Under Review'),v.AccessType =='Supervisor'),and(v.data[0].Related_House_Line_Item__r.Status__c == 'Incomplete',v.AccessType =='BHT'),and(v.data[0].Related_House_Line_Item__r.Status__c == 'Incomplete',v.AccessType =='Director'))}">
+                <ui:button  press="{!c.saveActivity}"  class="slds-button slds-button_neutral">Save</ui:button>
+                <ui:button  press="{!c.openModal}"  class="slds-button slds-button_brand">Complete</ui:button>
+            </aura:if>
+             <aura:if isTrue="{!and(v.data[0].Related_House_Line_Item__r.Status__c == 'Incomplete',v.AccessType =='Director')}">
+                <ui:button  press="{!c.saveActivity}"  class="slds-button slds-button_neutral">Save</ui:button>
+                <ui:button  press="{!c.openModal}"  class="slds-button slds-button_brand">Complete</ui:button>
+            </aura:if>
+        </aura:if>
+    </div> 
+     <!-- Action Div End-->    
+      
+</aura:component>

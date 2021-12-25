@@ -1,0 +1,7 @@
+<aura:event type="APPLICATION" description="Event template" access="global">
+
+    <aura:attribute name="IsAuthenticated" type="boolean" />
+    <aura:attribute name="showLogout" type="boolean" default="true" />
+    <aura:attribute name="SunshineCenter" type="string" />
+   
+</aura:event>

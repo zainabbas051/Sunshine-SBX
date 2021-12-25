@@ -1,0 +1,177 @@
+<aura:component controller="Ctrl_Clinical_Certification" implements="force:appHostable">
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="dataSize" type="Integer" default="20"/> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="isNew" type="boolean" default="false"/> 
+    <aura:attribute name="IsBudgetExeeded" type="boolean" default="false"/> 
+    <aura:attribute name="showOther" type="boolean" default="false"/>
+    <aura:attribute name="TableTitle" type="String"/>
+    <aura:attribute name="selectedId" type="String"/>
+    <aura:attribute name="certificationId" type="String"/>
+    <aura:attribute name="empID" type="String"/>
+    <aura:attribute name="empTier" type="String"/>
+    <aura:attribute name="sunshineCenter" type="String"/>
+    <aura:attribute name="employeeData" type="Employee__c" />
+    <aura:attribute name="empObj" type="object" />
+    <aura:attribute name="selectedRow" type="object" />
+    <aura:attribute name="paidBy" type="string" default="Company" />
+    <aura:attribute name="costPaidByEmployee" type="decimal" default = "0" />
+    <aura:attribute name="enableRequestBtn" type="boolean"/>
+    <aura:attribute name="dateOfTraining" type="Date"/>
+    <aura:attribute name="payoutDate" type="Date"/>
+    <aura:attribute name="dateOfCompletion" type="Date"/>
+   <aura:attribute name="Notes" type="string"/>
+   <aura:attribute name="empCert" type="Employee_Certifications__c"  default="{ 'sobjectType' : 'Employee_Certifications__c',
+                                                                                			'Approved_Denied_Notes__c' : ''
+                                                                                }"/>
+    <aura:handler event="c:UpdateAvailableCertifications" action="{!c.UpdateData}"/>
+    <aura:registerEvent name="UpdateRequestedCertifications" type="c:UpdateRequestedCertifications"/>
+    <aura:registerEvent name="UpdateEmpBudget" type="c:UpdateEmpBudget"/>
+    <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+        <lightning:notificationsLibrary aura:id="notifLib"/>
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <div class="slds-col slds-size_5-of-8">
+  
+        <lightning:outputField variant="label-hidden" class="nameHeading" value="Available Trainings" aura:id="ContentFields"  />    
+        
+        
+                                   
+    </div>
+
+      <!-- Modal/Popup Box starts here-->
+ 
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+               <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+            <!-- Modal/Popup Box Header Starts here-->
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.closeModel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                <aura:if isTrue="{!v.IsBudgetExeeded}">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Budget Limit Exceeded</h2>
+                    <aura:set attribute="else">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Available Trainings/Certification</h2>
+                        <div aura:id="buttonGrp">
+                            
+                      
+                        
+                       
+                        
+                            <div class="slds-float_right">
+                    
+                             <lightning:button iconName="utility:add"
+                                      onclick="{! c.showOther }"
+                                      variant="brand"
+                                      label="Add Other"
+                                      
+                                      />
+                            <aura:if isTrue="{!v.showOther==true}">
+                     <lightning:button variant="brand"
+                        label="Apply"
+                        title="Apply"
+                        onclick="{!c.applyCert}"
+                         />
+                                 </aura:if>
+                                </div>
+                       
+                            </div>
+                    </aura:set>
+                </aura:if>
+                </header>
+            <!--Modal/Popup Box Body Starts here-->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <aura:if isTrue="{!v.IsBudgetExeeded}">
+                    <h2 class="slds-text-heading_small slds-hyphenate">
+                       The certification cost exceeded your allocated budget limit by <b>${!v.costPaidByEmployee}</b> <br />
+                       You will have to pay the difference out of pocket.
+                    </h2>
+                    
+                    <aura:set attribute="else">
+                       <aura:if isTrue="{!v.showOther}">
+                        
+                                        <lightning:Layout multipleRows="true" >
+                        <lightning:LayoutItem size="12">
+                              <lightning:LayoutItem size="5">
+                                  <lightning:input  type="date" name="input1" aura:id="empCertField" value="{!v.empCert.Date_of_Training__c}" required="true" label="Due Date/Date of Training" />
+                              </lightning:LayoutItem >
+                              
+                             <lightning:LayoutItem size="5">
+                                  <lightning:input  type="currency" name="input1" aura:id="empCertField" value="{!v.empCert.Other_Certification_Cost__c}" required="true" label="Cost" />
+                              </lightning:LayoutItem >
+              
+                           <lightning:LayoutItem flexibility="auto"  size="10">
+                              <lightning:input name="input3" aura:id="empCertField" label="Title" required="true" value="{!v.empCert.Other_Certification_Title__c}"/>
+                           </lightning:LayoutItem>
+                            
+                               <lightning:LayoutItem flexibility="auto"  size="10">
+                              <lightning:textarea name="input3" aura:id="empCertField" label="Notes" required="true" value="{!v.empCert.Other_Certification_Notes__c}"/>
+                           </lightning:LayoutItem>
+                        </lightning:LayoutItem>
+                     </lightning:Layout>
+                        </aura:if>
+                        <aura:if isTrue="{!!v.showOther}">
+                             
+                            <lightning:datatable style="width:100%" aura:id = "ClinicalDataTable"
+                        columns = "{!v.columns}"
+                        data = "{!v.data}"
+                        keyField = "Id"
+                        hideCheckboxColumn="true" 
+                        onrowaction="{! c.handleRowAction }"/>
+                        </aura:if>
+            
+                        
+                  
+                            
+                     
+                        
+                    </aura:set>    
+                </aura:if>
+               
+            </div>
+            <!--Modal/Popup Box Footer Starts here-->
+            <footer class="slds-modal__footer">
+                <aura:if isTrue="{!v.IsBudgetExeeded}">
+                    <lightning:button variant="neutral"
+                        label="Cancel"
+                        title="Cancel"
+                        onclick="{! c.closeModel }"/>
+                    <lightning:button variant="brand"
+                        label="OK"
+                        title="OK"
+                        onclick="{!c.finalizeRequest}"/>
+                    
+            
+                    
+                    </aura:if>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+    
+    
+  
+   
+  
+</aura:component>

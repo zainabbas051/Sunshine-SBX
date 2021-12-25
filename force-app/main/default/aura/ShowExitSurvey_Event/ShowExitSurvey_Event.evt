@@ -1,0 +1,15 @@
+<aura:event type="APPLICATION" description="Event template" access="global">
+
+    <aura:attribute name="recordId" type="id" />
+    <aura:attribute name="OpportunityID" type="id" />
+    <aura:attribute name="OpportunityName" type="string" />
+    <aura:attribute name="kipuCaseManager" type="string" />
+    <aura:attribute name="kipuPrimaryTherapist" type="string" />
+    <aura:attribute name="OpportunityAdmissionDate" type="string" />
+    <aura:attribute name="sunshineCenter" type="string" />
+    <aura:attribute name="ReadOnly" type="boolean" />
+    <aura:attribute name="returnCmp" type="string" />
+    <aura:attribute name="Email" type="string" />
+    <aura:attribute name="Phone" type="string" />
+   
+</aura:event>

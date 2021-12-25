@@ -1,0 +1,54 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" controller="ClientTicket_Ctrl">
+   <!-- attributes -->
+   <aura:attribute name="employeeId" type="string"/>
+   <aura:attribute name="selectedRecordId" type="string"/>
+   <aura:attribute name="pageNumber" type="Integer" default="1"/>
+   <aura:attribute name="pageSize" type="Integer" default="5"/>
+   <aura:attribute name="isLastPage" type="Boolean" default="false"/>
+   <aura:attribute name="dataSize" type="Integer" default="5"/>
+   <aura:attribute name="data" type="Object"/>
+   <aura:attribute name="columns" type="List"/>
+   <aura:attribute name="selectedCaseFilter" type="string" default="Open"/>
+   <!-- handlers-->
+    <aura:handler name="init" value="{! this }" action="{! c.defaultAction }"/> 
+      <div class="slds-scope">
+         <div class="slds-align_absolute-center">
+            <h2 class="slds-text-heading_medium">CLIENT TICKETS</h2>
+         </div>
+         <div class="slds-align_absolute-center">
+            <div class="slds-box" style="width: 70%;">
+               <div class="slds-clearfix" style="padding:0.5rem">
+                  <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                           <lightning:select name="select1"  label="By Tickets Status" value="{!v.selectedCaseFilter}" onchange="{!c.onChangeStatus}">
+                              <option value="All">All Tickets</option>
+                              <option value="Open">All Open Tickets</option>
+                              <option value="Closed">All Closed Tickets</option>
+                              <option value="In-Progress"> All In Progres Tickets</option>
+                              <option value="Escalated">All Escalated</option>
+                        </lightning:select>
+                        </div>
+                  </div>            
+               </div>
+               <lightning:datatable
+                  keyField="id"
+                  data="{! v.data }"
+                  columns="{! v.columns }"
+                  hideCheckboxColumn="true"
+                  onrowaction="{! c.handleRowAction }"/>
+               
+                  <div class="slds-clearfix">
+                     <div class="slds-page-header" role="banner">
+                        <div class="slds-float_right">            
+                           <lightning:button label="Prev" iconName="utility:chevronleft" iconPosition="left"
+                                             onclick="{!c.handlePrev}" disabled="{! v.pageNumber == 1}"/>
+                           <lightning:button label="Next" iconName="utility:chevronright" iconPosition="right"
+                                             disabled="{! v.isLastPage}" onclick="{!c.handleNext}"/>
+                        </div>
+                        <p class="slds-page-header__title">Page {!v.pageNumber} | Showing records from {! ((v.pageNumber-1)*v.pageSize)+' to '+((v.pageNumber-1)*v.pageSize+v.dataSize)}</p>
+                     </div>
+               </div>
+            </div>
+         </div>
+      </div>
+</aura:component>

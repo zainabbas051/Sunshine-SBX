@@ -1,0 +1,46 @@
+<aura:component implements="force:appHostable" controller="SearchPaymentLineItem_Ctrl" >
+ <aura:attribute name="referenceId" type="string" default=" "/>
+ <aura:attribute name="sunshineCentre" type="string"/>
+     <aura:attribute name="ppList" type="Payment_Plan_Line_Items__c[]" access="public"/>
+    <aura:attribute name="showList" type="boolean" default="False"/>
+    <div class="slds-box slds-theme_default">
+	  <div class="row">
+
+      <div class="column">
+       
+     <!--  <lightning:input  type="search" name="input1" value="{!v.referenceId}"  aura:Id="ReferenceId" style="width:20rem" label="Cash Reference ID" >
+          
+          </lightning:input>  -->
+        </div>
+        <div class="column" style="width:20rem">
+          <lightning:select name="selectItem" value="{!v.sunshineCentre}" label="Sunshine Center Name" >
+            <option value="">choose one...</option>
+            <option value="Chapters Capistrano">Chapters Capistrano </option>
+              <option value="Mountain Springs Recovery">Monarch Shores</option>
+            <option value="Mountain Springs Recovery">Mountain Springs Recovery</option>
+              <option value="Mountain Springs Recovery">Willow Springs Recovery</option>
+        </lightning:select>
+          </div>
+                          
+       
+          <br/>
+           <!-- Brand variant: Identifies the primary action in a group of buttons -->
+          <div class="column" style="width:20rem">
+    <lightning:button variant="brand" disabled="{!v.sunshineCentre == ''}" label="Find Cash Collections" title="Find" onclick="{! c.findCash }" />
+          
+    
+          <br/>
+            <br/>
+          </div>
+        </div>
+         <div class="row">
+        <div class="column" style="width:95%">
+         <aura:if isTrue="{!v.showList==true}"> 
+          <c:Cmp_SearchPaymentLineItemResult paymentLineItemList="{!v.ppList}" showList="{!v.showList}" referenceId="{!v.referenceId}"
+          sunshineCentre = "{!v.sunshineCentre}" />
+            </aura:if>  
+            </div>
+        </div>
+    
+    </div>
+</aura:component>

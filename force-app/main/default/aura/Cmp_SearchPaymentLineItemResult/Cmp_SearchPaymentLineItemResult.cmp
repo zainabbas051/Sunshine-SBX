@@ -1,0 +1,129 @@
+<aura:component implements="force:appHostable" controller="SearchPaymentLineItem_Ctrl" >
+   <aura:attribute name="paymentLineItemList" type="object[]"/>
+   <aura:attribute name="IsAmountCorrect" type="string" default="Yes"/>
+   <aura:attribute name="ActualCashCollected" type="decimal"/>
+   <aura:attribute name="AdditionalNotes" type="string" default=""/>
+   <aura:attribute name="showSection" type="boolean" default="False"/>
+   <aura:attribute name="showList" type="boolean" default="False"/>
+   <aura:attribute name="referenceId" type="string"/>
+   <aura:attribute name="sunShineCentre" type="string"/>
+   <aura:handler name="init" value="this" action="{!c.doInit}"/>
+   <aura:attribute name="userInfo" type="string"/>
+   <aura:attribute name="isLoaded" type="boolean" default="true"/>
+   <aura:attribute name="isLoading" type="boolean" default="false"/>
+   <aura:attribute name="options2" type="List" default="[
+      {'label': 'Yes', 'value': 'Yes'},
+      {'label': 'No', 'value': 'No'}
+      ]"/>
+   
+       <!--loading spinner start-->
+   <aura:if isTrue="{!v.isLoading}">
+      <div aura:id="spinnerId" class="slds-spinner_container">
+          <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+              <span class="slds-assistive-text">Loading...</span>
+              <div class="slds-spinner__dot-a"></div>
+              <div class="slds-spinner__dot-b"></div>
+          </div>
+      </div>
+  </aura:if>
+  <!-- Loading spinner end-->
+    
+   <aura:if isTrue="{!v.paymentLineItemList.length > 0}">
+    <aura:if isTrue="{!v.isLoaded}">
+      <table class="slds-table slds-table_cell-buffer slds-table_bordered" style="max-width:100%;">
+         <thead>
+            <tr class="slds-line-height_reset">
+               <th class="" scope="col">
+                  <div class="slds-truncate" title="Client Name">Client Name</div>
+               </th>
+               <th class="" scope="col">
+                  <div class="slds-truncate" title="Amount">Amount</div>
+               </th>
+               <th class="" scope="col">
+                  <div class="slds-truncate" title="Date of Collection">Date of Collection</div>
+               </th>
+               <th class="" scope="col">
+                  <div class="slds-truncate" title="Collected By">Collected By</div>
+               </th>
+                <th class="" scope="col">
+                  <div class="slds-truncate" title="Collection Reference ID">Reference ID</div>
+               </th>
+               <th class="" scope="col">
+                <div class="slds-truncate" title="Is the Amount Correct?">Is the Amount Correct?</div>
+             </th>
+               <th class="" scope="col">
+                <div class="slds-truncate" title="Actual Cash Collected">Actual Cash Collected</div>
+             </th>
+             <th class="" scope="col">
+              <div class="slds-truncate" title="Additional Notes">Additional Notes</div>
+           </th>        
+               <th class="" scope="col">
+                <div class="slds-truncate" title="Action">Action</div>
+             </th>
+            </tr>
+         </thead>
+     
+         <tbody>
+            <aura:iteration items="{!v.paymentLineItemList}" var="pp" indexVar="indexAcc">
+           
+               <tr class="slds-hint-parent">
+                  <td data-label="Collected by">
+                     <div class="slds-truncate" title="">{!pp.paymentLineItem.Payment_Plan__r.Opportunity__r.Name}</div>
+                  </td>
+                  <td data-label="Amount">
+                     <div class="slds-truncate" title="">
+                        <lightning:formattedNumber value="{!pp.paymentLineItem.Amount_For_Collection__c}"
+                           style="currency" currencyCode="USD" currencyDisplayAs="symbol" />
+                     </div>
+                  </td>
+                  <td data-label="Date of Collection">
+                     <div class="slds-truncate" title="">
+                        <lightning:formattedDateTime value="{!pp.paymentLineItem.Date_of_Cash_Collection__c}" year="numeric" month="numeric" day="numeric"  hour="2-digit" minute="2-digit" />
+                     </div>
+                  </td>
+                 <td data-label="Collected by">
+                     <div class="slds-truncate" title="">{!pp.paymentLineItem.Name_of_Person_Responsible__c}</div>
+                  </td>
+                   <td data-label="Referece ID">
+                     <div class="slds-truncate" title="Referece ID">{!pp.paymentLineItem.Collection_Reference_ID__c}</div>
+                  </td>
+                  <td data-label="Is the Amount Correct?">
+                    <lightning:radioGroup
+                       name= "{!indexAcc}"
+                       options="{! v.options2 }"
+                       value="{!pp.IsAmountCorrect}"
+                       onchange="{!c.showSection}"  />
+                    <!-- <lightning:select value="{!v.IsAmountCorrect}" onchange="{!c.showSection}">    
+                       <option value="Yes">Yes</option> 
+                       <option value="No">No</option> 
+                       
+                       </lightning:select> -->
+                 </td>
+                  <td data-label="Actual Cash Collected">
+                    <lightning:input type="number" disabled ="{!pp.IsEditable}" name="ActualCashCollected" required="true" aura:id="requiredForm" value="{!pp.ActualCashCollected}"  style="width:5rem" 
+                    />
+                 </td>
+                 <td data-label="Additional Notes">
+                 
+                  <lightning:textarea disabled ="{!pp.IsEditable}" required="true" name="AdditionalNotes" aura:id="requiredForm" value="{!pp.AdditionalNotes}" style="width:20rem" 
+                    maxlength="300" />
+              
+               </td>
+                  
+                  <td>
+                    <lightning:button variant="brand"  name= "{!indexAcc}" label="Confirm" title="Confirm" onclick="{!c.saveUpdatedCash}" />
+                  
+                   </td>
+               </tr>
+            </aura:iteration>
+         </tbody>
+      </table>
+      </aura:if>
+      <br/>
+      <!-- Brand variant: Identifies the primary action in a group of buttons -->
+      
+      <aura:set attribute="else">
+         No record found
+      </aura:set>
+   </aura:if>
+</aura:component>

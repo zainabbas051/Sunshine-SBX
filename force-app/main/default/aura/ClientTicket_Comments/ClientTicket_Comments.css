@@ -1,0 +1,7 @@
+.THIS .comments > .slds-form-element__control  >.slds-textarea{
+    border: none;
+    outline: none;
+}
+.THIS .comments > .slds-form-element__label{
+    display: none;
+}

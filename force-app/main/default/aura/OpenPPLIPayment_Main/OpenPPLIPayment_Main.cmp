@@ -1,0 +1,16 @@
+<aura:component>
+
+
+    <aura:attribute name="employeeId" type="string"/>
+    <aura:attribute name="selectedRecordId" type="string"/>
+
+    <aura:if isTrue="{!v.selectedRecordId == undefined}">
+        <c:OpenPPLI_List employeeId="{!v.employeeId}" selectedRecordId="{!v.selectedRecordId}"/>
+        <aura:set attribute="else">
+            <c:PaymentCollection recordId="{!v.selectedRecordId}"
+            empId="{!v.employeeId}" 
+             ></c:PaymentCollection>
+        </aura:set>
+    </aura:if>
+
+</aura:component>	

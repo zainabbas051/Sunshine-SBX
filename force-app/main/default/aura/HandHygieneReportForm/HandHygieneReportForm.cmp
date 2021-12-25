@@ -1,0 +1,170 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" controller="HandHygieneReport_Ctrl">
+    <aura:attribute name="handHygieneObj" type="Hand_Hygiene_Report__c" default="{ 'sobjectType' : 'Hand_Hygiene_Report__c',
+                                                                                'Staff_Member_Observed__c' : ''
+                                                                                }"/>
+    <aura:attribute name="disabled" type="boolean"/>
+    <aura:attribute name="RecordId" type="string"/>
+    <aura:attribute name="showForm" type="boolean" default="false"/>
+    <aura:attribute name="showLoading" type="boolean" default="true"/>
+    <aura:attribute name="selectedSunShineCentre" type="string" />
+    <aura:attribute name="returntoMain" type="boolean"/>
+     <aura:attribute name="options2" type="List" default="[
+    {'label': 'Yes', 'value': 'Yes'},
+    {'label': 'No', 'value': 'No'}
+    ]" />
+
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+
+    <!--Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.defaultAction}"/>
+    <aura:if isTrue="{!v.showLoading}">
+        <div class="loadingSpinner">
+            <lightning:spinner alternativeText="Loading" size="large" />
+        </div>                                                                         
+    </aura:if>
+    <div class="slds-scope">
+        <div class="slds-align_absolute-center">
+            <h2 class="slds-text-heading_medium">HAND HYGIENE REPORT</h2>
+         </div>
+         <div class="slds-align_absolute-center">
+            <div class="slds-box" style="width: 70%;">
+                                                 
+                    <div class="slds-clearfix" style="padding:0.5rem">
+                        <aura:if isTrue="{!v.RecordId == undefined}">
+                        <lightning:button label="Back" title="Back" onclick="{!c.returnMain}" />
+                        </aura:if>
+                         <aura:if isTrue="{!v.RecordId != undefined}">
+                        <button onclick="{!c.navigate}" class="slds-button slds-float_right slds-button_outline-brand">Download PDF</button>
+                                       </aura:if>
+                     </div>
+
+
+                <div class="slds-align_absolute-center">
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Chapters Capistrano')}">
+                        <img src="{!$Resource.Chapters_Logo}" style="width: 200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Mountain Springs Recovery')}">
+                        <img src="{!$Resource.MountainSpringsLogo}" style="width: 200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Willowsprings Recovery')}">
+                        <img src="{!$Resource.Willow_Logo}" style="width: 200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Monarch Shores')}">
+                        <img src="{!$Resource.MonarchShoresLogo}" style="width: 200px;"/>
+                    </aura:if>
+                </div>
+              <div style="margin-top:1%" class="row">
+              <div class="slds-col">
+                         <lightning:input type="datetime"  aura:id="field"
+                         label="" required="true"
+                      name="Date and Time" value="{!v.handHygieneObj.DateAndTime__c}"
+                      disabled="{!v.disabled}"  />
+                        </div>  
+                </div>
+                <div  class="row">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_1-of-2">
+                    <lightning:input name="input1"
+                                     disabled="{!v.disabled}" 
+                                     label="Staff Member Observed:"
+                                     required="true"
+                                     aura:id="field"
+                                     value="{!v.handHygieneObj.Staff_Member_Observed__c}" />
+                                    <br/>
+                        </div>
+                        
+                     
+                    </div>
+                </div>
+                <div class="slds-text-heading_small">BEFORE TOUCHING ANY CLIENT OR OBJECTS INVOLVED IN CLIENT CARE, DID STAFF:</div>
+                <div class="row">
+                       <div class="slds-col">
+
+                            <lightning:radioGroup class="slds-radioBtn" aura:id="Q1"
+                      label="1. Clean his/her hands with alcohol rub or sanitizer?" name="radioButtonGroup1"
+                      options="{! v.options2 }"  value="{!v.handHygieneObj.BT_Cleaned_hands_with_alcohol_sanitizer__c}"
+                      required="true"
+                        disabled="{!v.disabled}"  />
+                    </div>
+                </div>
+                                <div class="row">
+                       <div class="slds-col">
+
+                            <lightning:radioGroup class="slds-radioBtn" aura:id="Q2"
+                      label="2. Clean his/her hands with soap and water?" name="radioButtonGroup2"
+                      options="{! v.options2 }"  value="{!v.handHygieneObj.BT_Cleaned_hands_with_soap_and_water__c}"
+                      required="true"
+                        disabled="{!v.disabled}"  />
+                    </div>
+                </div>
+                
+   <div class="row">
+                       <div class="slds-col">
+
+                            <lightning:radioGroup class="slds-radioBtn" aura:id="Q3"
+                      label="3. He/she apply appropriate PPE (gloves, mask, etc.)?" name="radioButtonGroup3"
+                      options="{! v.options2 }"  value="{!v.handHygieneObj.Before_Touching_Applied_appropriate_PPE__c}"
+                      required="true"
+                        disabled="{!v.disabled}"  />
+                    </div>
+                </div>
+                <div class="slds-text-heading_small">AFTER TOUCHING ANY CLIENT OR OBJECTS INVOLVED IN CLIENT CARE, DID STAFF:</div>
+                   <div class="row">
+                       <div class="slds-col">
+
+                            <lightning:radioGroup aura:id="Q4" class="slds-radioBtn"
+                      label="1. Clean his/her hands with an alcohol rub or sanitizer?" name="radioButtonGroup4"
+                      options="{! v.options2 }"  value="{!v.handHygieneObj.AT_Cleaned_hands_with_alcohol_sanitizer__c}"
+                      required="true"
+                        disabled="{!v.disabled}"  />
+                    </div>
+                </div>
+                
+                <div class="row">
+                       <div class="slds-col">
+
+                            <lightning:radioGroup aura:id="Q5" class="slds-radioBtn"
+                      label="2. Clean his/her hands with soap and water?" name="radioButtonGroup5"
+                      options="{! v.options2 }"  value="{!v.handHygieneObj.AT_Cleaned_hands_with_soap_and_water__c}"
+                      required="true"
+                        disabled="{!v.disabled}"  />
+                    </div>
+                </div>
+                       <div class="row">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <lightning:input name="input1"
+                                     disabled="{!v.disabled}" 
+                                     label="Completed By:"
+                                     required="true"
+                                     aura:id="field"
+                                     value="{!v.handHygieneObj.Completed_By_Name__c}" />
+                                   
+                        </div>
+                       
+                        <div class="slds-col">
+                            <lightning:input name="input1"
+                            disabled="{!v.disabled}" 
+                            label="Email:"
+                            required="true"
+                            aura:id="field"
+                            type="email"
+                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                            value="{!v.handHygieneObj.Completed_By_Email__c}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <br/>
+                     <!-- Neutral variant (default) -->
+                    <lightning:button label="Cancel" title="Cancel" onclick="{!c.cancelForm}" disabled="{!v.disabled}"/>
+
+                    <!-- Brand variant: Identifies the primary action in a group of buttons -->
+                    <lightning:button variant="brand" disabled="{!v.disabled}"  label="Save" title="Save" onclick="{!c.saveInc}" />
+                    <br/>
+                </div>
+            </div>       
+         </div>      
+    </div>
+
+</aura:component>

@@ -1,0 +1,167 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" controller="ClientTicket_Ctrl">
+  <aura:attribute name="departments" type="List" />
+  <aura:attribute name="subCategories" type="List" />
+  <aura:attribute name="statuses" type="String[]" default="Open,In-Progress" />
+  <aura:attribute name="showLoading" type="boolean" default="true" />
+  <aura:attribute name="disabled" type="boolean" default="true" />
+  <aura:attribute name="RecordId" type="string" />
+  <aura:attribute name="empId" type="string" />
+  <aura:attribute name="escalatePopUp" type="boolean" default="false" />
+  <aura:attribute name="escalatedCheckBox" type="boolean" default="false" />
+  <aura:attribute name="managerName" type="string" />
+  <aura:attribute name="selectedSunShine" type="string" />
+  <!-- Create attribute to store lookup value as a sObject-->
+  <aura:attribute name="caseObj" type="Case" default="{ 'sobjectType' : 'Case',
+        'Ticket_Created_By__c' : ''
+        }" />
+  <!--Handlers-->
+  <aura:handler name="init" value="{!this}" action="{!c.defaultAction}" />
+  <lightning:notificationsLibrary aura:id="notifLib" />
+  <div class="slds-align_absolute-center">
+    <div class="slds-box" style="width: 70%;">
+     
+      <aura:if isTrue="{!v.empId != undefined}">
+        <div class="row slds-align_absolute-center">
+          <aura:if isTrue="{!v.disabled}">
+            <!-- Neutral variant (default) -->
+            <lightning:button label="Cancel" title="Cancel" onclick="{!c.cancelForm}" />
+            <!-- Brand variant: Identifies the primary action in a group of buttons -->
+            <lightning:button variant="brand" label="Edit" disabled="{!or(v.caseObj.Status == 'Closed',
+                                                                        and(v.caseObj.Escalated__c,
+                                                                        v.caseObj.Escalated_To__c != v.empId,
+                                                                        v.caseObj.Escalated_To__c != ''))}" title="Edit" onclick="{!c.editForm}" />
+            <aura:set attribute="else">
+              <!-- Neutral variant (default) -->
+              <lightning:button label="Cancel" title="Cancel" onclick="{!c.cancelForm}" />
+              <!-- Brand variant: Identifies the primary action in a group of buttons -->
+              <lightning:button variant="brand" label="Save" title="Save" onclick="{!c.saveClientTicket}" />
+            </aura:set>
+          </aura:if>
+          <!-- Brand variant: Identifies the primary action in a group of buttons -->
+          <lightning:button variant="brand" label="Close Case" title="Close" disabled="{!or(v.caseObj.Status == 'Closed',
+            and(v.caseObj.Escalated__c,
+            v.caseObj.Escalated_To__c != v.empId,
+            v.caseObj.Escalated_To__c != ''))}" onclick="{!c.closeCase}" />
+          <!-- Destructive variant: Identifies a potentially negative action -->
+          <lightning:button variant="destructive" label="Esacalate" disabled="{!v.caseObj.Escalated__c}" title="Escalate" onclick="{! c.enableEscalate }" />
+          <br />
+          <br />
+        </div>
+        <br />
+      </aura:if>
+      
+      <div class="slds-scope">
+        <div class="slds-align_absolute-center">
+          <h2 class="slds-text-heading_medium">CLIENT DETAIL</h2>
+        </div>
+      </div>
+      <div class="row">
+        <h1 style="color:peru;">Case Number: {!v.caseObj.CaseNumber}</h1>
+      </div>
+      <br />
+      <lightning:layout>
+        <lightning:layoutItem size="4">
+          <lightning:layout multipleRows="true">
+            <lightning:layoutItem size="12">
+              <lightning:input name="input1" disabled="true" label="Date of Submission" required="true" type="date" aura:id="field" value="{!v.caseObj.CreatedDate}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem size="12">
+              <lightning:input name="input1" disabled="true" label="Time Since Ticket Opened" required="true" aura:id="field" value="{!v.caseObj.Time_Since_Ticket_Opened__c}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem size="12">
+              <lightning:input name="input1" disabled="true" label="Ticket Owner" required="true" aura:id="field" value="{!v.caseObj.Ticket_Owner__r.Name}" />
+            </lightning:layoutItem>
+            <lightning:layoutItem size="12">
+                <lightning:input name="input1" disabled="true" label="Ticket Created By" required="true" aura:id="field" value="{!v.caseObj.Ticket_Created_By__c}" />
+              </lightning:layoutItem>
+            
+              <lightning:layoutItem size="12">
+                <lightning:select name="select" value="{!v.caseObj.Department__c}" onchange="{!c.deptChange}" aura:id="department" label="Department" required="true" disabled="{!v.disabled}">
+                    <aura:iteration items="{!v.departments}" var="department">
+                      <option text="{!department.key}"></option>
+                    </aura:iteration>
+                  </lightning:select>
+              </lightning:layoutItem>
+
+              <lightning:layoutItem size="12">
+                <lightning:select name="select" value="{!v.caseObj.Specific_Query_Related_to__c}" aura:id="subcategory" label="Subcategory" disabled="{!v.disabled}" required="true">
+                    <aura:iteration items="{!v.subCategories}" var="subCategory">
+                      <option text="{!subCategory.key}"></option>
+                    </aura:iteration>
+                  </lightning:select>
+              </lightning:layoutItem>
+          </lightning:layout>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="1"></lightning:layoutItem>
+        <lightning:layoutItem size="7">
+          <lightning:textarea aura:id="field" value="{!v.caseObj.Description}" label="Description" required="true" disabled="true" />
+          <br/>
+          <lightning:textarea aura:id="field" value="{!v.caseObj.Case_Resolution__c}" label="Resolution Notes" required="true" disabled="{!v.disabled}" />
+          <br/>
+
+          <lightning:select name="select" value="{!v.caseObj.Status}" aura:id="status" disabled="{!v.disabled}" label="Status" required="true">
+            <aura:iteration items="{!v.statuses}" var="status">
+              <option text="{!status}"></option>
+            </aura:iteration>
+          </lightning:select>
+
+        </lightning:layoutItem>
+      </lightning:layout>
+    
+      <div class="row">
+        <br />
+        <div class="slds-text-heading_medium">Case Escalation</div>
+      </div>
+      <div class="row">
+        <div class="slds-grid slds-gutters">
+          <div class="slds-col">
+            <lightning:input type="checkbox" disabled="true" style="margin-top: 30px;" label="Escalated" checked="{!v.caseObj.Escalated__c}" />
+          </div>
+          <div class="slds-col">
+            <lightning:input name="input1" disabled="true" label="Escalated To" required="true" aura:id="field" value="{!v.managerName}" />
+          </div>
+          <div class="slds-col">
+            <lightning:input name="input1" type="date" disabled="true" label="Escalated Date Time" required="true" aura:id="field" value="{!v.caseObj.Escalated_Date_Time__c}" />
+          </div>
+        </div>
+      </div>
+      <br />
+      <aura:if isTrue="{!v.empId != undefined}">
+        <div class="row slds-align_absolute-center">
+          <aura:if isTrue="{!v.disabled}">
+            <!-- Neutral variant (default) -->
+            <lightning:button label="Cancel" title="Cancel" onclick="{!c.cancelForm}" />
+            <!-- Brand variant: Identifies the primary action in a group of buttons -->
+            <lightning:button variant="brand" label="Edit" disabled="{!or(v.caseObj.Status == 'Closed',
+                                                                        and(v.caseObj.Escalated__c,
+                                                                        v.caseObj.Escalated_To__c != v.empId,
+                                                                        v.caseObj.Escalated_To__c != ''))}" title="Edit" onclick="{!c.editForm}" />
+            <aura:set attribute="else">
+              <!-- Neutral variant (default) -->
+              <lightning:button label="Cancel" title="Cancel" onclick="{!c.cancelForm}" />
+              <!-- Brand variant: Identifies the primary action in a group of buttons -->
+              <lightning:button variant="brand" label="Save" title="Save" onclick="{!c.saveClientTicket}" />
+            </aura:set>
+          </aura:if>
+          <!-- Brand variant: Identifies the primary action in a group of buttons -->
+          <lightning:button variant="brand" label="Close Case" title="Close" disabled="{!or(v.caseObj.Status == 'Closed',
+            and(v.caseObj.Escalated__c,
+            v.caseObj.Escalated_To__c != v.empId,
+            v.caseObj.Escalated_To__c != ''))}" onclick="{!c.closeCase}" />
+          <!-- Destructive variant: Identifies a potentially negative action -->
+          <lightning:button variant="destructive" label="Esacalate" disabled="{!v.caseObj.Escalated__c}" title="Escalate" onclick="{! c.enableEscalate }" />
+          <br />
+          <br />
+        </div>
+        <br />
+      </aura:if>
+      <aura:if isTrue="{!v.RecordId != undefined}">
+        <div class="slds-border_top"></div>
+        <c:ClientTicket_Comments RecordId="{!v.RecordId}" empId="{!v.empId}" disabled="{!v.caseObj.Status == 'Closed'}" />
+      </aura:if>
+      <aura:if isTrue="{!v.escalatePopUp}">
+        <c:ClientTicket_EscalationForm empId="{!v.empId}" caseObj="{!v.caseObj}" escalatePopUp="{!v.escalatePopUp}" managerName="{!v.managerName}" />
+      </aura:if>
+    </div>
+  </div>
+</aura:component>

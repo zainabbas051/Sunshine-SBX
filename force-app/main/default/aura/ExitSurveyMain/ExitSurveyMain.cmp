@@ -1,0 +1,9 @@
+<aura:component access="global" implements="force:appHostable">
+	<div class="slds-theme_default">
+      <c:ClientsforExitSurvey/>
+  </div>
+    <div class="slds-theme_default">
+      <c:ExitSurveyCmp/>
+  </div>
+   
+</aura:component>

@@ -1,0 +1,260 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="HousingRentalCollection_Ctrl" >
+   <aura:attribute name="paymentLineItemList" type="object[]"/>
+   <aura:attribute name="ClosedpaymentLineItemList" type="object[]"/>
+    <aura:attribute name="CardList" type="List"/>
+   <aura:attribute name="OppId" type="string" default="0063C000009hEXk"/>
+   <aura:attribute name="OppName" type="string" default="Safia Test"/>
+   <aura:attribute name="outstandingAmnt" type="decimal" default="0"/>
+   <aura:attribute name="otherAmount" type="decimal" default="0"/>
+   <aura:attribute name="fileName" type="string" />
+   <aura:attribute name="CVV" type="string" />
+   <aura:attribute name="cardNumber" type="string" />
+   <aura:attribute name="progressIndicatorFlag" type="String" />
+   <aura:attribute name="showPopup" type="Boolean" default="false" />
+   <aura:attribute name="showOtherCard" type="Boolean" default="false" />
+   <!-- <aura:attribute name="selectedRows" type="List" access="PRIVATE"/> -->
+   <aura:attribute name="selectedRows" type="Card_Information__c" default="{'Id':''}" />
+   <aura:attribute name="options" type="List" default="[
+      {'label': 'Due Amount', 'value': 'option1'},
+      {'label': 'Other Amount', 'value': 'option2'}
+      ]"/>
+   <aura:attribute name="columns" type="List" />
+   <aura:attribute name="value" type="String" default="option1"/>
+   <aura:attribute name="CardValue" type="String" default="option12"/>
+   <aura:handler name="init" value="this" action="{!c.doInit}"/>
+   <aura:attribute name="disabled" type="boolean" default="true"></aura:attribute>
+    <aura:attribute name="isValidCVV" type="boolean" default="false"></aura:attribute>
+    
+   <ltng:require scripts="{!$Resource.AWS}" />
+   <lightning:notificationsLibrary aura:id="notifLib"/>
+   <lightning:spinner alternativeText="Loading" aura:id="loader" />
+   <div class="slds-box slds-theme_default">
+      <div class="slds-scope">
+         <div class="slds-text-heading_large slds-border_bottom">{!v.OppName}</div>
+         <aura:if isTrue="{!v.paymentLineItemList.length > 0}">
+            <div>
+               <div class="slds-grid slds-wrap">
+                  <div class="slds-col slds-size_4-of-4">
+                     <br/>
+                     <lightning:button variant="brand" label="Pay Now" title="Pay Now" disabled="{!v.disabled}" onclick="{!c.showPopup}" />
+                  </div>
+                  <aura:if isTrue="{!v.showPopup}">
+                     <!-- POPUO OPEN -->
+                     <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                        <div class="slds-modal__container">
+                           <header class="slds-modal__header">
+                              <lightning:buttonIcon iconName="utility:close"
+                                 onclick="{! c.closeModel }"
+                                 alternativeText="close"
+                                 variant="bare-inverse"
+                                 class="slds-modal__close"/>
+                              <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Payment Inititation</h2>
+                           </header>
+                           <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                              <lightning:progressIndicator class="slds-p-bottom_medium" type="path" currentStep="{!v.progressIndicatorFlag}">
+                                 <lightning:progressStep label="Enter Amount" value="step1"/>
+                                 <lightning:progressStep label="Select Card" value="step2"/>
+                                 <lightning:progressStep label="Confirmation" value="step3"/>
+                              </lightning:progressIndicator>
+                              <div aura:id="stepOne">
+                                 <div class="">
+                                    <!--  disabled="{!v.outstandingAmnt==0}" -->
+                                    <lightning:radioGroup name="radioButtonGroupRequired"
+                                       label=""
+                                       options="{! v.options }"
+                                       value="{! v.value }"
+                                       type="radio"
+                                       onchange="{! c.payOptionChange }"
+                                       class="customRadioCls"
+                                       />
+                                 </div>
+                                 <aura:if isTrue="{!(v.value == 'option1')}">
+                                    <div class="slds-col slds-size_8-of-8">
+                                       <span class="slds-m-top_large">   ${!v.outstandingAmnt}</span>
+                                    </div>
+                                 </aura:if>
+                                 <aura:if isTrue="{!(v.value == 'option2')}">
+                                    <div class="slds-col slds-size_8-of-8">
+                                       <lightning:input type="text" style="width:200px"  aura:id="OtherAmount"
+                                          name="OtherAmount"  value="{! v.otherAmount }"  pattern="[0-9]*" onchange="{! c.handleAmountChange }"/>
+                                       <div class="slds-text-color_error">*The amount should be greater than the due amount and multiple of $50</div>
+                                    </div>
+                                 </aura:if>
+                                 <div  class="slds-p-top_medium">
+                                    <lightning:button aura:id="btnNext"  label="Next" disabled="{!v.disabled}" onclick="{!c.goToStepTwo}"  variant="brand"/>
+                                 </div>
+                              </div>
+                              <div aura:id="stepTwo">
+                                 <lightning:radioGroup name="radioButtonGroupRequired"
+                                    label=""                  
+                                    options="{! v.CardList }"
+                                    value="{! v.CardValue }"
+                                    type="radio"
+                                    onchange="{! c.getSelectedCard }"
+                                    class="customRadioCls"
+                                 />
+                                 <aura:if isTrue="{!v.showOtherCard}">
+                                    <lightning:input type="text" style="width:200px" label="Card Number"  aura:id="CardNumber"
+                                    name="CardNumber"  value="{! v.cardNumber }"  pattern="[0-9]*"/>
+                                     <lightning:input type="text" style="width:200px" label="Expiry Month"  aura:id="ExpiryMonth"
+                                    name="CardNumber"  value="{! v.cardNumber }"  pattern="[0-9]*"/>
+                                    <lightning:input type="text" style="width:200px" label="Expiry Year"  aura:id="ExpiryYear"
+                                    name="CardNumber"  value="{! v.cardNumber }"  pattern="[0-9]*"/>
+                                        <lightning:input type="text" style="width:200px" label="Billing Zip"  aura:id="BillingZip"
+                                    name="CardNumber"  value="{! v.cardNumber }"  pattern="[0-9]*"/>
+                                  </aura:if> 
+                                
+                                 <div  class="slds-p-top_medium">
+                                    <lightning:button label="Back" onclick="{!c.goBackToStepOne}" />
+                                    <lightning:button label="Next" onclick="{!c.goToStepThree}" variant="brand"/>
+                                 </div>
+                              </div>
+                              <div aura:id="stepThree">
+                                 <div class="slds-col slds-size_4-of-8">
+                                    <lightning:input label="CVV" type="text" style="width:200px"  aura:id="CVV"
+                                       name="CVV"  value="{!v.CVV }"  pattern="[0-9]*" />
+                                 </div>
+                                 <div  class="slds-p-top_medium">
+                                    <lightning:button label="Back" onclick="{!c.goBackToStepTwo}" />
+                                    <lightning:button label="Confirm" onclick="{!c.processAmount}" variant="brand"/>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </section>
+                     <div class="slds-backdrop slds-backdrop_open"></div>
+                  </aura:if>
+                  <!-- POPUP CLOSED-->
+                  <!--   <div class="slds-col slds-size_4-of-4">
+                     <br/>
+                     
+                     <lightning:button variant="brand" label="Pay Now" title="Pay Now"  disabled="{!v.disabled}" onclick="{!c.processAmount}" />
+                     </div>
+                     -->
+               </div>
+               <br />
+               <div class="slds-text-heading_medium">Due Payments</div>
+               <br />
+               <table class="slds-table slds-table_cell-buffer slds-table_bordered" style="max-width:100%;">
+                  <thead>
+                     <tr class="slds-line-height_reset">
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="name">PPLI Name</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="Amount">Amount</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="Due Date">Due Date</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="status">Status</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="Receipt">Receipt</div>
+                        </th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <aura:iteration items="{!v.paymentLineItemList}" var="pp" >
+                        <tr class="slds-hint-parent">
+                           <td data-label="PPLI Name">
+                              <div class="slds-truncate" title="">
+                                 <lightning:formattedText value="{!pp.Name}"/>
+                              </div>
+                           </td>
+                           <td data-label="Amount">
+                              <div class="slds-truncate" title="">
+                                 <lightning:formattedNumber value="{!pp.Amount_For_Collection__c}"
+                                    style="currency" currencyCode="USD" currencyDisplayAs="symbol" />
+                              </div>
+                           </td>
+                           <td data-label="Date of Collection">
+                              <div class="slds-truncate" title="">
+                                 <lightning:formattedDateTime value="{!pp.Due_Date__c}" year="numeric" month="numeric" day="numeric"  hour="2-digit" minute="2-digit" />
+                              </div>
+                           </td>
+                           <td data-label="Status">
+                              <div class="slds-truncate" title="">
+                                 <lightning:formattedText value="{!pp.Status__c}"/>
+                              </div>
+                           </td>
+                           <td data-label="Receipt">
+                              <div class="slds-truncate" title="">
+                                 <p>
+                                    <lightning:formattedUrl value="{!pp.Payment_Receipt_URL__c}" tooltip="{!pp.Payment_Receipt_URL__c}" label="View Receipt" target="_blank" />
+                                 </p>
+                              </div>
+                           </td>
+                        </tr>
+                     </aura:iteration>
+                  </tbody>
+               </table>
+			   <br />
+               <div class="slds-text-heading_medium">Closed Payments</div>
+               <br />
+               <table class="slds-table slds-table_cell-buffer slds-table_bordered" style="max-width:100%;">
+                  <thead>
+                     <tr class="slds-line-height_reset">
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="name">PPLI Name</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="Amount">Amount</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="Due Date">Due Date</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="status">Status</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="slds-truncate" title="Receipt">Receipt</div>
+                        </th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <aura:iteration items="{!v.ClosedpaymentLineItemList}" var="pp" >
+                        <tr class="slds-hint-parent">
+                           <td data-label="PPLI Name">
+                              <div class="slds-truncate" title="">
+                                 <lightning:formattedText value="{!pp.Name}"/>
+                              </div>
+                           </td>
+                           <td data-label="Amount">
+                              <div class="slds-truncate" title="">
+                                 <lightning:formattedNumber value="{!pp.Amount_For_Collection__c}"
+                                    style="currency" currencyCode="USD" currencyDisplayAs="symbol" />
+                              </div>
+                           </td>
+                           <td data-label="Date of Collection">
+                              <div class="slds-truncate" title="">
+                                 <lightning:formattedDateTime value="{!pp.Due_Date__c}" year="numeric" month="numeric" day="numeric"  hour="2-digit" minute="2-digit" />
+                              </div>
+                           </td>
+                           <td data-label="Status">
+                              <div class="slds-truncate" title="">
+                                 <lightning:formattedText value="{!pp.Status__c}"/>
+                              </div>
+                           </td>
+                           <td data-label="Receipt">
+                              <div class="slds-truncate" title="">
+                                 <p>
+                                    <lightning:formattedUrl value="{!pp.Payment_Receipt_URL__c}" tooltip="{!pp.Payment_Receipt_URL__c}" label="View Receipt" target="_blank" />
+                                 </p>
+                              </div>
+                           </td>
+                        </tr>
+                     </aura:iteration>
+                  </tbody>
+               </table>
+               <br/>
+            </div>
+            <!-- Brand variant: Identifies the primary action in a group of buttons -->
+            <aura:set attribute="else">
+               No record found
+            </aura:set>
+         </aura:if>
+      </div>
+   </div>
+</aura:component>

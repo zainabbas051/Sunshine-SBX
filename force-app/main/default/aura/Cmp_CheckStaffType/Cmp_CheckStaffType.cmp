@@ -1,0 +1,123 @@
+<aura:component controller="CleanessChecklistCtrl">
+    
+    <aura:attribute name="AccessType" type="string"/>
+    <aura:attribute name="showModal" type="boolean" default="false" />
+    <aura:attribute name="errorMessage" type="string" default="" />
+    <aura:attribute name="password" type="string[]"  />
+     <aura:attribute name="passwordEnterByUser" type="string" default="" />
+    
+    <aura:registerEvent name="showHouseGrid_Evt" type="c:showHouseGrid_Evt"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+
+    <fieldset class="slds-form-element">
+  <legend class="slds-form-element__legend slds-form-element__label"></legend>
+  <div class="slds-form-element__control slds-align_absolute-center">
+    <div class="slds-visual-picker slds-visual-picker_small"  aura:id="SelectionTag" data-id="BHT" onclick="{!c.setAccessType}">
+      <input type="radio" id="visual-picker-93" value="visual-picker-93" name="options" />
+      <label for="visual-picker-93">
+        <span class="slds-visual-picker__figure slds-visual-picker__icon slds-align_absolute-center">
+          <span class="slds-is-selected">
+            <span class="slds-icon_container">
+           
+                 <lightning:icon iconName="action:user" size="medium" />
+             
+            </span>
+          </span>
+          <span class="slds-is-not-selected">
+            <span class="slds-icon_container">
+              
+               <lightning:icon iconName="action:user" size="medium" />
+            
+            </span>
+          </span>
+        </span>
+        <span class="slds-visual-picker__body">
+          <span class="slds-text-title">BHT View</span>
+        </span>
+      </label>
+    </div>
+    <div class="slds-visual-picker slds-visual-picker_small" aura:id="SelectionTag" data-id="Supervisor" onclick="{!c.setAccessType}">
+      <input type="radio" id="visual-picker-94" value="visual-picker-94" name="options" />
+      <label for="visual-picker-94">
+        <span class="slds-visual-picker__figure slds-visual-picker__icon slds-align_absolute-center">
+          <span class="slds-is-selected">
+            <span class="slds-icon_container">
+             
+                 <lightning:icon iconName="action:submit_for_approval" size="medium" />
+             
+            </span>
+          </span>
+          <span class="slds-is-not-selected">
+            <span class="slds-icon_container">
+              
+                 <lightning:icon iconName="action:submit_for_approval" size="medium" />
+             
+            </span>
+          </span>
+        </span>
+        <span class="slds-visual-picker__body">
+          <span class="slds-text-title">Supervisor View</span>
+        </span>
+      </label>
+    </div>
+       <div class="slds-visual-picker slds-visual-picker_small" aura:id="SelectionTag" data-id="Director" onclick="{!c.setAccessType}">
+      <input type="radio" id="visual-picker-95" value="visual-picker-95" name="options" />
+      <label for="visual-picker-95">
+        <span class="slds-visual-picker__figure slds-visual-picker__icon slds-align_absolute-center">
+          <span class="slds-is-selected">
+            <span class="slds-icon_container">
+             
+                 <lightning:icon iconName="action:preview" size="medium" />
+             
+            </span>
+          </span>
+          <span class="slds-is-not-selected">
+            <span class="slds-icon_container">
+              
+                 <lightning:icon iconName="action:preview" size="medium" />
+             
+            </span>
+          </span>
+        </span>
+        <span class="slds-visual-picker__body">
+          <span class="slds-text-title">Director's View</span>
+        </span>
+      </label>
+    </div>
+  </div>
+</fieldset>
+    
+    <!--password modal -->
+    <aura:if isTrue="{!v.showModal}">
+         <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+              <div class="slds-modal__container" style="max-width:25%">
+               <header class="slds-modal__header">
+             
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Enter PIN</h2>
+               </header>
+               <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                   <div class="slds-p-around_small slds-tabs--default__content">
+                 <ui:inputSecret aura:id="pwd" class="field" value="{!v.passwordEnterByUser}" maxlength="10" placeholder="PIN" required="true"/>
+
+           <aura:if isTrue="{!not(empty(v.errorMessage))}">
+               <ui:message title="Error" severity="error" closable="true">
+                  {!v.errorMessage}
+              </ui:message>
+           </aura:if>
+           
+          
+              
+        </div>
+               </div>
+               <footer class="slds-modal__footer">
+                <button class="slds-button slds-button--brand" onclick="{!c.checkPassword}">Ok</button>
+                <button class="slds-button slds-button_neutral" onclick="{!c.closeModel}">Cancel</button>
+               </footer>
+          </div>
+         </section>	
+           <div class="slds-backdrop slds-backdrop_open"></div>
+             </aura:if> 
+    
+    
+</aura:component>

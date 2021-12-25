@@ -1,0 +1,35 @@
+<aura:component controller="Ctrl_AlumniApp_DailyContent">
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="dataSize" type="Integer" default="20"/> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="isNew" type="boolean" default="false"/> 
+    <aura:attribute name="TableTitle" type="String"/>
+    <aura:attribute name="selectedId" type="String"/>
+  
+    <aura:if isTrue="{!!v.isNew}">
+    <div class="slds-m-around-large">
+        <div class="slds-clearfix slds-page-header" role="banner">
+            
+                
+                  
+            <div class="slds-float_right">            
+                <lightning:button label="New" iconName="utility:new" iconPosition="left"
+                                onclick="{!c.clickNew}" />
+                </div>
+            </div>
+    
+        <lightning:datatable aura:id = "ClinicalDataTable"
+                                columns = "{!v.columns}"
+                                data = "{!v.data}"
+                                keyField = "Id"
+								hideCheckboxColumn="true" 
+                                onrowaction="{! c.handleRowAction }"/>
+                                   
+    </div>
+    <aura:set attribute="else">
+        <c:DailyContentForm isNew="{!v.isNew}" selectedRowId="{!v.selectedId}" DailyContentType="{!v.TableTitle}" />  
+    </aura:set>
+</aura:if>
+  
+</aura:component>

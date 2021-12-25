@@ -1,0 +1,33 @@
+<aura:component controller="Ctrl_Clinical_Certification">
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="dataSize" type="Integer" default="20"/> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="isNew" type="boolean" default="false"/> 
+    <aura:attribute name="TableTitle" type="String"/>
+    <aura:attribute name="selectedId" type="String"/>
+    <aura:attribute name="certificationId" type="String"/>
+    <aura:attribute name="empID" type="String"/>
+    <aura:handler event="c:UpdateReinbursementCertifications" action="{!c.UpdateData}"/>
+
+ <aura:if isTrue="{!not(empty(v.data))}">
+     <div class="slds-section slds-is-open">
+  
+    <span  class="slds-truncate slds-p-horizontal_small slds-text-heading_large slds-section__title slds-theme_shade" style="color: darkorange;font-weight: bold;" title="Section Title">Reinbursement Requests</span>
+
+    <div class="slds-col slds-size_7-of-8">
+  
+    
+        <lightning:datatable style="width: 100%;"  aura:id = "ReinbursementDataTable"
+                                columns = "{!v.columns}"
+                                data = "{!v.data}"
+                                keyField = "Id"
+								hideCheckboxColumn="true" 
+                                />
+                                   
+    </div>
+     </div>
+    </aura:if>
+   
+  
+</aura:component>

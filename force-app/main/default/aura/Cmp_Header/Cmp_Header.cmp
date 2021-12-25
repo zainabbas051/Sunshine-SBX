@@ -1,0 +1,44 @@
+<aura:component>
+    
+  <!--Variable Start-->
+  <aura:attribute name="screen" type="string"/>
+  <aura:attribute name="title" type="string"/>
+  <aura:attribute name="loaded" type="Boolean" />
+    <!--Variable End-->
+
+   <!-- Event Start-->
+   <aura:registerEvent name="GoBackEvent" type="c:Evt_GoBack"/>
+   <!-- Event End-->
+
+    <div class="slds-builder-header">
+        <div class="slds-builder-header__item" style="min-width: 100%;">
+          <div class="slds-builder-header__item-label slds-media slds-media_center">
+            <div class="slds-builder-header__utilities-item">
+              <a href="javascript:void(0);">
+                <div class="slds-media__figure">
+                  <span class="slds-icon_container slds-icon-utility-back slds-current-color">
+                    <button class="slds-button" style="color:white" id="{!v.screen}"  onclick="{!c.GoBack}">
+                    <lightning:icon iconName="utility:chevronleft" title="Back" size="small" />
+                  </button>
+                  </span>
+                </div>
+              </a>
+            </div>
+            <div><h1><span class="slds-truncate">{!v.title}</span></h1></div>
+              
+            <div class="slds-media__figure">
+                  <div class="slds-builder-header__item slds-builder-header__utilities">
+                    <div class="slds-builder-header__utilities-item">
+                        <div class="slds-media__figure">
+                           
+                          </div>
+                         
+                    </div>
+                   
+                    </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <br/>
+</aura:component>

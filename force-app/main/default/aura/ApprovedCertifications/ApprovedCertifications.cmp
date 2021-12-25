@@ -1,0 +1,233 @@
+<aura:component controller="Ctrl_Clinical_Certification" implements="force:appHostable">
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="dataSize" type="Integer" default="20"/> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="isNew" type="boolean" default="false"/>
+    <aura:attribute name="isComplete" type="boolean" default="false"/>
+    <aura:attribute name="showInProgress" type="boolean" default="false"/>
+    <aura:attribute name="CertificateUploaded" type="boolean" default="true"/>  
+    <aura:attribute name="TableTitle" type="String"/>
+    <aura:attribute name="selectedId" type="String"/>
+    <aura:attribute name="selectedRow" type="Object" />
+    <aura:attribute name="certificationId" type="String"/>
+    <aura:attribute name="empID" type="String"/>
+    <aura:attribute name="empTier" type="String"/>
+    <aura:attribute name="fileContent1" type="string"/>
+    <aura:attribute name="fileName1" type="string"/>
+    <aura:attribute name="certificateDate" type="date"/>
+    <aura:attribute name="isEmployeeRedirect" type="Boolean"/>
+    <aura:attribute name="isSpinner" type="Boolean" default="false"/>
+    <ltng:require scripts="{!$Resource.AWS}" />
+    <aura:registerEvent name="UpdateCompletedCertifications" type="c:updateCompletedCertifications"/>
+    <aura:registerEvent name="UpdateReinbursementCertifications" type="c:UpdateReinbursementCertifications"/>
+   <!-- <aura:handler event="c:UpdateAvailableCertifications" action="{!c.UpdateData}"/>
+    <aura:registerEvent name="UpdateRequestedCertifications" type="c:UpdateRequestedCertifications"/>
+-->   
+<lightning:notificationsLibrary aura:id="notifLib"/>
+
+    <aura:if isTrue="{!!v.CertificateUploaded}">
+        <!-- Show the message to ui -->
+        <div class="slds-notify slds-notify_toast slds-theme_error">
+            <span class="slds-assistive-text">error</span>
+            <div class="slds-notify__content">
+                <h5 class="slds-text-heading_small slds-align_absolute-center">Error Message </h5>
+                <br/>
+                <p class="slds-align_absolute-center">Please Upload the Certificate first.</p>                
+            </div>
+        </div>
+    </aura:if>
+    
+   <aura:if isTrue="{!not(empty(v.data))}">
+     <div class="slds-section slds-is-open">
+ 
+    <span  class="slds-truncate slds-p-horizontal_small slds-text-heading_large slds-section__title slds-theme_shade" style="color: darkorange;font-weight: bold;" title="Section Title">In-Progress Certifications</span>
+
+     <lightning:layout multipleRows="true">  
+    <aura:iteration items="{!v.data}" var="records" >
+      <lightning:layoutItem  size="12">  
+        <div id="Tilu" class="slds-box">
+            <lightning:tile label="{!records.Certification_Name__c}" class="">
+                <lightning:layout multipleRows="true">
+                      <lightning:layoutItem  size="12">
+                          
+                     <div style="float:right; margin-bottom:5px;">
+                      
+                        <aura:if isTrue="{!!v.isEmployeeRedirect}">
+                            <lightning:button label="Upload Certificate" class="slds-m-right_medium" iconPosition="left"  variant="brand" iconName="utility:upload"  value="{!records}" onclick="{! c.showCompletedModal}" disabled="{!and(not(records.Status__c=='In-Progress'),not(records.Status__c=='Certificate Uploaded'))}" />
+                            <lightning:button label="Submit Approval" class="slds-m-right_medium" iconPosition="left"  variant="brand" iconName="utility:favorite" value="{!records}" onclick="{! c.CompleteCertReq}" disabled="{!and(not(records.Status__c=='In-Progress'),not(records.Status__c=='Certificate Uploaded'))}" />
+                        </aura:if>
+                      
+                        <!-- <lightning:button label="Request Reinbursement" iconName="utility:internal_share" iconPosition="left" value="{!records}" onclick="{! c.handleRowActionReinbursement}" /> -->
+                         
+                         </div>
+                    </lightning:layoutItem>
+                                        <lightning:layoutItem flexibility="auto" padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                       <b>Type of Certification</b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Type_of_Certification__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                       <b>Due Date</b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                       {!records.Certification_Due_Date__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                                <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                       <b>Supervisor Approved Date</b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                       {!records.Date_Approved_Denied__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                                   
+                     <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                       <b>Supervisor Approved By</b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Approved_Denied_By__r.Name}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b>Status</b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Status__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b>Cost</b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        ${!records.Certification_Cost__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                                  <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b>Paid by</b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Certification_Cost_Paid_By__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                       <b>Date of Training</b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Date_of_Training__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                                         <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                       <b>Location of Training</b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        {!records.Location_of_Training__c}
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b>Approved/Denied Notes</b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta slds_truncate">
+                      {!records.Approved_Denied_Notes__c} 
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                     <lightning:layoutItem padding="around-small" size="4"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                       <b>Certification Link</b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta slds_truncate">
+                      <a href="{!records.Certification_URL__c}" target="blank">View</a>  
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    
+
+                    
+                </lightning:layout>
+               
+            </lightning:tile>
+        </div> 
+       </lightning:layoutItem>
+    </aura:iteration>
+ </lightning:layout>
+    </div>
+       </aura:if>
+    <!--Modal -->
+    <aura:if isTrue="{!v.isComplete}">   
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <!-- Modal/Popup Box Header Starts here-->
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.closeModel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Upload Certificate</h2>
+            </header>
+            <!--Modal/Popup Box Body Starts here-->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                               <lightning:layout>
+                <lightning:layoutItem>
+                                   <lightning:input type="date" class="zIndex" value="{!v.certificateDate}" name="input5" label="Date of Completion" required="true" />
+                                   </lightning:layoutItem>
+                                <lightning:layoutItem>
+                                   <lightning:input  name="file to uploder" label="" aura:id="MainfileUpload"   onchange="{!c.handleFileUploadMain}" 
+                    type="file" multiple="false"></lightning:input>
+            <ui:outputText aura:id="MainID" value="{!v.fileName1}"/>
+            <div style="display:none;"><lightning:inputField fieldName="Certification_URL__c" aura:id="MainImageField"  variant="label-hidden" /> </div>
+
+                                   </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+            <!--Modal/Popup Box Footer Starts here-->
+            <footer class="slds-modal__footer">
+        
+                    <lightning:button variant="neutral"
+                        label="Cancel"
+                        title="Cancel"
+                        onclick="{! c.closeModel }"/>
+                    <lightning:button variant="brand"
+                        label="OK"
+                        title="OK"
+                        onclick="{!c.handleRowActionCompleted}"/>
+                   
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</aura:if> 
+</aura:component>

@@ -1,0 +1,60 @@
+<aura:component controller="ClientTicket_Ctrl">
+    <aura:attribute name="RecordId" type="string" />
+    <aura:attribute name="caseComments" type="string" />
+    <aura:attribute name="listComments" type="List" />
+    <aura:attribute name="empId" type="string" />
+    <aura:attribute name="disabled" type="boolean" default="true"/> 
+    <aura:handler name="init" value="{!this}" action="{!c.defaultAction}"/>
+    
+    <br/>
+    <div class="row">
+       
+        <h1 style="color:black;">Case Comments</h1>
+
+    </div>
+    <br/>
+    <div class="row">
+        <div class="slds-media__body">
+            <div class="slds-publisher slds-publisher_comment slds-is-active slds-has-focus">
+                 <lightning:textarea class="comments"
+                    aura:id="field"  value="{!v.caseComments}"
+                  
+                       placeholder="Write a comment…" /> 
+              <div class="slds-publisher__actions slds-grid slds-grid_align-spread">
+                <ul class="slds-grid">
+                  <li>
+                   
+                  </li>
+                  <li>
+                   
+                  </li>
+                </ul>
+                <button onclick="{!c.saveComments}" disabled="{!v.disabled}" class="slds-button slds-button_brand">Comment</button>
+              </div>
+            </div>
+          </div>
+        
+    </div>
+    <div class="row">
+        <ul class="slds-has-dividers_bottom-space">
+            <aura:iteration items="{!v.listComments}" var="singleComment">
+                <li class="slds-item">
+                    <lightning:tile  label="{!singleComment.Created_By__c}" >
+                        <aura:set attribute="media">
+                            <lightning:avatar src="/avatar1.jpg" fallbackIconName="standard:answer_public" alternativeText="Lexee L. Jackson"/>
+                        </aura:set>
+                        <ul class="slds-list_horizontal slds-has-dividers_right">
+                            <li class="slds-item">{!singleComment.Comments__c} </li>
+                            <li class="slds-item">(
+                                <lightning:formattedDateTime value="{!singleComment.CreatedDate}"  year="numeric" month="numeric" day="numeric" hour="2-digit"
+                                minute="2-digit" timeZone="UTC" timeZoneName="short" hour12="false"/>)
+                            </li>
+                        </ul>
+                    </lightning:tile>
+                </li>
+            </aura:iteration>
+        </ul>
+    </div>
+
+
+</aura:component>

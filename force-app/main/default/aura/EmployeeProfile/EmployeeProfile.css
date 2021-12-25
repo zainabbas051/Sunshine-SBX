@@ -1,0 +1,81 @@
+.THIS .tierC {
+   font-weight: 500 !important;
+    color: #0075C9 !important;
+    font-size: 1.5em !important;
+    font-family: "Open Sans", sans-serif !important;
+
+    
+}
+
+.THIS .slds-item lightning-formatted-text{
+    color: rgb(255,140,0);
+    font-weight: 500 !important;
+    font-family: "Open Sans", sans-serif !important;
+    
+}
+
+.THIS .nameHeading {
+  
+    font-family: "Open Sans", sans-serif !important;
+    font-size: 26px;
+    line-height: 27px;
+    color: #716464;
+    margin-top: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+}
+
+.THIS .slds-text-heading_small{
+    color:coral;
+}
+
+.THIS .slds-file-selector__text{
+    display:none !important;
+    
+}
+
+
+.THIS .slds-button__icon_left:after{
+    display:none !important;
+    
+}
+
+.THIS .slds-item .slds-rich-text-editor__output{
+    
+    height:150px;
+     font-family: "Open Sans", sans-serif !important;
+}
+
+.THIS .custom-box {
+
+    background-color: #f4f6f9;
+    padding: 1rem;
+    border: 2px solid #d8dde6;
+    margin-bottom:5px;
+    font-family: "Open Sans", sans-serif !important;
+    
+}
+.THIS.c-container {
+    border: 1px solid #d8dde6;
+    margin: 5px 0 10px 0;
+}
+
+
+.THIS .page-footer {
+    margin-top: -40px;
+}
+.THIS .page-main {
+  
+}
+.THIS .page-header {
+  margin-bottom:-20px;
+}
+.THIS .page-left,
+.THIS .page-right {
+    
+}
+.THIS .slds-textarea{
+    
+    min-height:200px;
+}

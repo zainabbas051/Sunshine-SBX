@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="Event template" access="global">
+      <aura:attribute name="recordId" type="id" />
+      <aura:attribute name="returnCmp" type="string" />
+</aura:event>

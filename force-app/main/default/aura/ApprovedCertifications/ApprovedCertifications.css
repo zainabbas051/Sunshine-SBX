@@ -1,0 +1,32 @@
+.THIS lightning-primitive-header-actions {
+    display: none;
+}
+.THIS .slds-box{
+    
+    box-shadow: 0px 0px 10px 0px rgb(0 0 0 / 50%);
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.THIS .tileclass{
+    
+    font-family: Asap, sans-serif;
+    font-size: 16px !important;
+    color: #000;
+    margin-top: 0;
+    margin-bottom: 15px;
+    line-height: 1.8em;
+}
+
+.THIS div.slds-tile h3.slds-truncate a{
+    
+   
+    font-size: 1.70rem;
+    line-height: 1.2;
+    text-decoration:none;
+}
+
+.THIS.backgroundInverse {
+    position: relative;
+    background-color:transparent;
+    height: 80px;
+}

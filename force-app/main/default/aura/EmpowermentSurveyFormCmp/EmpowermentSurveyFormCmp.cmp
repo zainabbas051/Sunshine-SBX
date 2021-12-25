@@ -1,0 +1,254 @@
+<aura:component controller="EmpowermentPacketSurveyCtrl">
+    
+    <aura:attribute name="empowerObj" type="Empowerment_Packet_Survey__c" default="{ 'sobjectType': 'Empowerment_Packet_Survey__c'}" />
+     <aura:attribute name="yesNoOption" type="String[]" default="Yes,No"/>
+     <aura:attribute name="opptyId" type="string" default="" access="Public"/>
+    <aura:attribute name="showForm" type="boolean" default="false"/>
+      <aura:attribute name="accountType" type="string" default="" access="Public"/>
+    <aura:attribute name="ProtestantType" type="string" default="" access="Public"/>
+     <aura:attribute name="Statuses" type="String[]" default="Complete,Incomplete"/>
+    <aura:attribute name="data" type="List" />
+    <aura:attribute name="SupportMeetingInterests" type="List" default="[
+                   {'label': 'Al-Anon', 'value': 'Al-Anon'},
+                   {'label': 'Celebrate Recovery', 'value': 'Celebrate Recovery'} , 
+                   {'label': 'Oxford House', 'value': 'Oxford House'},
+                   {'label': 'Refuge Recovery', 'value': 'Refuge Recovery'}, 
+                   {'label': 'Veterans Affairs', 'value': 'Veterans Affairs'}, 
+                   {'label': 'LifeRing Secular Recovery', 'value': 'LifeRing Secular Recovery'}, 
+                   {'label': 'Families Anonymous', 'value': 'Families Anonymous'}, 
+                   {'label': 'Dual Recovery Anonymous', 'value': 'Dual Recovery Anonymous'}, 
+                   {'label': 'Smart Recovery', 'value': 'Smart Recovery'}, 
+				   {'label': 'Women for Sobriety', 'value': 'Women for Sobriety'}, 
+                   {'label': 'Alcoholics Anonymous (AA)', 'value': 'Alcoholics Anonymous (AA)'}, 
+				   {'label': 'Cocaine Anonymous', 'value': 'Cocaine Anonymous'}, 
+                   {'label': 'Pills Anonymous', 'value': 'Pills Anonymous'},
+                   {'label': 'Marijuana Anonymous', 'value': 'Marijuana Anonymous'}]"/>
+    <aura:attribute name="states" type="String[]" default="Alabama,Alaska,Arizona,Arkansas,California,Colorado,Connecticut,Delaware,Florida,Georgia,Hawaii,Idaho,Illinois,Indiana,Iowa,Kansas,Kentucky,Louisiana,Maine,Maryland,Massachusetts,Michigan,Minnesota,Mississippi,Missouri,Montana,Nebraska,Nevada,New Hampshire,New Jersey,New Mexico,New York,North Carolina,North Dakota,Ohio,Oklahoma,Oregon,Pennsylvania,Rhode Island,South Carolina,South Dakota,Tennessee,Texas,Utah,Vermont,Virginia,Washington,Washington DC,West Virginia,Wisconsin,Wyoming,Puerto Rico"/>
+    <aura:attribute name="options2" type="List" default="[
+             {'label': 'Yes', 'value': 'Yes'},
+             {'label': 'No', 'value': 'No'}
+                                                         
+       ]"/>
+    <aura:attribute name="optionsEmp" type="List" default="[
+             {'label': 'Yes', 'value': 'Yes'},
+             {'label': 'No', 'value': 'No'}
+                                                         
+       ]"/>
+    <aura:attribute name="options3" type="List" default="[
+             
+             {'label': 'Catholic', 'value': 'Catholic'},
+             {'label': 'Protestant', 'value': 'Protestant'},
+             {'label': 'Jewish', 'value': 'Jewish'},
+             {'label': 'Islamic', 'value': 'Islamic'},
+    		 {'label': 'Other', 'value': 'Other'}     
+       ]"/>
+    <aura:attribute name="optionsProtestant" type="List" default="[
+             
+             {'label': 'Anglican', 'value': 'Anglican Protestant'},
+             {'label': 'Baptist', 'value': 'Baptist Protestant'},
+             {'label': 'Evangelical', 'value': 'Evangelical Protestant'},
+             {'label': 'Jehovahs Witness', 'value': 'Jehovahs Witness Protestant'},
+             {'label': 'Lutheran', 'value': 'Lutheran Protestant'},
+             {'label': 'Methodist', 'value': 'Methodist Protestant'},
+             {'label': 'Mormon', 'value': 'Mormon Protestant'},
+             {'label': 'Orthodox Christian', 'value': 'Orthodox Christian Protestant'},
+             {'label': 'Pentecostal', 'value': 'Pentecostal Protestant'},
+             {'label': 'Other', 'value': 'Other Protestant'}                                                     
+       ]"/>
+    
+    <aura:attribute name="optionsMeeting" type="List" default="[
+             {'label': 'Yes', 'value': 'Yes'},
+             {'label': 'No', 'value': 'No'}
+       ]"/> 
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+      <div class="slds-align_absolute-center" style="max-width: 80%;word-wrap:break-word;">
+    <div class="slds-scrollable_y" style="width:80%;margin-top:10px;">
+     <div class="slds-align_absolute-center" >
+                 <br/>
+        
+        <aura:if isTrue="{!v.accountType =='Monarch Shores'}">
+        
+            <img style="max-width: 30%" src="{!$Resource.MonarchShoresLogo}"/>
+        
+    </aura:if>
+       <aura:if isTrue="{!v.accountType =='Mountain Springs Recovery'}">
+        <img style="max-width: 30%" src="{!$Resource.MountainSpringsLogo}"/>
+    </aura:if>
+             <aura:if isTrue="{!v.accountType =='Willowsprings Recovery'}">
+        <img style="max-width: 30%" src="{!$Resource.Willow_Logo}"/>
+    </aura:if>
+             <aura:if isTrue="{!v.accountType =='Chapters Capistrano'}">
+        <img style="max-width: 30%" src="{!$Resource.Chapters_Logo}"/>
+    </aura:if>
+           
+           
+           </div>
+        
+        <br/>
+	<div class="slds-text-align_center slds-text-title_bold">Client Empowerment Survey</div>
+        <br />
+           <form class="slds-form_stacked">
+               <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+                          <lightning:input 
+                               aura:id="empowermentForm"
+                               value="{!v.empowerObj.City__c}"
+                               required="true" 
+                               label ="City"/>
+                   </div>
+                   <div class="slds-col">
+                       
+                          <lightning:select name="State"
+                                 label="State"
+                                  aura:id="empowermentForm"
+                                 required="true" value="{!v.empowerObj.State__c}">
+                              <option value="">Please select</option>
+        				<aura:iteration items="{!v.states}" var="state">
+                			<option text="{!state}"></option>
+           				 </aura:iteration>
+    			</lightning:select>
+                   </div>
+                  
+                    <div class="slds-col">
+                             <lightning:input type="text" aura:id="empowermentForm" label="Zip Code"
+                             name="Zip Code"  pattern="[0-9]{5}"
+                                value="{!v.empowerObj.Zip_Code__c}"  required="true"  />
+                     </div>
+                   
+               </div>
+                  <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+                          <lightning:textarea 
+                                   name="Street Address"
+                                   aura:id="empowermentForm"
+                                   value="{!v.empowerObj.Street_Address__c}"
+                                   required="true"
+                                   label="Street Address" />
+                      </div>
+               </div>
+               
+                <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+                          <lightning:textarea 
+                                   name="Plans After Completing Treatment?"
+                                   aura:id="empowermentForm"
+                                   value="{!v.empowerObj.Plans_After_Completing_Treatment__c}"
+                                   required="true"
+                                              label="1. Plans After Completing Treatment?" />
+                        
+                   </div>
+               </div>
+                <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+                        
+                        
+                             <lightning:input 
+                               aura:id="empowermentForm"
+                               value="{!v.empowerObj.Hobby_or_Interest__c }"
+                               required="true" 
+                               label ="2. Hobby or Interest"/>
+                     </div>
+               </div>
+                          <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+                          
+                          <lightning:checkboxGroup name="meetings"
+                              aura:id="empowermentForm"
+       							label="3. Support Meetings Interested In"	
+        						options="{!v.SupportMeetingInterests}"
+                             value="{! v.data }"
+                             />
+               
+                    </div>
+               </div>
+                      <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+                         
+                         <lightning:radioGroup
+        aura:id="empowermentForm"
+       label="4. Interested in Attending Religious Service"
+        options="{! v.options2 }"
+         value="{!v.empowerObj.Interested_in_Attending_Religious_Servi__c}"
+        />
+                        
+                   </div>
+                   
+               </div>
+               <aura:if isTrue="{!v.empowerObj.Interested_in_Attending_Religious_Servi__c=='Yes'}">
+                           <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+
+                         <lightning:radioGroup
+        aura:id="empowermentForm1"
+       label="Which Kind of Religious Services?"
+        options="{!v.options3 }"
+         value="{!v.empowerObj.What_Kind_of_Religious_Services__c}"
+        />
+                    </div>
+                    </div>
+                   </aura:if>
+               <aura:if isTrue="{!v.empowerObj.What_Kind_of_Religious_Services__c=='Protestant'}">
+                           <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+
+                         <lightning:radioGroup
+        aura:id="empowermentFormProtestant"
+       label="Please Select:"
+        options="{!v.optionsProtestant}"
+         value="{!v.ProtestantType}"
+        />
+                    </div>
+                    </div>
+                   </aura:if>
+               <aura:if isTrue="{!v.empowerObj.What_Kind_of_Religious_Services__c=='Other'}">
+                 <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+                          <lightning:input 
+                               aura:id="empowermentForm"
+                               value="{!v.empowerObj.Other_Religious_Service__c}"
+                               required="true" 
+                               label ="	Other Religious Service"/>
+               
+                     </div>
+                    
+               </div>
+            </aura:if>
+                
+                 <div class="slds-grid slds-gutters">
+                       <div class="slds-col">
+                       
+                           
+                           <lightning:radioGroup
+        aura:id="empowermentForm"
+       label="5. Plan to Pursue Employment"
+        options="{! v.optionsEmp }"
+         value="{!v.empowerObj.Plan_to_Pursue_Employment__c}"
+        />
+                      </div>
+               </div>
+
+       
+                    
+               <aura:if isTrue="{!v.empowerObj.Plan_to_Pursue_Employment__c=='Yes'}">
+                 <div class="slds-grid slds-gutters">
+                     <div class="slds-col">
+                          <lightning:input 
+                               aura:id="empowermentForm1"
+                               value="{!v.empowerObj.What_Profession__c}"
+                               required="true" 
+                               label ="	What Profession?"/>
+               
+                     </div>
+                    
+               </div>
+            </aura:if>
+               <div class="slds-docked-form-footer">
+      			  <ui:button   class="slds-button slds-button_neutral" press="{!c.back}">Back</ui:button>
+       			 <ui:button  class="slds-button slds-button_brand" press="{!c.save}">Save</ui:button>
+          </div>   
+       
+            </form>
+          </div>
+    </div>
+
+</aura:component>

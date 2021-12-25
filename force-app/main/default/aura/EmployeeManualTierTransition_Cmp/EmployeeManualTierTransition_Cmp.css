@@ -1,0 +1,9 @@
+.THIS .spinnerUpdate{
+    position:absolute
+}
+.THIS .demoonly{
+    position:relative
+}
+.THIS .slds-radio {
+	display: inline-block !important;
+}

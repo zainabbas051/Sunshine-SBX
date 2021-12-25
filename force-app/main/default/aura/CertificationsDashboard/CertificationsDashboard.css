@@ -1,0 +1,37 @@
+.THIS .dataTables_scrollBody
+{
+ overflow-x:hidden !important;
+ overflow-y:auto !important;
+}
+.THIS .available
+{
+  --sds-c-accordion-summary-color-background:#3498DB;
+}
+.THIS .requested
+{
+  --sds-c-accordion-summary-color-background:#F7DC6F;
+}
+.THIS .ongoing
+{
+  --sds-c-accordion-summary-color-background:#ABEBC6;
+}
+ .THIS.slds-spinner_container {  
+  z-index: 10000;
+  position: fixed;   
+}
+            .THIS .completed
+{
+  --sds-c-accordion-summary-color-background:#2ECC71;
+}
+ .THIS .rejected
+{
+  --sds-c-accordion-summary-color-background:#EC7063;
+}
+.THIS .reinburse
+{
+  --sds-c-accordion-summary-color-background:#F7DC6F;
+}
+.THIS.slds-section__title{
+ color:#0075C9;                     
+                            
+                        }

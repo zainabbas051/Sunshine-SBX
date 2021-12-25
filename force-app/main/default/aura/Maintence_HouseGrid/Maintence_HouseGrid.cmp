@@ -1,0 +1,139 @@
+<aura:component controller="MaintenanceCheckListCtrl">
+
+    <!-- Handler Start-->
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    <!-- Handler End-->
+    <!--Variable Start-->
+    <aura:attribute name="Houses" type="House__c[]" />
+    <aura:attribute name="CCHouses" type="House__c[]" />
+    <aura:attribute name="MSHouses" type="House__c[]" />
+    <aura:attribute name="MSRHouses" type="House__c[]" />
+    <aura:attribute name="loaded" type="Boolean" default="false" />
+    <aura:attribute name="AccessType" type="string" />
+    <aura:attribute name="IsTaskListEnabled" type="Boolean" default="false" />
+    <aura:attribute name="selectedHouse" type="string" />
+    <aura:attribute name="maintenanceType" type="string" />
+    <!-- Variable End-->
+
+    <!-- Events Start-->
+    <aura:registerEvent name="ShowActivitiesEvent" type="c:Evt_ShowActivities" />
+
+    <!-- Events End-->
+    
+    <aura:if isTrue="{!!v.IsTaskListEnabled}">
+         <!--Header Component Start-->
+     <c:Cmp_Header screen="Main" title="House Details" loaded="{!v.loaded}"/>
+     <!--Header Component End-->
+        <ul>
+            <div class="slds-grid" >
+               
+                <aura:iteration items="{!v.Houses}" var="item">
+                   
+                    <div class="slds-col slds-size_3-of-12 slds-m-left_small" style="530px;" >
+                       
+                       <lightning:card >
+        <aura:set attribute="title">
+            <lightning:icon iconName="standard:home" style="margin-right:5px;" size="small"/>
+          
+               {!item.Name}
+        </aura:set>
+        
+          <div class="slds-button-group" role="group" style="margin-left:6px;">
+                                    <lightning:button label="Monthly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                    <lightning:button label="Quarterly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                   <!-- <lightning:button label="Seasonally" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button> -->
+                                    <lightning:button label="Yearly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                </div>  
+       
+ 
+    </lightning:card>
+                    </div>
+                       
+                    
+                </aura:iteration>
+                
+                
+               
+                <h3 class="slds-section-title--divider">Mountain Springs Recovery</h3>
+                 <aura:iteration items="{!v.MSRHouses}" var="item">
+                   
+                    <div class="slds-col slds-size_3-of-12 slds-m-left_small" style="530px;" >
+                       
+                       <lightning:card >
+        <aura:set attribute="title">
+            <lightning:icon iconName="standard:home" style="margin-right:5px;" size="small"/>
+          
+               {!item.Name}
+        </aura:set>
+        
+          <div class="slds-button-group" role="group" style="margin-left:6px;">
+                                    <lightning:button label="Monthly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                    <lightning:button label="Quarterly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                   <!-- <lightning:button label="Seasonally" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button> -->
+                                    <lightning:button label="Yearly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                </div>  
+       
+ 
+    </lightning:card>
+                    </div>
+                       
+                    
+                </aura:iteration>
+            </div>
+        </ul>
+        <div class="slds-section slds-is-open">
+  <h3 class="slds-section__title slds-theme_shade">
+    <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Chapters Capistrano</span>
+  </h3>
+  <div aria-hidden="false" class="slds-section__content">
+    <p>
+         <aura:iteration items="{!v.CCHouses}" var="item">
+                   
+                    <div class="slds-col slds-size_3-of-12 slds-m-left_small" style="530px;" >
+                       
+                       <lightning:card >
+        <aura:set attribute="title">
+            <lightning:icon iconName="standard:home" style="margin-right:5px;" size="small"/>
+          
+               {!item.Name}
+        </aura:set>
+        
+          <div class="slds-button-group" role="group" style="margin-left:6px;">
+                                    <lightning:button label="Monthly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                    <lightning:button label="Quarterly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                   <!-- <lightning:button label="Seasonally" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button> -->
+                                    <lightning:button label="Yearly" iconName="utility:date_time" value="{!item.Id}"
+                                        onclick="{!c.showActivities}" variant="neutral"></lightning:button>
+                                </div>  
+       
+ 
+    </lightning:card>
+                    </div>
+                       
+                    
+                </aura:iteration> 
+      
+      </p>
+  </div>
+</div>
+        
+    </aura:if>
+
+    <aura:if isTrue="{!v.IsTaskListEnabled}">
+        <c:Maintenance_TaskLineItem selectedHouse="{!v.selectedHouse}" maintenanceType="{!v.maintenanceType}"
+            AccessType="{!v.AccessType}" loaded="{!v.loaded}" />
+
+    </aura:if>
+
+</aura:component>

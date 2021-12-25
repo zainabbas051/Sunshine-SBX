@@ -1,0 +1,38 @@
+.THIS .checkAllOptions >fieldset >.slds-form-element__control{
+    display: flex !important;
+}
+.THIS .IncidentWas >fieldset >.slds-form-element__control{
+    display: flex !important;
+}
+.THIS .slds-form-element__label{
+    font-weight: bold;
+}
+
+.THIS .levelOneGroup > fieldset >.slds-form-element__control{
+    display: flex !important;
+    flex-wrap:wrap;
+    width: 90%;
+}
+
+.THIS .slds-checkbox{
+    margin : 5px;
+}
+
+.THIS .loadingSpinner{
+    z-index: 10000;
+  position: fixed;
+}
+
+.THIS .slds-radio {
+	display: inline-block !important;
+}
+
+.THIS .slds-checkbox{
+    
+display: inline-block !important;    
+}
+
+.THIS .slds-radio >fieldset 
+{
+    display: inline-block !important;
+}

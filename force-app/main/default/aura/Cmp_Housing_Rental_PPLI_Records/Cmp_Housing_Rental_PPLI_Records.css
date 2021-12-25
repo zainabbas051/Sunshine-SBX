@@ -1,0 +1,20 @@
+.THIS.loadingHolder{
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
+.THIS .slds-form-element__control .slds-radio{
+    display : inline !important;
+}
+.THIS .slds-form-element__control .slds-checkbox{
+    display : inline !important;
+}
+
+.THIS .slds-modal__container{
+    width:30%;
+    max-width: none;
+  
+    height: 100%;
+    padding: 3rem 0;
+}

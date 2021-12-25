@@ -1,0 +1,151 @@
+<aura:component controller="Ctrl_Clinical_Certification">
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="dataSize" type="Integer" default="20"/> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="isNew" type="boolean" default="false"/> 
+    <aura:attribute name="TableTitle" type="String"/>
+    <aura:attribute name="selectedId" type="String"/>
+    <aura:attribute name="certificationId" type="String"/>
+    <aura:attribute name="empID" type="String"/>
+    <aura:attribute name="isReimburse" type="boolean" default="false"/>
+    <aura:attribute name="selectedRow" type="Object" />
+    <aura:attribute name="fileContent1" type="string"/>
+    <aura:attribute name="fileName1" type="string"/>
+    <aura:attribute name="isEmployeeRedirect" type="boolean" />
+    <ltng:require scripts="{!$Resource.AWS}" />
+     <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+    <aura:registerEvent name="UpdateReinbursementCertifications" type="c:UpdateReinbursementCertifications"/>
+    
+<aura:handler event="c:updateCompletedCertifications" action="{!c.UpdateData}"/>
+   <aura:if isTrue="{!v.spinner}">
+         <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+               <span class="slds-assistive-text">Loading...</span>
+               <div class="slds-spinner__dot-a"></div>
+               <div class="slds-spinner__dot-b"></div>
+            </div>
+         </div>
+      </aura:if>
+    <!--
+    <div class="slds-col slds-size_7-of-8">
+  
+    
+        <lightning:datatable style="width: 100%;"  aura:id = "CompletedDataTable"
+                                columns = "{!v.columns}"
+                                data = "{!v.data}"
+                                keyField = "Id"
+								hideCheckboxColumn="true" 
+                                />
+                                   
+    </div>
+-->
+   
+    <aura:if isTrue="{!not(empty(v.data))}">
+     <div class="slds-section slds-is-open">
+
+    <span class="slds-truncate slds-p-horizontal_small slds-text-heading_large slds-section__title slds-theme_shade" style="color: darkorange;font-weight: bold;" title="Section Title">Earned Certifications</span>
+ 
+   <div id="Tilu" class="slds-box">
+ <lightning:layout multipleRows="true">  
+     <aura:iteration items="{!v.data}" var="records" >
+                  <lightning:layoutItem  class="slTile" padding="around-small"  size="3">
+                     <lightning:tile  class="tileheading slds-box slds-theme--shade" label="{!records.Certification_Name__c}">
+                       <!-- <lightning:layout multipleRows="true">-->
+                           <!--<lightning:layoutItem>-->
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_2-of-3 slds-dl_horizontal__label">
+                                     <p class="slds-truncate" title="Date">Date</p>
+                                </div>
+                                <div class="slds-col slds-size_1-of-3 slds-dl_horizontal__detail">
+                                    <p class="slds-truncate" title="Date">{!records.Certification_Completed_Date__c}</p>
+                               </div>
+                             <div class="slds-col slds-size_2-of-3 slds-dl_horizontal__label">
+                                   <p class="slds-truncate" title="certificate">Paid By</p>
+                               </div>
+                               <div class="slds-col slds-size_1-of-3 slds-dl_horizontal__detail">
+                                  <p class="slds-truncate" title="certificate">{!records.Certification_Cost_Paid_By__c}</p>
+                               </div>
+                                <div class="slds-col slds-size_2-of-3 slds-dl_horizontal__label">
+                                   <p class="slds-truncate" title="certificate">Certificate</p>
+                               </div>
+                               <div class="slds-col slds-size_1-of-3 slds-dl_horizontal__detail">
+                                  <p class="slds-truncate" title="certificate"><a href="{!records.Certification_URL__c}">View</a></p>
+                               </div>
+                                <aura:if isTrue="{!or(records.Reimbursement_Request_Status__c=='Submitted',records.Reimbursement_Request_Status__c=='Approved')}">
+                                 <div class="slds-col slds-size_2-of-3 slds-dl_horizontal__label">
+                                   <p class="" title="Receipt">Reimbursement Receipt</p>
+                               </div>
+                                
+                               <div class="slds-col slds-size_1-of-3 slds-dl_horizontal__detail">
+                                  <p class="slds-truncate" title="Receipt"><a href="{!records.Reimbursement_Request_Receipt_URL__c}">View</a></p>
+                               </div>
+                                    </aura:if>
+                            </div>
+                             
+                          <!-- </lightning:layoutItem>-->
+                         
+                          <aura:if isTrue="{!!v.isEmployeeRedirect}">
+                           <lightning:layoutItem padding="around-small" class="rbtn">
+                             
+                              <div style="justify-content: flex-end;display: flex;">
+    
+                               <lightning:button label="{!if(or(empty(records.Reimbursement_Request_Status__c),records.Reimbursement_Request_Status__c=='Denied'),'Request Reimbursement','Reimbursement Requested')}" iconName="utility:internal_share" iconPosition="left" value="{!records}" disabled="{!and(not(empty(records.Reimbursement_Request_Status__c)),records.Reimbursement_Request_Status__c!='Denied')}" onclick="{! c.showCompletedModal}" />
+                               </div>
+                                 
+                               </lightning:layoutItem>
+                        </aura:if>
+                      <!--  </lightning:layout>-->
+                     </lightning:tile>
+                  </lightning:layoutItem>
+               </aura:iteration>
+ </lightning:layout>  
+       </div> 
+         </div>
+    </aura:if>
+    
+    <!--Modal -->
+    <aura:if isTrue="{!v.isReimburse}">   
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <!-- Modal/Popup Box Header Starts here-->
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.closeModel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Upload Receipt</h2>
+            </header>
+            <!--Modal/Popup Box Body Starts here-->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                               <lightning:layout>
+
+                                <lightning:layoutItem>
+                                   <lightning:input  name="file to uploder" label="Attach Receipt" aura:id="MainfileUpload"   onchange="{!c.handleFileUploadMain}" 
+                    type="file" multiple="false"></lightning:input>
+            <ui:outputText aura:id="MainID" value="{!v.fileName1}"/>
+            <div style="display:none;"><lightning:inputField fieldName="Reimbursement_Request_Receipt_URL__c" aura:id="MainImageField"  variant="label-hidden" /> </div>
+
+                                   </lightning:layoutItem>
+                </lightning:layout>
+            </div>
+            <!--Modal/Popup Box Footer Starts here-->
+            <footer class="slds-modal__footer">
+        
+                    <lightning:button variant="neutral"
+                        label="Cancel"
+                        title="Cancel"
+                        onclick="{! c.closeModel }"/>
+                    <lightning:button variant="brand"
+                        label="OK"
+                        title="OK"
+                        onclick="{!c.handleRowActionCompleted}"/>
+                   
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</aura:if> 
+</aura:component>

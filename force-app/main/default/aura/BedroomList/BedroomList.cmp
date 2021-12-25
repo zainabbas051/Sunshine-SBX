@@ -1,0 +1,85 @@
+<aura:component   controller="CleanessChecklistCtrl">
+
+    <!-- Handler Start-->
+    <aura:handler name="init" action="{!c.showBedroomList}" value="{!this}" />
+    <!-- Handler End-->
+    <!--Variable Start-->
+    <aura:attribute name="HouseLineItems" type="House_Line_Items__c[]"/>
+    <aura:attribute name="selectedHouse" type="string"/>
+    <aura:attribute name="selectedBed" type="string"/>
+    <aura:attribute name="showTask" type="boolean" default="false"/>
+    <aura:attribute name="HouseLineItemType" type="string"/>
+    <aura:attribute name="viewType" type="string"/>
+    <aura:attribute name="AccessType" type="string"/>
+    <aura:attribute name="loaded" type="Boolean" />
+    <!-- Variable End-->
+    <aura:if isTrue="{!!v.showTask}">
+          <!--Header Component Start-->
+          <c:Cmp_Header screen="Activity" title="{!v.HouseLineItemType=='Bedroom'?'Bedrooms':'Bathrooms'}" loaded="{!v.loaded}" />
+          <!--Header Component End-->
+        <ul class="slds-has-dividers_bottom-space">
+             <aura:if isTrue="{!and(empty(v.HouseLineItems),v.HouseLineItemType=='Bedroom')}">
+            <table>
+                 <tbody>
+                 <tr>
+             <td colspan="2" >No Bedroom Available</td>
+             </tr>
+        </tbody>
+            </table>
+               </aura:if>
+             <aura:if isTrue="{!and(empty(v.HouseLineItems),v.HouseLineItemType=='Bathroom')}">
+            <table>
+                 <tbody>
+                 <tr>
+             <td colspan="2" >No Bathroom Available</td>
+             </tr>
+        </tbody>
+            </table>
+               </aura:if>
+            <aura:iteration items="{!v.HouseLineItems}" var="item"> 
+                <li class="{!item.Status__c == 'Under Review'? v.AccessType == 'Supervisor' ? 'slds-item OrangeColor' : 'slds-item GreenColor': item.Status__c == 'Incomplete' ? 'slds-item RedColor' : 'slds-item GreenColor'}" data-value="{!item.Id}" onclick="{!c.showTaskList}">
+                   <aura:if isTrue="{!v.HouseLineItemType=='Bedroom'}">
+                    <lightning:tile  label="{!item.Bedroom_Number__c}" >
+                        <aura:set attribute="media">
+                           
+                            <img style="width:35px; height:35px" src="{!$Resource.BedroomIcon}"/>
+                       
+                           
+                            </aura:set>
+                 
+                        
+                    </lightning:tile>
+                    </aura:if>
+                    
+                    <aura:if isTrue="{!v.HouseLineItemType=='Bathroom'}">
+                    <lightning:tile  label="{!item.Bathroom_Number__c}" >
+                        <aura:set attribute="media">
+                           
+                            
+                            <img style="width:35px; height:35px" src="{!$Resource.BathroomIcon}"/>
+                        
+                            </aura:set>
+                 
+                        
+                    </lightning:tile>
+                    </aura:if>
+                       
+                </li>
+            </aura:iteration>
+        </ul>
+    </aura:if>
+        <aura:if isTrue="{!v.showTask}">
+               <!--Header Component Start-->
+                
+                               
+                            <c:Cmp_Header screen="{!v.HouseLineItemType=='Bedroom'|| v.HouseLineItemType=='Bathroom' ? 'Bedroom' : 'Activity'}" title="Task Line Items" loaded="{!v.loaded}"/>
+                       
+                <!--Header Component End-->
+            <c:Cmp_TaskLineItem selectedHouseLineItem="{!v.selectedBed}" selectedHouse="{!v.selectedHouse}" HouseLineItemType="{!v.HouseLineItemType}" viewType="{!v.viewType}"
+            AccessType="{!v.AccessType}" loaded="{!v.loaded}" />
+            
+            </aura:if>
+       
+   
+       
+</aura:component>

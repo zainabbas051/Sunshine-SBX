@@ -1,0 +1,256 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" controller="IncidentReport_Ctrl">
+    <aura:attribute name="infectionObj" type="Infection_Control_Report__c" default="{ 'sobjectType' : 'Sunshine_Center__c',
+                                                                                'Client_Name__c' : ''
+                                                                                }"/>
+    <aura:attribute name="disabled" type="boolean"/>
+    <aura:attribute name="checkAllOptions" type="List"/>
+    <aura:attribute name="checkAllSelected" type="List"/>
+    <aura:attribute name="levelOneOptions" type="List"/>
+    <aura:attribute name="levelOneSelected" type="List"/>
+    <aura:attribute name="levelTwoOptions" type="List"/>
+    <aura:attribute name="levelTwoSelected" type="List"/>
+    <aura:attribute name="levelThreeOptions" type="List"/>
+    <aura:attribute name="levelThreeSelected" type="List"/>
+    <aura:attribute name="incidentList" type="List"/>
+    <aura:attribute name="incidentListSelected" type="List"/>
+    <aura:attribute name="levelOneOther" type="Boolean"/>
+    <aura:attribute name="levelTwoOther" type="Boolean"/>
+    <aura:attribute name="levelThreeOther" type="Boolean"/>
+    <aura:attribute name="RecordId" type="string"/>
+    <aura:attribute name="showForm" type="boolean" default="false"/>
+    <aura:attribute name="showLoading" type="boolean" default="true"/>
+    <aura:attribute name="selectedSunShineCentre" type="string"/>
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+
+    <!--Handlers-->
+    <aura:handler name="init" value="{!this}" action="{!c.defaultAction}"/>
+    <aura:if isTrue="{!v.showLoading}">
+        <div class="loadingSpinner">
+            <lightning:spinner alternativeText="Loading" size="large" />
+        </div>                                                                         
+    </aura:if>
+    <div class="slds-scope">
+        <div class="slds-align_absolute-center">
+            <h2 class="slds-text-heading_medium">INFECTION CONTROL REPORT</h2>
+         </div>
+         <div class="slds-align_absolute-center">
+            <div class="slds-box" style="width: 70%;">
+                <aura:if isTrue="{!v.RecordId != undefined}">
+                    <div class="slds-clearfix" style="padding:0.5rem">
+                        <button onclick="{!c.navigate}" class="slds-button slds-float_right slds-button_outline-brand">Download PDF</button>
+                     </div>
+                </aura:if>
+                <div class="slds-align_absolute-center">
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Chapters Capistrano')}">
+                        <img src="{!$Resource.Chapters_Logo}" style="width: 200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Mountain Springs Recovery')}">
+                        <img src="{!$Resource.MountainSpringsLogo}" style="width: 200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Willow Springs Recovery')}">
+                        <img src="{!$Resource.Willow_Logo}" style="width: 200px;"/>
+                    </aura:if>
+                    <aura:if isTrue="{!or(v.selectedSunShineCentre == 'Monarch Shores')}">
+                        <img src="{!$Resource.MonarchShoresLogo}" style="width: 200px;"/>
+                    </aura:if>
+                </div>
+                <div class="row">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                    <lightning:input name="input1"
+                                     disabled="{!v.disabled}" 
+                                     label="Client Name"
+                                     required="true"
+                                     aura:id="field"
+                                     value="{!v.infectionObj.Client_Name__c	}" />
+                                    <br/>
+                        </div>
+                        <div class="slds-col">
+                         <lightning:input type="date"  aura:id="field"
+                         label="Date of Admission" required="true"
+                      name="Date of Admission" value="{!v.infectionObj.Date_of_Admission__c}"
+                      disabled="{!v.disabled}"  />
+                        </div>
+                         <div class="slds-col">
+                       <lightning:input type="date"  aura:id="field"
+                         label="Date Symptoms Identified" required="true"
+                      name="Date Symptoms Identified" value="{!v.infectionObj.Date_Symptoms_Identified__c}"
+                      disabled="{!v.disabled}"  /> 
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <lightning:checkboxGroup 
+                       class="checkAllOptions"
+                       aura:id="field"
+                        name="checkboxgroup"
+                        label="Check All That Apply:"
+                        options="{!v.checkAllOptions}"
+                        value="{!v.checkAllSelected}"
+                        required="true"
+                        disabled="{!v.disabled}" 
+                        
+                    />
+                    <br/>
+                </div>
+                <div class="row">
+                    <lightning:input type="datetime"  aura:id="field"
+                     label="Incident Date" required="true"
+                      name="Incident Date" value="{!v.incidentObj.Date_Time_of_Incident__c}"
+                      disabled="{!v.disabled}"  />
+                      <br/>
+                </div>
+
+                <div class="row">
+                    <lightning:input type="text"  aura:id="field"
+                     label="Location of Incident (Facility, Building, Room):" required="true" disabled="{!v.disabled}" 
+                      name="Location of Incident (Facility, Building, Room):" value="{!v.incidentObj.Location_of_Incident__c}" />
+                      <br/>
+                </div>
+                <div class="row">
+                    <lightning:checkboxGroup 
+                    class="IncidentWas"
+                     aura:id="field"
+                     name="IncidentWas"
+                     label="This Incident was:"
+                     options="{!v.incidentList}"
+                     value="{!v.incidentListSelected}"
+                     onchange="{!c.incidentHandleChange}"
+                     required="true"
+                     disabled="{!v.disabled}" 
+                 />
+                    
+                </div>
+                <div class="row">
+                    <br/>
+                    <lightning:checkboxGroup 
+                       class="levelOneGroup"
+                        aura:id="mygroup"
+                        name="levelOneGroup"
+                        label="LEVEL ONE - LOW"
+                        options="{!v.levelOneOptions}"
+                        value="{!v.levelOneSelected}"
+                        onchange="{!c.levelOneHandleChange}"
+                        disabled="{!v.disabled}" 
+                    />
+                    
+                </div>
+            
+                <aura:if isTrue="{!or(v.levelOneOther,v.incidentObj.Level_One_Incident_Other_Description__c != undefined)}">
+                <div class="row">
+                    <br/>
+                    <lightning:textarea 
+                    aura:id="field" value="{!v.incidentObj.Level_One_Incident_Other_Description__c}"
+                    label="Other"
+                      required="true" disabled="{!v.disabled}"  />
+                                 
+                </div>
+                </aura:if>
+                <div class="row">
+                    <br/>
+                    <lightning:checkboxGroup 
+                       class="levelOneGroup"
+                        aura:id="mygroup"
+                        name="levelOneGroup"
+                        label="LEVEL TWO - MODERATE"
+                        options="{!v.levelTwoOptions}"
+                        value="{!v.levelTwoSelected}"
+                        onchange="{!c.levelTwoHandleChange}" disabled="{!v.disabled}" 
+                    />
+                   
+                </div>
+                <aura:if isTrue="{!or(v.levelTwoOther,v.incidentObj.Level_Two_Incident_Other_Description__c != undefined)}">
+                    <div class="row">
+                        <br/>
+                        <lightning:textarea
+                        aura:id="field" value="{!v.incidentObj.Level_Two_Incident_Other_Description__c}"
+                        label="Other"
+                          required="true" disabled="{!v.disabled}"  />
+                                     
+                    </div>
+                    </aura:if>
+                <div class="row">
+                    <br/>
+                    <lightning:checkboxGroup 
+                       class="levelOneGroup"
+                        aura:id="mygroup"
+                        name="levelOneGroup"
+                        label="LEVEL THERE - HIGH"
+                        options="{!v.levelThreeOptions}"
+                        value="{!v.levelThreeSelected}"
+                        onchange="{!c.levelThreeHandleChange}" disabled="{!v.disabled}" 
+                    />
+                   
+                </div>
+                <aura:if isTrue="{!or(v.levelThreeOther, v.incidentObj.Level_Three_Incident_Other_Description__c != undefined)}">
+                    <div class="row">
+                        <br/>
+                        <lightning:textarea
+                        aura:id="field" value="{!v.incidentObj.Level_Three_Incident_Other_Description__c}"
+                        label="Other"
+                          required="true" disabled="{!v.disabled}"  />
+                                     
+                    </div>
+                    </aura:if>
+
+                <div class="row">
+                    <br/>
+                    <lightning:textarea value="{!v.incidentObj.Detailed_Description_Of_Incident__c}"
+                        label="DETAILED DESCRIPTION OF INCIDENT (Use additional form if necessary):"
+                          required="true" disabled="{!v.disabled}"  />
+                   
+                </div>
+                <div class="row">
+                    <br/>
+                    <lightning:textarea
+                        aura:id="field" value="{!v.incidentObj.What_Actions_Were_Taken__c}"
+                        label="WHAT ACTIONS WERE TAKEN:"
+                          required="true" disabled="{!v.disabled}"  />
+                   
+                </div>
+                <div class="row">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col">
+                            <lightning:input name="input1"
+                                     disabled="{!v.disabled}" 
+                                     label="Completed By:"
+                                     required="true"
+                                     aura:id="field"
+                                     value="{!v.incidentObj.Completed_By_Name__c}" />
+                                   
+                        </div>
+                        <div class="slds-col">
+                            <lightning:input name="input1"
+                            disabled="{!v.disabled}" 
+                            label="Position/Title:"
+                            required="true"
+                            aura:id="field"
+                            value="{!v.incidentObj.Completed_By_Position_Title__c}" />
+                        </div>
+                        <div class="slds-col">
+                            <lightning:input name="input1"
+                            disabled="{!v.disabled}" 
+                            label="Email:"
+                            required="true"
+                            aura:id="field"
+                            type="email"
+                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                            value="{!v.incidentObj.Completed_By_Email__c}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <br/>
+                     <!-- Neutral variant (default) -->
+                    <lightning:button label="Cancel" title="Cancel" onclick="{!c.cancelForm}"/>
+
+                    <!-- Brand variant: Identifies the primary action in a group of buttons -->
+                    <lightning:button variant="brand" disabled="{!v.disabled}"  label="Save" title="Save" onclick="{!c.saveInc}" />
+                    <br/>
+                </div>
+            </div>       
+         </div>      
+    </div>
+
+</aura:component>

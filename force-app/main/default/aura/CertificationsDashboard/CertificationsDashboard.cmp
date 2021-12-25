@@ -1,0 +1,66 @@
+<aura:component controller="Ctrl_Clinical_Certification">
+    <aura:attribute name="empID" type="string"/>
+     <aura:attribute name="InProgresdata" type="Object"/>
+    <aura:attribute name="showInProgress" type="boolean"/>
+    <aura:attribute name="showRequested" type="boolean"/>
+    <aura:attribute name="empTier" type="string"/>   
+    <aura:attribute name="isNew" type="boolean" default="false"/>
+    <aura:attribute name="enableRequestBtn" type="boolean"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="InProgress" type="Boolean" default="true"/>
+    <aura:attribute name="Requested" type="Boolean" default="true"/>
+    <aura:attribute name="isSuperVisor" type="Boolean" default="false"/>
+    <aura:attribute name="isEmployeeRedirect" type="Boolean"/>
+    <aura:attribute name="selectedEmployeeId" type="string"/>
+    <aura:attribute name="Emp" type="Object"/>
+    <aura:attribute name="empObj" type="object"/>
+    <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+    <aura:attribute name="IsAuthenticated" type="boolean"/>  
+    <aura:handler name="cmpRefreshEvent" event="c:RefreshEvent" action="{!c.doInit}"/>
+
+
+ 
+    <aura:handler name="change" value="{!v.enableRequestBtn}" action="{!c.showHideBtn}"/>
+    <aura:handler name="change" value="{!v.showRequested}" action="{!c.showHideRequestedData}"/>
+    <aura:attribute name="activeSections" type="List" default="['A','B','C','D','E','F','G']" />
+    
+    
+    <aura:if isTrue="{!!v.isNew}">    
+           <aura:if isTrue="{!v.isSuperVisor}">  
+               <c:SupervisorSummary empID="{!v.empID}" />
+          <c:EmployeeTierViews_ClinicalCertification empID="{!v.empID}"  IsAuthenticated="{!v.IsAuthenticated}"/>
+          <c:EmployeeViews_ClinicalCertification empID="{!v.empID}" isEmployeeRedirect = "{!v.isEmployeeRedirect}"
+                      selectedEmployeeId = "{!v.selectedEmployeeId}"/>
+          </aura:if>
+    </aura:if>
+
+    <div class="slds-clearfix slds-page-header" role="banner">
+
+        <aura:if isTrue="{!and(!v.isNew,!v.isEmployeeRedirect)}">
+            <div class="slds-float_right">     
+                <lightning:button variant="brand" label="Request Certifications" aura:id="btnReq" disabled="{!!v.enableRequestBtn}" iconName="utility:new" iconPosition="left"
+                                onclick="{!c.clickNew}" />
+                </div>
+        </aura:if>
+
+    </div>
+  
+      <aura:if isTrue="{!v.isNew}">
+    <c:AvailableCertifications empTier="{!v.empTier}" empObj="{!v.empObj}" empID="{!v.empID}" enableRequestBtn="{!v.enableRequestBtn}"
+                            isNew="{!v.isNew}"/>  
+    
+    </aura:if> 
+   
+      <aura:if isTrue="{!!v.isNew}">    
+       
+            <c:RequestedCertifications empID="{!v.empID}" enableRequestBtn="{!v.enableRequestBtn}" isEmployeeRedirect="{!v.isEmployeeRedirect}" /> 
+            <c:ApprovedCertifications empID="{!v.empID}"  isEmployeeRedirect="{!v.isEmployeeRedirect}" /> 
+            <c:CompletedCertifications empID="{!v.empID}" isEmployeeRedirect="{!v.isEmployeeRedirect}" /> 
+            <c:ReinbursementCertifications empID="{!v.empID}" /> 
+
+            <!--  <c:RejectedCertifications empID="{!v.empID}" /> -->
+        
+
+    </aura:if> 
+   
+</aura:component>

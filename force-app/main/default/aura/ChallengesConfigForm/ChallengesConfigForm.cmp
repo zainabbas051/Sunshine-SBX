@@ -1,0 +1,139 @@
+<aura:component controller="Ctrl_AlumniApp_DailyContent">
+   <aura:attribute name="type" type="string"/>
+    <aura:attribute name="contentName" type="string"/>
+   <aura:attribute name="isNew" type="string"/>
+   <aura:attribute name="DailyContentType" type="string"/>
+   <aura:attribute name="showSpinner" type="boolean" default="false"/>
+   <aura:attribute name="selectedFilesToUpload" type="Object[]"/>
+   <aura:attribute name="fileName" type="string"/>
+   <aura:attribute name="fileContent" type="string"/>
+   <aura:attribute name="fileContent1" type="string"/>
+   <aura:attribute name="fileName1" type="string"/>
+   <aura:attribute name="fileName2" type="string"/>
+   <aura:attribute name="resourceContent" type="string"/>
+   <aura:attribute name="resourceFileName" type="string"/>
+   <aura:attribute name="resourceFile" type="string"/>
+   <aura:attribute name="onRefreshData" type="Aura.Action"/>
+   <aura:attribute name="selectedRowId" type="string"/>
+    <aura:attribute name="thumbnailURL" type="String" />
+      <aura:attribute name="MainURL" type="String" />
+      <aura:attribute name="VideoURL" type="String" />
+   <aura:attribute name="TagList" type="List" default="[
+      {'label': 'Cravings', 'value': 'Cravings'},
+      {'label': 'Anxiety', 'value': 'Anxiety'},
+      {'label': 'Depression', 'value': 'Depression'}
+      ]"    />
+   <ltng:require scripts="{!$Resource.AWS}" />
+   <aura:attribute name="selectedTagList" type="List" default="[]" description=""/>
+    
+     
+    <!--component attributs -->
+    <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+    
+   <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+   <lightning:notificationsLibrary aura:id="notifLib"/>
+     <!--loading spinner start-->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <!-- Loading spinner end--> 
+   <lightning:recordEditForm recordId = "{!v.selectedRowId}" aura:id="recordEditForm" objectApiName="Alumni_App_Challenges_Configurations__c"
+      onsubmit="{!c.handleSubmit}"  onsuccess="{!c.handleSuccess}" onload="{!c.handleCreateLoad}">
+      <lightning:messages aura:id="ContentMessage" />
+       <lightning:Layout multipleRows="true">
+       <lightning:LayoutItem size="3" padding="around-small">
+             <label class="slds-form-element__label" for="ContentFields">Challenge Name</label>
+            <lightning:inputField fieldName="Name" aura:id="ContentFields"  variant="label-hidden" required="true"  />
+       </lightning:LayoutItem>
+            <lightning:LayoutItem size="3" padding="around-small">
+            
+                <lightning:select name="selectItem" aura:id="typeId" label="Type"   value="{!v.type}"  >
+                  <option value="Daily Checkin">Daily Checkin</option>
+               </lightning:select>
+       </lightning:LayoutItem>
+            <lightning:LayoutItem size="3" padding="around-small">
+                <label class="slds-form-element__label" for="aid">Streak Duration</label>
+               <lightning:inputField class="streakSize" style="width:100px !important;" fieldName="Streak_Duration__c" aura:id="ContentFields"  variant="label-hidden" />
+      
+           </lightning:LayoutItem>
+        <lightning:LayoutItem size="9" padding="around-small">
+ <label class="slds-form-element__label"  for="aid">Challenge Description</label>
+            <lightning:inputField fieldName="Challenge_Description__c" required="true" aura:id="ContentFields"  variant="label-hidden" />            
+           </lightning:LayoutItem>
+            <lightning:LayoutItem size="5" padding="around-small">
+                <div>
+               <label class="slds-form-element__label"  for="aid">Landscape Image</label>
+                  <br />
+              <lightning:avatar aura:id="mainAvatar"  style="width:250px !important;height:180px !important;" src="{!v.MainURL}"/>
+                            <aura:if isTrue="{!or(v.selectedRowId!='',v.MainURL!=undefined)}">
+                                <br />
+                                <a href="{!v.MainURL}" target="_blank">View</a>
+                 </aura:if>
+              <lightning:input name="file to uploder" aura:id="MainfileUpload" accept="image/png, .zip"  onchange="{!c.handleFileUploadMain}" 
+               type="file" multiple="false"></lightning:input>
+                </div> 
+
+            <ui:outputText aura:id="MainID" value="{!v.fileName1}"/>
+            <div style="display:none;">
+               <lightning:inputField fieldName="Challenge_Landscape_Image__c" aura:id="MainImageField"  variant="label-hidden" />
+            </div>
+           </lightning:LayoutItem>
+		  <lightning:LayoutItem size="5" padding="around-small">
+              <div>
+               <label class="slds-form-element__label"  for="aid">Thumbnail Image</label>
+                  <br />
+              <lightning:avatar aura:id="IconAvatar" style="width:250px !important;height:180px !important;" src="{!v.thumbnailURL}"/>
+              <aura:if isTrue="{!or(v.selectedRowId!='',v.thumbnailURL!=undefined)}">
+                                <br />
+                                <a href="{!v.thumbnailURL}" target="_blank">View</a>
+                 </aura:if>
+                  <lightning:input  name="file to uploder" aura:id="ThumbnailfileUpload" accept="image/png, .zip"  onchange="{!c.handleFileUploadIcon}" 
+               type="file" multiple="false"></lightning:input>   
+              </div>       
+                  
+      
+            <ui:outputText aura:id="MainID"  value="{!v.fileName2}"/>
+            <div style="display:none;">
+               <lightning:inputField fieldName="Challenge_Thumbnail_Image__c" aura:id="ThumbnailImageField"  variant="label-hidden" />
+            </div>
+
+           </lightning:LayoutItem>
+       </lightning:Layout>
+      <div class="slds-grid slds-wrap">
+    
+  
+         <lightning:inputField aura:id="Challengetype"  fieldName="Type__c" style="display:none"  />
+         
+
+         <aura:if isTrue="{!v.showSpinner}">
+            <lightning:spinner alternative-text="Uploading the file......" size="medium">                        
+            </lightning:spinner>
+         </aura:if>
+         <div style="display:none;">
+            <lightning:button class="slds-m-top--medium" label="Store File to AWS" onclick="{!c.handleFileUpload}" 
+               variant="brand">
+            </lightning:button>
+         </div>
+       
+
+         
+         <div class="slds-row slds-m-bottom_medium">
+            <div class="slds-col slds-size_1-of-3" style="display:none" >
+               <label for="aid">Participant</label>
+               <lightning:inputField fieldName="Participant__c" aura:id="ContentFields"  variant="label-hidden" />
+            </div>
+              <div class="slds-col slds-size_1-of-3" style="display:none" >
+                     </div>
+         </div>
+          
+      </div>
+      <lightning:button class="slds-m-top_small" type="submit" label="Save" variant="brand"  />
+      <lightning:button class="slds-m-top_small" type="button" label="Cancel" onclick="{!c.cancelAction}" />
+   </lightning:recordEditForm>
+</aura:component>

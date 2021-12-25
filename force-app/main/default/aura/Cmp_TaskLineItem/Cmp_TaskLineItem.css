@@ -1,0 +1,8 @@
+.THIS .sldstoggleGreen > .slds-form-element__control > .slds-checkbox_toggle > .slds-checkbox_faux_container > .slds-checkbox_faux{
+    background-color: #5cb85c !important;
+}
+
+
+.THIS .sldstoggleRed > .slds-form-element__control > .slds-checkbox_toggle > .slds-checkbox_faux_container > .slds-checkbox_faux{
+    background-color: #d9534f !important;
+}

@@ -1,0 +1,103 @@
+<aura:component controller="Ctrl_Clinical_Certification" implements="force:appHostable">
+   <aura:attribute name="isTierTransitionEnabled" type="boolean" default="false"/>
+    <aura:attribute name="isManualTransitionEnabled" type="boolean" default="false"/>
+    
+   <aura:attribute name="onclick" type="Aura.Action"/>
+   <aura:attribute name="isTier3TransitionEnabled" type="boolean" default="false"/>
+   <aura:attribute name="selectedTier" type="string"/>
+   <aura:attribute name="progressIndicatorFlag" type="String" />
+   <aura:attribute name="Employeedata" type="Employee__c[]"/>
+   <aura:attribute name="SelectedEmployeedata" type="Object"/>
+    <aura:attribute name="SelectedEmployeeList" type="Employee__c[]"/>
+   <aura:attribute name="Employeecolumns" type="List"/>
+   <aura:attribute name="empID" type="String"/>
+   <aura:attribute name="EmployeeSelected" type="Employee__c" default="{'Id':''}" />
+   <aura:attribute name="defaultRaiting" type="String" default="1"/>
+   <aura:attribute name="MandatoryforTier2Certs" type="String[]" />
+   <aura:attribute name="MandatoryforTier3Certs" type="String[]" />
+   <aura:registerEvent name="cmpRefreshEvent" type="c:RefreshEvent"/>
+<aura:registerEvent name="refreshSummary" type="c:refreshSummary"/>    
+   <aura:attribute name="annualPerformanceOption" type="List" default="[
+      {'label': '1', 'value': '1'},
+      {'label': '2', 'value': '2'},
+      {'label': '3', 'value': '3'},
+      {'label': '4', 'value': '4'},
+      {'label': '5', 'value': '5'},
+      ]"/>
+    <aura:attribute name="Options2" type="List" default="[
+      {'label': 'Yes', 'value': 'Yes'},
+      {'label': 'No', 'value': 'No'}
+      ]"/>
+   <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+   <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+   <lightning:messages />
+   <lightning:notificationsLibrary aura:id="notifLib"/>
+   <div >
+  
+      <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+         aria-modal="true" aria-describedby="modal-content-id-1" 
+         class="slds-modal slds-fade-in-open">
+         <div class="slds-modal__container demo-only">
+            <aura:if isTrue="{!v.spinner}">
+                
+                <lightning:spinner alternativeText="Loading" size="medium" variant="brand" class="spinnerUpdate"  />
+            
+           </aura:if>
+            <header class="slds-modal__header">
+               <lightning:buttonIcon iconName="utility:close"
+                  onclick="{! c.closeModel }"
+                  alternativeText="close"
+                  variant="bare-inverse"
+                  class="slds-modal__close"/>
+
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Manual Tier Transition</h2>
+                
+                               
+               
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+              
+               <lightning:progressIndicator class="slds-p-bottom_medium" type="path" currentStep="{!v.progressIndicatorFlag}">
+                  <lightning:progressStep label="Select Employees" value="step1"/>
+                  <lightning:progressStep label="Select Tier to Transfer" value="step2"/>
+               </lightning:progressIndicator>
+               <div aura:id="stepOne">
+                  <lightning:datatable aura:id="employeeTable"
+                     columns="{! v.Employeecolumns }"
+                     onrowselection="{! c.updateSelectedEmployees}"
+                     data="{! v.Employeedata }"
+                     keyField="Id"
+                     />
+                  <div  class="slds-p-top_medium">
+                     <lightning:button aura:id="btnNext"  label="Next" onclick="{!c.goToStepTwo}" disabled="true" variant="brand"/>
+                  </div>
+               </div>
+               <div aura:id="stepTwo">
+               
+                  
+                             
+                   <lightning:layout verticalAlign="start" multipleRows="true">
+        
+                   <lightning:layoutItem padding="around-small" size="10">
+                   <lightning:select name="select1" label="Please select a Tier to transfer the selected employee in" required="true" value="{!v.selectedTier}">
+                    <option value="">choose one...</option>
+                    <option value="Tier 1">Tier 1</option>
+                    <option value="Tier 2">Tier 2</option>
+                    <option value="Tier 3">Tier 3</option>
+                </lightning:select>
+                       </lightning:layoutItem>
+
+ 
+                   </lightning:layout>
+                 
+                  <div  class="slds-p-top_medium">
+                     <lightning:button label="Back" onclick="{!c.goBackToStepOne}" />
+                     <lightning:button label="Save" onclick="{!c.SaveRecords}" variant="brand"/>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open overlay"></div>
+   </div>
+</aura:component>

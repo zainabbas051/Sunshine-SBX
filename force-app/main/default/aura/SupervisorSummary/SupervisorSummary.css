@@ -1,0 +1,46 @@
+.THIS .cardwidth{
+ 	height: 160px;
+    margin: 1px;
+    padding-bottom:5px;
+   
+    
+}
+
+.THIS .lastCard {
+    }
+.THIS.slds-tile_board{
+  position:relative !important;
+}
+.THIS.slds-tile--board{
+  position:relative !important;
+}
+.THIS.outterPadding{
+  
+}
+.THIS.slds-tile_board__icon,
+.THIS.slds-tile--board__icon{
+  width:1rem !important;
+  height:1rem !important;
+  position:absolute !important;
+  bottom:0.25rem !important;
+  right:0.25rem !important;
+}
+.THIS.slds-tile_board .slds-has-alert,
+.THIS.slds-tile--board .slds-has-alert{
+ 
+}
+
+.THIS .Col2{
+      display: inline-block;
+       border-radius: 70% !important;
+       padding: .25rem!important;
+    padding-left: 0.5rem!important;
+    padding-right: .5rem!important;
+       position: relative;
+        top: -.5rem;
+        right: 0.80rem;
+        background-color: red;
+        color: white;
+        text-align: center !important;
+        font: 11px Arial, sans-serif !important;
+}

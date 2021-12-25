@@ -1,0 +1,165 @@
+<aura:component controller="Ctrl_AlumniApp_DailyContent">
+   <aura:attribute name="type" type="string"/>
+    <aura:attribute name="contentName" type="string"/>
+   <aura:attribute name="isNew" type="string"/>
+   <aura:attribute name="DailyContentType" type="string"/>
+   <aura:attribute name="showSpinner" type="boolean" default="false"/>
+   <aura:attribute name="selectedFilesToUpload" type="Object[]"/>
+   <aura:attribute name="fileName" type="string"/>
+   <aura:attribute name="fileContent" type="string"/>
+   <aura:attribute name="fileContent1" type="string"/>
+   <aura:attribute name="fileName1" type="string"/>
+   <aura:attribute name="fileName2" type="string"/>
+   <aura:attribute name="resourceContent" type="string"/>
+   <aura:attribute name="resourceFileName" type="string"/>
+   <aura:attribute name="resourceFile" type="string"/>
+   <aura:attribute name="onRefreshData" type="Aura.Action"/>
+   <aura:attribute name="selectedRowId" type="string"/>
+    <aura:attribute name="thumbnailURL" type="String" />
+      <aura:attribute name="MainURL" type="String" />
+      <aura:attribute name="VideoURL" type="String" />
+   <aura:attribute name="TagList" type="List" default="[
+      {'label': 'Cravings', 'value': 'Cravings'},
+      {'label': 'Anxiety', 'value': 'Anxiety'},
+      {'label': 'Depression', 'value': 'Depression'}
+      ]"    />
+   <ltng:require scripts="{!$Resource.AWS}" />
+   <aura:attribute name="selectedTagList" type="List" default="[]" description=""/>
+    
+     
+    <!--component attributs -->
+    <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+    
+   <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+   <lightning:notificationsLibrary aura:id="notifLib"/>
+     <!--loading spinner start-->
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <!-- Loading spinner end--> 
+   <lightning:recordEditForm recordId = "{!v.selectedRowId}" aura:id="recordEditForm" objectApiName="Alumni_App_Daily_Content__c"
+      onsubmit="{!c.handleSubmit}"  onsuccess="{!c.handleSuccess}" onload="{!c.handleCreateLoad}">
+      <lightning:messages aura:id="ContentMessage" />
+      <div class="slds-grid slds-wrap">
+         <div class="slds-col slds-size_2-of-6">
+            <label for="aid">Content Name</label>
+            <lightning:inputField fieldName="Name" aura:id="ContentFields"  variant="label-hidden" required="true"  />
+         </div>
+         <div class="slds-col slds-size_2-of-6 slds-m-left_xx-large">
+            <label for="aid">Author</label>
+            <lightning:inputField fieldName="Author__c" required="true" aura:id="ContentFields"  variant="label-hidden"/>
+         </div>
+         <aura:if isTrue="{!v.DailyContentType == 'Clinical Quotes'}">
+            <div class="slds-col slds-size_2-of-6">
+               <lightning:select name="selectItem" label="Type"  value="{!v.type}" required="true" >
+                  <option value="Clinical Video">Clinical Video</option>
+                  <option value="Clinical Audio">Clinical Audio</option>
+                  <option value="Clinical Articles">	Clinical Articles</option>
+               </lightning:select>
+            </div>
+            <div class="slds-col slds-size_2-of-6 slds-m-left_xx-large slds-m-bottom_x-large">
+               <lightning:dualListbox aura:id="selectTag"
+                  style="height:10px !important; margin-bottom: 75px !important;"
+                  name="Tag"
+                  sourceLabel="Available Tags"
+                  selectedLabel="Selected Tags"
+                  options="{!v.TagList }"
+                  value="{!v.selectedTagList}"
+                  onchange="{!c.handleTagChange}"
+                  size="3"/>
+            </div>
+         </aura:if>
+         <lightning:inputField aura:id="ContentFields"  fieldName="Type__c" style="display:none"  />
+         <lightning:inputField aura:id="TagContentField"  fieldName="Tags__c" style="display:none"  />
+         <div class="slds-col slds-size_5-of-6 slds-m-top-large" style="margin-top:30px;">
+            <label for="aid">Content Body</label>
+            <lightning:inputField fieldName="Content_Body__c" required="true" aura:id="ContentFields"  variant="label-hidden" />
+         </div>
+         <aura:if isTrue="{!v.showSpinner}">
+            <lightning:spinner alternative-text="Uploading the file......" size="medium">                        
+            </lightning:spinner>
+         </aura:if>
+         <div style="display:none;">
+            <lightning:button class="slds-m-top--medium" label="Store File to AWS" onclick="{!c.handleFileUpload}" 
+               variant="brand">
+            </lightning:button>
+         </div>
+         <div class="slds-col slds-size_4-of-12 slds-truncate">
+
+                          
+            <lightning:input label="Main Image URL" name="file to uploder" aura:id="MainfileUpload" accept="image/png, .zip"  onchange="{!c.handleFileUploadMain}" 
+               type="file" multiple="false"></lightning:input>
+             <div style="width:200px;" class="">
+                 <aura:if isTrue="{!v.selectedRowId!=''}">
+         <a href="{!v.MainURL}" target="_blank">View</a>
+                 </aura:if>
+             </div>
+            <ui:outputText aura:id="MainID" value="{!v.fileName1}"/>
+            <div style="display:none;">
+               <lightning:inputField fieldName="Main_Image_URL__c" aura:id="MainImageField"  variant="label-hidden" />
+            </div>
+         </div>
+         <div class="slds-col slds-size_4-of-12">
+
+            <lightning:input label="Thumbnail Image URL" name="file to uploder" aura:id="ThumbnailfileUpload" accept="image/png, .zip"  onchange="{!c.handleFileUploadIcon}" 
+               type="file" multiple="false"></lightning:input>
+             <div style="width:200px;" class="">
+               <aura:if isTrue="{!v.selectedRowId!=''}">
+                 <a href="{!v.thumbnailURL}" target="_blank">View</a>
+
+        </aura:if>
+             </div>
+            <ui:outputText aura:id="MainID"  value="{!v.fileName2}"/>
+            <div style="display:none;">
+               <lightning:inputField fieldName="Thumbnail_Image_URL__c" aura:id="ThumbnailImageField"  variant="label-hidden" />
+            </div>
+         </div>
+         <div style="display:none;">
+            <lightning:inputField fieldName="Resource_URL__c" aura:id="ResourceField"  variant="label-hidden" />
+         </div>
+         <aura:if isTrue="{!and(v.DailyContentType == 'Clinical Quotes',v.type == 'Clinical Video')}">
+            <div class="slds-col slds-size_4-of-12">
+                <lightning:input label="Video URL" name="file to uploder" aura:id="resourceUploadVideo" accept=".mp4"  onchange="{!c.handleAudioVideo}" 
+                   type="file" multiple="false"></lightning:input>
+                <div style="width:200px;" class="slds-truncate">
+                    <aura:if isTrue="{!v.selectedRowId!=''}">
+                        
+                       
+         <a href="{!v.VideoURL}" target="_blank">View</a>
+                    </aura:if>
+             </div>
+                <ui:outputText  value="{!v.resourceFileName}"/>
+               
+             </div>
+         </aura:if>
+         <aura:if isTrue="{!and(v.DailyContentType == 'Clinical Quotes',v.type == 'Clinical Audio')}">
+                <div class="slds-col slds-size_4-of-12">
+                    <lightning:input label="Audio URL" name="file to uploder" aura:id="resourceUpload" accept=".mp3"  onchange="{!c.handleAudioVideo}" 
+                       type="file" multiple="false"></lightning:input>
+                    <div style="width:200px;" class="slds-truncate">
+       <aura:if isTrue="{!v.selectedRowId!=''}">
+         <a href="{!v.VideoURL}" target="_blank">View</a>
+                    </aura:if>
+             </div>
+                    <ui:outputText aura:id="MainID" value="{!v.resourceFileName}"/>
+                 
+                 </div>
+         </aura:if>
+         <div class="slds-col slds-size_2-of-6"></div>
+         <div class="slds-row slds-m-bottom_medium">
+            <div class="slds-col slds-size_1-of-3" style="display:none" >
+               <label for="aid">Published Date</label>
+               <lightning:inputField fieldName="Published_Date__c" aura:id="ContentFields"  variant="label-hidden" />
+            </div>
+         </div>
+      </div>
+      <lightning:button class="slds-m-top_small" type="submit" label="Save" variant="brand"  />
+      <lightning:button class="slds-m-top_small" type="button" label="Cancel" onclick="{!c.cancelAction}" />
+   </lightning:recordEditForm>
+</aura:component>

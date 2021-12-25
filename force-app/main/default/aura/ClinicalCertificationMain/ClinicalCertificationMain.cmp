@@ -1,0 +1,63 @@
+<aura:component access="global" implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:isUrlAddressable,forceCommunity:availableForAllPageTypes"  controller="Ctrl_Clinical_Certification">
+   <aura:attribute name="empID" type="string" default=""/>
+   <aura:attribute name="isSuperVisor" type="Boolean" default="false"/>
+   <aura:attribute name="empTier" type="string" />
+   <aura:attribute name="sunshineCenter" type="string" />
+   <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+   <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+   <aura:attribute name="totalBudget" type="decimal" />
+   <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+   <aura:attribute name="availableBudget" type="decimal" />
+   <aura:attribute name="selectedTab" type="string" />
+   <aura:attribute name="showIncidentReport" type="boolean" />
+   <aura:attribute name="showClinicalDashboard" type="boolean" />
+   <ltng:require styles="../resource/1622021842000/ClinicalStyle"/>
+   <!-- Add an "init" handler to handle the first "v.pageReference" value -->
+   <aura:handler name="init" value="{!this}" action="{!c.onPageReferenceChange}"/>
+   <aura:handler name="UpdateEmpBudget" event="c:UpdateEmpBudget" action="{!c.handleBudget}"/>
+   <div class="slds-box slds-theme_default">
+      <aura:if isTrue="{!v.spinner}">
+         <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+               <span class="slds-assistive-text">Loading...</span>
+               <div class="slds-spinner__dot-a"></div>
+               <div class="slds-spinner__dot-b"></div>
+            </div>
+         </div>
+      </aura:if>
+      <aura:if isTrue="{!v.empID != ''}">
+         <div  style="float:right; margin-right:10px;">
+            <lightning:button  variant="base" label="Log out" iconName="utility:logout" onclick="{!c.logoutButton}" iconPosition="left" />
+         </div>
+         <lightning:tabset selectedTabId="one">
+            <aura:if isTrue="{!v.showClinicalDashboard}">
+               <lightning:tab label="Employee Dashboard" id="one">
+                  <c:EmployeeProfile empID="{!v.empID}" aura:id="employeeCmp"
+                     availableBudget="{!v.availableBudget}" budgetUtilization="{!v.totalBudget}"/>
+                  <c:CertificationsDashboard empID="{!v.empID}" empTier="{!v.empTier}" 
+                     isSuperVisor="{!v.isSuperVisor}"  IsAuthenticated="{!v.IsAuthenticated}"  />
+               </lightning:tab>
+            </aura:if>
+            <aura:if isTrue="{!v.showIncidentReport}">
+               <lightning:tab label="Incident Report" id="two">
+                  <c:IncidentReportMain_Cmp empId="{!v.empID}"/>
+               </lightning:tab>
+            </aura:if>
+            <lightning:tab label="Infection Control Report" id="three">
+               <c:InfectionControlMain_Cmp empId="{!v.empID}"/>
+            </lightning:tab>
+             
+            <lightning:tab label="Client Ticket" id="four">
+             
+               <c:ClientTickets_Main employeeId="{!v.empID}" />
+            </lightning:tab>
+            <lightning:tab label="Hand Hygiene Report" id="five">
+               <c:HandHygieneReportMain empId="{!v.empID}"/>
+            </lightning:tab>
+            <lightning:tab label="Due Payment" id="six">
+               <c:OpenPPLIPayment_Main employeeId="{!v.empID}"/>
+            </lightning:tab>
+         </lightning:tabset>
+      </aura:if>
+   </div>
+</aura:component>

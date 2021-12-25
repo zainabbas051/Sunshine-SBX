@@ -1,0 +1,27 @@
+<aura:component implements="flexipage:availableForAllPageTypes"  controller="Ctrl_Client_Satisfaction_Survey" access="global" >
+	<aura:attribute name="IsAuthenticated" type="boolean"/>
+    <aura:attribute name="showLogoutBtn" type="boolean" default="True"/>
+    <aura:attribute name="SunshineCenterName" type="string"/>
+    <aura:registerEvent name="ClientSurveyLoggedin" type="c:ClientSurveyLoggedin"/>
+    <aura:registerEvent name="ClientSatisfactionSurveyEvent_Invert" type="c:ClientSatisfactionSurveyEvent_Invert"/>
+    <aura:registerEvent name="ClientSatisfaction_Event" type="c:ClientSatifaction_Event"/>
+    <aura:registerEvent name="ShowCreateSurveyCmp_Event" type="c:ShowCreateSurveyCmp_Event"/>
+    <aura:registerEvent name="ShowSurveyGridViewCmp_Event" type="c:ShowSurveyGridviewCmp_Event"/>
+    <aura:handler event="c:ClientSurveyLoggedin" action="{!c.handleClientSurveyLoggein}"/>
+    <aura:if isTrue="{!v.IsAuthenticated == true}"> 
+
+ <div style="background-color:#16325c;padding:0.5rem">
+   <aura:if isTrue="{!v.showLogoutBtn}">
+     <button class="slds-button slds-button_inverse right-align" onclick="{!c.ShowCreateSurveyComponent}">Create Survey</button>
+ 
+     <button class="slds-button slds-button_inverse right-align" onclick="{!c.ShowSurveyListView}">View Latest Surveys</button>
+   
+     <button class="slds-button slds-button_inverse right-align" onclick="{!c.Logout}">Logout</button>
+</aura:if>
+</div>
+       
+  
+
+   
+        </aura:if>
+</aura:component>

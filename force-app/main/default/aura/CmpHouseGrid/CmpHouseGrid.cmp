@@ -1,0 +1,49 @@
+<aura:component   controller="CleanessChecklistCtrl">
+
+    <!-- Handler Start-->
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    <!-- Handler End-->
+    <!--Variable Start-->
+    <aura:attribute name="Houses" type="House__c[]"/>
+    <aura:attribute name="loaded" type="Boolean" default="false" />
+    <aura:attribute name="AccessType" type="string"/>
+    <!-- Variable End-->
+
+    <!-- Events Start-->
+    <aura:registerEvent name="ShowActivitiesEvent" type="c:Evt_ShowActivities"/>
+
+    <!-- Events End-->
+  
+    
+            <ul >
+                <div class="slds-grid slds-wrap">
+            <aura:iteration items="{!v.Houses}" var="item">
+               <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_6-of-12">
+                <li class="slds-box slds-box_x-small slds-m-around_x-small">
+                    <lightning:tile  label="{!item.Name}">
+                        <aura:set attribute="media">
+                            <lightning:avatar src="/docs/component-library/app/images/examples/household.jpg" fallbackIconName="standard:household" alternativeText="{!item.sunshine_Center__r.Name}"/>
+                        </aura:set>
+                        <ul class="slds-list_horizontal slds-has-dividers_right">
+                            <li class="slds-item">{!item.sunshine_Center__r.Name}</li>                 
+                        </ul>
+                        <aura:if isTrue="{!v.AccessType != 'Director'}">
+                            <p>
+                            <lightning:button label="Daily" iconName="utility:dayview" value="{!item.Id}"  onclick="{!c.showDailyActiviy}" variant="brand" ></lightning:button> 
+                            <lightning:button label="Weekly" iconName="utility:weeklyview" value="{!item.Id}"  onclick="{!c.showWeeklyActiviy}" variant="brand" ></lightning:button>
+                            </p>
+                            <aura:set attribute="else">
+                                <p>
+                                    <lightning:button label="Director's View" iconName="utility:all" value="{!item.Id}"  onclick="{!c.showAllActiviy}" variant="brand" ></lightning:button>
+                                </p>
+                              </aura:set>
+                        </aura:if>          
+                    </lightning:tile>
+                </li>
+                   </div>
+            </aura:iteration>
+        </div>
+        </ul>
+  
+       
+</aura:component>

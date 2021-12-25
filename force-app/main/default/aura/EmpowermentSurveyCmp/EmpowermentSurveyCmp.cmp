@@ -1,0 +1,21 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:appHostable">
+    <aura:attribute name="showForm" type="boolean" default="false"/>
+       <aura:attribute name="opptyId" type="string" default=""/>
+      <aura:attribute name="accountType" type="string" default=""/>
+
+    <aura:handler name="cmpEvent" event="c:ceEvent" action="{!c.handleComponentEvent}"/>
+<div style="background-color: white;" >
+
+    <div class="slds-m-around_small">
+
+        <aura:if isTrue="{!v.showForm}">
+            <c:EmpowermentSurveyFormCmp showForm="{!v.showForm}" opptyId="{!v.opptyId}" accountType="{!v.accountType}"/>
+            <aura:set attribute="else">
+                <c:EmpowermentShowClientCmp/>
+                </aura:set>
+            </aura:if>
+
+
+</div>
+</div>
+</aura:component>

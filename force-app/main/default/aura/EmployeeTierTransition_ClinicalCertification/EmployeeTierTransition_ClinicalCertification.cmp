@@ -1,0 +1,139 @@
+<aura:component controller="Ctrl_Clinical_Certification" implements="force:appHostable">
+   <aura:attribute name="isTierTransitionEnabled" type="boolean" default="false"/>
+   <aura:attribute name="onclick" type="Aura.Action"/>
+   <aura:attribute name="isTier3TransitionEnabled" type="boolean" default="false"/>
+   <aura:attribute name="progressIndicatorFlag" type="String" />
+   <aura:attribute name="Employeedata" type="Employee__c[]"/>
+   <aura:attribute name="SelectedEmployeedata" type="Object"/>
+   <aura:attribute name="Employeecolumns" type="List"/>
+   <aura:attribute name="empID" type="String"/>
+   <aura:attribute name="EmployeeSelected" type="Employee__c" default="{'Id':''}" />
+   <aura:attribute name="defaultRaiting" type="String" default="1"/>
+   <aura:attribute name="MandatoryforTier2Certs" type="String[]" />
+   <aura:attribute name="MandatoryforTier3Certs" type="String[]" />
+   <aura:registerEvent name="cmpRefreshEvent" type="c:RefreshEvent"/>
+<aura:registerEvent name="refreshSummary" type="c:refreshSummary"/>    
+   <aura:attribute name="annualPerformanceOption" type="List" default="[
+      {'label': '1', 'value': '1'},
+      {'label': '2', 'value': '2'},
+      {'label': '3', 'value': '3'},
+      {'label': '4', 'value': '4'},
+      {'label': '5', 'value': '5'},
+      ]"/>
+    <aura:attribute name="Options2" type="List" default="[
+      {'label': 'Yes', 'value': 'Yes'},
+      {'label': 'No', 'value': 'No'}
+      ]"/>
+   <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+   <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+   <lightning:messages />
+   <lightning:notificationsLibrary aura:id="notifLib"/>
+   <div >
+  
+      <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+         aria-modal="true" aria-describedby="modal-content-id-1" 
+         class="slds-modal slds-fade-in-open">
+         <div class="slds-modal__container demo-only">
+            <aura:if isTrue="{!v.spinner}">
+                
+                <lightning:spinner alternativeText="Loading" size="medium" variant="brand" class="spinnerUpdate"  />
+            
+           </aura:if>
+            <header class="slds-modal__header">
+               <lightning:buttonIcon iconName="utility:close"
+                  onclick="{! c.closeModel }"
+                  alternativeText="close"
+                  variant="bare-inverse"
+                  class="slds-modal__close"/>
+                <aura:if isTrue="{!v.isTierTransitionEnabled}">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Transition to Tier 2</h2>
+                </aura:if>
+                                <aura:if isTrue="{!v.isTier3TransitionEnabled}">
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Transition to Tier 3</h2>
+                </aura:if>
+               
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+              
+               <lightning:progressIndicator class="slds-p-bottom_medium" type="path" currentStep="{!v.progressIndicatorFlag}">
+                  <lightning:progressStep label="Select Employees" value="step1"/>
+                  <lightning:progressStep label="Finalize" value="step2"/>
+               </lightning:progressIndicator>
+               <div aura:id="stepOne">
+                  <lightning:datatable aura:id="employeeTable"
+                     columns="{! v.Employeecolumns }"
+                     onrowselection="{! c.updateSelectedTrainings }"
+                     data="{! v.Employeedata }"
+                     maxRowSelection="1"
+                     keyField="Id"
+                     />
+                  <div  class="slds-p-top_medium">
+                     <lightning:button aura:id="btnNext"  label="Next" onclick="{!c.goToStepTwo}" disabled="true" variant="brand"/>
+                  </div>
+               </div>
+               <div aura:id="stepTwo">
+                   <aura:if isTrue="{!v.isTierTransitionEnabled}">
+                   <lightning:layout verticalAlign="start" multipleRows="true">
+                                             <lightning:layoutItem padding="around-medium" size="8">
+                           <label style="font-weight: bold;" class="slds-form-element__label" for="unique-id-of-input">Completed Trainings Mandatory for Tier 2 Tranisition</label>
+                       <aura:iteration items="{!v.MandatoryforTier2Certs}" var="item">
+                            <lightning:badge label="{!item}" iconName="utility:success" iconPosition="end"/>
+                        </aura:iteration>
+                      
+                           </lightning:layoutItem >
+                   <lightning:layoutItem padding="around-medium" size="10">
+                        <lightning:radioGroup aura:id="Q1"
+                      label="Completed 90 days Review?"
+                      name="radioButtonGroup1" options="{! v.Options2 }"
+                      value="{! v.EmployeeSelected.Completed_90_day_review__c}" />
+                       </lightning:layoutItem>
+ 
+                   </lightning:layout>
+                  </aura:if>
+                  
+                                   <aura:if isTrue="{!v.isTier3TransitionEnabled}">
+                   <lightning:layout verticalAlign="start" multipleRows="true">
+                       <aura:if isTrue="{!not(empty(v.MandatoryforTier3Certs))}">
+                                             <lightning:layoutItem padding="around-small" size="8">
+                           <label style="font-weight: bold;" class="slds-form-element__label" for="unique-id-of-input">Completed Trainings Mandatory for Tier 3 Tranisition</label>
+                       <aura:iteration items="{!v.MandatoryforTier3Certs}" var="item">
+                            <lightning:badge label="{!item}" iconName="utility:success" iconPosition="end"/>
+                        </aura:iteration>
+                      
+                           </lightning:layoutItem >
+                           </aura:if>
+                   <lightning:layoutItem padding="around-small" size="10">
+                        <lightning:radioGroup aura:id="Q1_3"
+                      label="Annual review shows exemplary work in role?"
+                      name="radioButtonGroup1" options="{! v.Options2 }"
+                      value="{! v.EmployeeSelected.annual_review_shows_exemplary_work__c}" />
+                       </lightning:layoutItem>
+                     <lightning:layoutItem padding="around-small" size="10">
+                        <lightning:radioGroup aura:id="Q2_3"
+                      label="Completed a review of recorded session?"
+                      name="radioButtonGroup1" options="{! v.Options2 }"
+                      value="{! v.EmployeeSelected.completed_a_review_of_recorded_session__c}" />
+                       </lightning:layoutItem>
+                       <lightning:layoutItem padding="around-small" size="10">
+                        <lightning:input type="number" style="font-weight: bold;" name="input1" label="No. of family program meetings, participated and presented." value="{!v.EmployeeSelected.No_of_family_programs_participated__c}" />
+                       </lightning:layoutItem>
+                       <lightning:layoutItem padding="around-small" size="10">
+                        <lightning:radioGroup aura:id="Q1_5"
+                      label="Any write-ups in the past 6 months?"
+                      name="radioButtonGroup1" options="{! v.Options2 }"
+                      value="{! v.EmployeeSelected.Any_write_ups_in_the_past_6_mos__c}" />
+                       </lightning:layoutItem>
+ 
+                   </lightning:layout>
+                  </aura:if>
+                  <div  class="slds-p-top_medium">
+                     <lightning:button label="Back" onclick="{!c.goBackToStepOne}" />
+                     <lightning:button label="Save" onclick="{!c.SaveRecords}" variant="brand"/>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open overlay"></div>
+   </div>
+</aura:component>

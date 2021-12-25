@@ -1,0 +1,63 @@
+<aura:component controller="ClientTicket_Ctrl">    
+    <aura:attribute name="caseObj" type="Case" default="{ 'sobjectType' : 'Case',
+    'Ticket_Created_By__c' : ''
+    }"/>   
+    <aura:attribute name="escalatePopUp" type="boolean"/>  
+    <aura:attribute name="supervisors" type="List" />  
+    <aura:attribute name="empId" type="string" /> 
+    <aura:attribute name="submitBtn" type="boolean" default="true" /> 
+    <aura:attribute name="managerName" type="string" />
+     <!--Handlers-->
+     <aura:handler name="init" value="{!this}" action="{!c.defaultAction}"/>
+     <lightning:notificationsLibrary aura:id="notifLib"/>
+    <!-- Modal/Popup Box starts here-->
+    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <!-- Modal/Popup Box Header Starts here-->
+            <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                        onclick="{! c.cancelEscalate }"
+                                        alternativeText="close"
+                                        variant="bare-inverse"
+                                        class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Escalate</h2>
+            </header>
+            <!--Modal/Popup Box Body Starts here-->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col">
+    
+                     <lightning:select name="select" required="true" aura:id="supervisorField" value="{!v.caseObj.Escalated_To__c}" 
+                        label="supervisor" >
+                          <option value=""> --None--</option>
+                           <aura:iteration items="{!v.supervisors}" var="supervisor">
+                            <option value="{!supervisor.key }">{!supervisor.value }</option>
+                           </aura:iteration>
+                       </lightning:select>
+                    </div>
+                    <div class="slds-col">
+                        <lightning:input name="input1" type="date"
+                        label="Escalated Date Time"
+                        required="true" 
+                        aura:id="dateTimeReqField"
+                        value="{!v.caseObj.Escalated_Date_Time__c}" />
+                    </div>
+                  
+                </div>
+            </div>
+            <!--Modal/Popup Box Footer Starts here-->
+            <footer class="slds-modal__footer">
+                <lightning:button variant="neutral"
+                                    label="Cancel"
+                                    title="Cancel"
+                                    onclick="{! c.cancelEscalate }"/>
+                <lightning:button variant="brand"
+                                    label="Submit"
+                                    title="Submit"
+                                    disabled="{!v.submitBtn}"
+                                    onclick="{!c.submitEscalateDetail}"/>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</aura:component>

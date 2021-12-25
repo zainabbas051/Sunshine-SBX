@@ -1,0 +1,712 @@
+<aura:component controller="Ctrl_Client_Outcome_Survey" 
+				implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" 
+				access="global"  >
+    <aura:attribute name="SurveyId" type="string"/>
+    <aura:attribute name="oppID" type="string" />
+    <aura:attribute name="clientName" type="string" />
+    <aura:attribute name="clientAdmissionDate" type="string" />
+    <aura:attribute name="AccountType" type="string"/>
+    <aura:attribute name="SurveyStatus" type="string"/>
+    <aura:attribute name="IsAuthenticated" type="Boolean" default="true"/>
+    <aura:attribute name="IsReadOnly" type="Boolean" default="false"/>
+    <aura:attribute name="returnCmp" type="string" default="view"/>
+    <aura:attribute name="TotalGADScore" type="integer" default="0"/>
+     <aura:attribute name="TotalPHQScore" type="integer" default="0"/>
+       <aura:attribute name="TotalRASScore" type="integer" default="0"/>
+    <aura:handler event="c:ShowOutcomeSurvey" action="{!c.handleApplicationEvent}"/>
+    <aura:handler event="c:ShowOutcomeSurvey_Invert" action="{!c.handleApplicationEventInvert}"/>
+    <aura:registerEvent name="ShowOutcomeSurvey_Invert" type="c:ShowOutcomeSurvey_Invert"/>
+   
+    <aura:attribute name="GADoptions" type="List" default="[
+    {'label': 'Not at all', 'value': 'Not at all'},
+    {'label': 'Several days', 'value': 'Several days'},
+    {'label': 'More than half the days', 'value': 'More than half the days'},                                                       
+    {'label': 'Nearly every day', 'value': 'Nearly every day'},                                                     
+                                                       
+    ]"/>
+     <aura:attribute name="PHQOptions" type="List" default="[
+             {'label': 'Not difficult at all', 'value': 'Not difficult at all'},
+             {'label': 'Somewhat difficult', 'value': 'Somewhat difficult'},
+             {'label': 'Very difficult', 'value': 'Very difficult'},
+			 {'label': 'Extremely difficult', 'value': 'Extremely difficult'}, 	                                                            
+       ]"/> 
+    <aura:attribute name="RASOptions" type="List" default="[
+             {'label': 'Strongly Disagree', 'value': 'Strongly Disagree'},
+             {'label': 'Disagree', 'value': 'Disagree'},
+             {'label': 'Not Sure', 'value': 'Not Sure'},
+			 {'label': 'Agree', 'value': 'Agree'},
+			  {'label': 'Strongly Agree', 'value': 'Strongly Agree'},                                                           
+       ]"/> 
+    <!-- Define Attribute-->
+
+    <aura:attribute name="ClientOutcomeSurveyObj" type="Client_Outcome_Survey__c" default="{ 
+                       																'sobjectType': 'Client_Outcome_Survey__c',
+                                                                                              }"  />
+   
+    
+        <br/>
+   <aura:if isTrue="{!v.oppID != null}">
+   <!-- <aura:if isTrue="true">  -->
+       <div class="slds-scrollable_y">
+        <div class="slds-align_absolute-center" >
+       
+        </div>
+        <div class="slds-align_absolute-center" >
+                 
+        <aura:if isTrue="{!v.AccountType =='Monarch Shores'}">
+        
+            <img style="max-width: 45%" src="{!$Resource.MonarchShoresLogo}"/>
+        
+    </aura:if>
+       <aura:if isTrue="{!v.AccountType =='Mountain Springs Recovery'}">
+        <img style="max-width: 45%" src="{!$Resource.MountainSpringsLogo}"/>
+    </aura:if>
+             <aura:if isTrue="{!v.AccountType =='Willowsprings Recovery'}">
+        <img style="max-width: 45%" src="{!$Resource.Willow_Logo}"/>
+    </aura:if>
+             <aura:if isTrue="{!v.AccountType =='Chapters Capistrano'}">
+        <img style="max-width: 45%" src="{!$Resource.Chapters_Logo}"/>
+    </aura:if>
+           
+           
+           </div>
+           <br/>
+	<div class="slds-text-align_center slds-text-title_bold">Outcome Survey</div>
+    <div class="slds-text-align_center slds-text-title_bold">
+       <span>Type: {! v.ClientOutcomeSurveyObj.Type__c }</span>
+    </div>
+   
+    <br/>
+    <br/>
+         
+ 
+ <div class="slds-align_absolute-center" style="max-width: 80%;word-wrap:break-word" >
+  
+<div class="slds-form" >
+
+  
+
+    <h3 class="slds-section-title--divider">GAD Questions</h3>
+
+    <br/>
+<span>Over the last two weeks, how often have you been bothered by the following problems?</span>
+<fieldset class="slds-form-element slds-form-element_stacked">
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="GAD1"
+      	label="1. Feeling nervous, anxious, or on edge"
+        name="GAD1"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Feeling_nervous_anxious_or_on_edge__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true"
+        onchange="{!c.GADQuestionButtonGroupHandler}"/>
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="GAD2"
+      	label="2.  Not being able to sleep or control worrying"
+        name="GAD2"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Not_being_able_to_sleep_or_control_worry__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.GADQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="GAD3"
+      	label="3. Worrying too much about different things"
+        name="GAD3"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Worrying_too_much_about_different_thing__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true"  onchange="{!c.GADQuestionButtonGroupHandler}"/>
+    </div>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="GAD4"
+      	label="4. Trouble relaxing"
+        name="GAD4"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Trouble_relaxing__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.GADQuestionButtonGroupHandler}" />
+    </div>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="GAD5"
+      	label="5. Being so restless that it is too hard to sit still"
+        name="GAD5"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Being_so_restless_that_it_is_hard_to_sit__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.GADQuestionButtonGroupHandler}" />
+    </div>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="GAD6"
+      	label="6. Becoming easily annoyed or irritable"
+        name="GAD6"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Becoming_easily_annoyed_or_irritable__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.GADQuestionButtonGroupHandler}" />
+    </div>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="GAD7"
+      	label="7. Feeling afraid, as if something awful might happen"
+        name="GAD7"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.feeling_afraid_asif_something_awful_will__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.GADQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-is-relative" style="position:absolute;right:0rem;display:none;">
+         <b> Total GAD Score : <ui:outputText value="{!v.TotalGADScore}"/> </b>
+    </div>
+    <br/>
+
+     <h3 class="slds-section-title--divider">PHQ Questions</h3>
+    <br/>
+<span>Over the last 2 weeks, how often have you been bothered by any of the following problems?</span>
+    <br/>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ1"
+      	label="1. Little interest or pleasure in doing things"
+        name="PHQ1"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Little_interest_pleasure_in_doing_things__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}" />
+    </div>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ2"
+      	label="2. Feeling down, depressed, or hopeless"
+        name="PHQ2"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Feeling_down_depressed_or_hopeless__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}"/>
+    </div>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ3"
+      	label="3. Trouble falling or staying asleep, or sleeping too much"
+        name="PHQ3"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Trouble_falling_or_staying_asleep__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}" />
+    </div>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ4"
+      	label="4. Feeling tired or having little energy"
+        name="PHQ4"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Feeling_tired_or_having_little_energy__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ5"
+      	label="5. Poor appetite or overeating"
+        name="PHQ5"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Poor_appetite_or_overeating__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}" />
+    </div>
+       <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ6"
+      	label="6. Feeling bad about yourself - or that you are failure or have let yourself or your family down"            
+        name="PHQ6"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Feeling_bad_about_yourself_or_faliure__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}" />
+    </div>
+       <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ7"
+      	label="7. Trouble concentrating on things, such as reading the newspaper or watching television"
+        name="PHQ7"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Trouble_concentrating_on_things__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}"/>
+    </div>
+       <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ8"
+      	label="8. Moving or speaking so slowly that other people could have noticed. Or the opposite being so fidgety or restless that you have been moving around a lot more than usual"
+        name="PHQ8"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Moving_or_speaking_so_slowly__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}"/>
+    </div>
+       <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ9"
+      	label="9. Thoughts that you would be better off dead, or of hurting yourself"
+        name="PHQ9"
+        options="{! v.GADoptions }"
+        value="{! v.ClientOutcomeSurveyObj.Thoughts_that_you_would_be_betteroff_ded__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}" />
+    </div>
+       <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="PHQ10"
+      	label="10. If you checked off any problem previously, how difficult have these problems made it for you to do your work, take care of things at home, or get along with other people?"
+        name="PHQ10"
+        options="{! v.PHQOptions }"
+        value="{! v.ClientOutcomeSurveyObj.If_you_checkedoff_any_problem_previously__c}"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.PHQQuestionButtonGroupHandler}" />
+    </div>
+     <div  class="slds-is-relative" style="position:absolute;right:0rem;display:none;">
+         <b> Total PHQ Score : <ui:outputText value="{!v.TotalPHQScore}"/> </b>
+    </div>
+    <br/>
+ 
+         <h3 class="slds-section-title--divider">RAS 41</h3>
+    
+    <br/>
+    <span>Below is a list of statements that describe how people sometimes feel about themselves and their
+          lives. Please read each one carefully and select which best describes the extent to which you
+          agree or disagree with the statement. Do not skip any items.
+    </span>
+    <br/>
+       <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS1"
+      	label="1. I have a desire to succeed."
+        name="RAS1"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_have_a_desire_to_succeed__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+       <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS2"
+      	label="2. I have my own plan for how to stay or become well."
+        name="RAS2"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_have_my_own_plan_for_how_to_stay_well__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+       <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS3"
+      	label="3. I have goals in life that I want to reach."
+        name="RAS3"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_have_goals_in_life_that_I_want_to_get__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS4"
+      	label="4. I believe I can meet my current personal goals."
+        name="RAS4"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_believe_I_can_meet_my_current_goals__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS5"
+      	label="5. I have a purpose in life."
+        name="RAS5"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_have_a_purpose_in_life__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS6"
+      	label="6. Even when I don’t care about myself, other people do."
+        name="RAS6"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.when_I_don_t_care_about_myself_other_do__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS7"
+      	label="7. I understand how to control the symptoms of my mental illness."
+        name="RAS7"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_understand_how_to_control_my_symptoms__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS8"
+      	label="8. I can handle it if I get sick again."
+        name="RAS8"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_can_handle_it_if_I_get_sick_again__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS9"
+      	label="9. I can identify what triggers the symptoms of my mental illness."
+        name="RAS9"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_can_identify_what_triggers_my_symptoms__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS10"
+      	label="10. I can help myself become better."
+        name="RAS10"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_can_help_myself_become_better__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS11"
+      	label="11. Fear doesn’t stop me from living the way I want to."
+        name="RAS11"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.Fear_doesn_t_stop_me_from_living__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+        <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS12"
+      	label="12. I know that there are mental health services that do help me."
+        name="RAS12"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_know_that_there_are_mental_health_srvc__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+         <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS13"
+      	label="13. There are things that I can do that help me deal with unwanted symptoms."
+        name="RAS13"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.There_are_things_that_I_can_do_that_help__c}"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+         <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS14"
+      	label="14. I can handle what happens in my life."
+        name="RAS14"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_can_handle_what_happens_in_my_life__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+         <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS15"
+      	label="15. I like myself."
+        name="RAS15"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_like_myself__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+         <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS16"
+      	label="16. If people really knew me, they would like me."
+        name="RAS16"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.If_people_really_knew_me_they_would_like__c}"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+         <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS17"
+      	label="17. I am a better person than before my experience with mental illness."
+        name="RAS17"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_am_a_better_person_than_before__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+         <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS18"
+      	label="18. Although my symptoms may get worse, I know I can handle it."
+        name="RAS18"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.Although_my_symptoms_may_get_worse__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+         <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS19"
+      	label="19. If I keep trying, I will continue to get better."
+        name="RAS19"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.If_I_keep_trying_I_will_get_better__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+         <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS20"
+      	label="20. I have an idea of who I want to become"
+        name="RAS20"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_have_an_idea_of_who_I_want_to_become__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+    <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS21"
+      	label="21. Things happen for a reason."
+        name="RAS21"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.Things_happen_for_a_reason__c}"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS22"
+      	label="22. Something good will eventually happen."
+        name="RAS22"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.Something_good_will_eventually_happen__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS23"
+      	label="23. I am the person most responsible for my own improvement."
+        name="RAS23"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_am_the_person_most_responsible__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS24"
+      	label="24. I’m hopeful about my future."
+        name="RAS24"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_m_hopeful_about_my_future__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS25"
+      	label="25. I continue to have new interests."
+        name="RAS25"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_continue_to_have_new_interests__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS26"
+      	label="26. It is important to have fun."
+        name="RAS26"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.It_is_important_to_have_fun__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS27"
+      	label="27. Coping with my mental illness is no longer the main focus of my life."
+        name="RAS27"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.Coping_with_my_mental_illness__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS28"
+      	label="28. My symptoms interfere less and less with my life."
+        name="RAS28"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.My_symptoms_interfere_less_with_my_life__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS29"
+      	label="29. My symptoms seem to be a problem for shorter periods of time each time they occur."
+        name="RAS29"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.My_symptoms_seem_to_be_a_problem__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS30"
+      	label="30. I know when to ask for help."
+        name="RAS30"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_know_when_to_ask_for_help__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS31"
+      	label="31. I am willing to ask for help."
+        name="RAS31"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_am_willing_to_ask_for_help__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>  <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS32"
+      	label="32. I ask for help, when I need it."
+        name="RAS32"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_ask_for_help_when_I_need_it__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>  <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS33"
+      	label="33. Being able to work is important to me."
+        name="RAS33"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.Being_able_to_work_is_important_to_me__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS34"
+      	label="34. I know what helps me get better."
+        name="RAS34"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_know_what_helps_me_get_better__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS35"
+      	label="35. I can learn from my mistakes."
+        name="RAS35"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_can_learn_from_my_mistakes__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+      <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS36"
+      	label="36. I can handle stress."
+        name="RAS36"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_can_handle_stress__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS37"
+      	label="37. I have people I can count on."
+        name="RAS37"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_have_people_I_can_count_on__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS38"
+      	label="38. I can identify the early warning signs of becoming sick."
+        name="RAS38"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.I_can_identify_the_early_warning_signs__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS39"
+      	label="39. Even when I don’t believe in myself, other people do."
+        name="RAS39"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.Even_when_I_don_t_believe_in_myself__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS40"
+      	label="40. It is important to have a variety of friends."
+        name="RAS40"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.It_is_important_to_have_variety_of_frind__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+     <div class="slds-form-element__control">
+<lightning:radioGroup
+        aura:id="RAS41"
+      	label="41. It is important to have healthy habits."
+        name="RAS41"
+        options="{! v.RASOptions }"
+        value="{! v.ClientOutcomeSurveyObj.It_is_important_to_have_healthy_habits__c }"
+         disabled="{! v.IsReadOnly }"
+        required="true" onchange="{!c.RASQuestionButtonGroupHandler}" />
+    </div>
+    
+    <div class="slds-is-relative" style="position:absolute;right:0rem;display:none;">
+         <b> Total RAS Score : <ui:outputText value="{!v.TotalRASScore}"/> </b>
+    </div>
+  </fieldset>
+    
+         <br/>
+    <br/>
+       <div class="slds-docked-form-footer">
+        <ui:button  class="slds-button slds-button_neutral" press="{!c.back}">Back</ui:button>
+        <ui:button disabled="{! v.IsReadOnly }" class="slds-button slds-button_brand" press="{!c.save}">Save</ui:button>
+          </div>     
+       </div>
+       
+       </div>
+       </div>	
+   </aura:if>
+</aura:component>

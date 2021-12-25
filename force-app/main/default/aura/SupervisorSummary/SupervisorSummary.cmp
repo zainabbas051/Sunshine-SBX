@@ -1,0 +1,152 @@
+<aura:component controller="Ctrl_Clinical_Certification">
+   <aura:attribute name="data" type="Object"/>
+   <aura:attribute name="EmployeedataT2" type="Object" default="0"/>
+   <aura:attribute name="EmployeedataT3" type="Object" default="0"/>
+   <aura:attribute name="empID" type="String"/>
+   <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+   <aura:handler event="c:refreshSummary" action="{!c.UpdateData}"/>
+   <aura:attribute name="T1numberOfReports" type="integer"/>
+   <aura:attribute name="T1completedCertifications" type="integer"/>
+   <aura:attribute name="T1inProgressCertifications" type="integer"/>
+   <aura:attribute name="T1UtilizedBudget" type="integer"/>
+   <aura:attribute name="T1AvailableBudget" type="integer"/>
+   <aura:attribute name="T2numberOfReports" type="integer"/>
+   <aura:attribute name="T2completedCertifications" type="integer"/>
+   <aura:attribute name="T2inProgressCertifications" type="integer"/>
+   <aura:attribute name="T2UtilizedBudget" type="integer"/>
+   <aura:attribute name="T2AvailableBudget" type="integer"/>
+   <aura:attribute name="T3numberOfReports" type="integer"/>
+   <aura:attribute name="T3completedCertifications" type="integer"/>
+   <aura:attribute name="T3inProgressCertifications" type="integer"/>
+   <aura:attribute name="T3UtilizedBudget" type="integer"/>
+   <aura:attribute name="T3AvailableBudget" type="integer"/>
+   <aura:attribute name="isTierTransitionEnabled" type="boolean" default="false"/>
+   <aura:attribute name="isTier3TransitionEnabled" type="boolean" default="false"/>
+    <aura:attribute name="isManualTransitionEnabled" type="boolean" default="false"/>
+   <div class="slds-section slds-is-open" style="padding:5px;">
+      <span  class="slds-truncate slds-p-horizontal_small slds-text-heading_large slds-section__title slds-theme_shade" style="color: darkorange;font-weight: bold;" title="Section Title">At a Glance</span>
+      <div style="padding:10px; padding-right:20px;">
+         <div class="slds-grid slds-wrap slds-grid_pull-padded-medium">
+            <div class="slds-col slds-size--1-of-1 slds-medium-size--1-of-3">
+                <div class="slds-item  slds-box cardwidth lastCard">
+               <article class="slds-tile slds-tile_board">
+                  <h2 class="slds-tile__title slds-truncate" title="Anypoint Connectors">
+                     <b> <a href="#">Tier 1</a></b>
+                  </h2>
+                  <div class="slds-tile__detail" style="padding-top:4px;">
+                     <p class="slds-truncate">
+                        Reports: {!v.T1numberOfReports}
+                     </p>
+                     <p class="slds-truncate" >Completed Certifications: {!v.T1completedCertifications}</p>
+                     <p class="slds-truncate" >In-Progress Certifications: {!v.T1inProgressCertifications}</p>
+                      <div class="slds-grid slds-wrap">
+                             <div class="slds-col slds-p-bottom_small slds-medium-size--1-of-2">
+                                   <p class="slds-truncate" >Budget Utilized</p>
+                           <p class="slds-text-heading_medium">${!v.T1UtilizedBudget}</p>
+                           </div>
+                            <div class="slds-col slds-p-bottom_small slds-medium-size--1-of-2">
+                                   <p class="slds-truncate" >Budget Available</p>
+                           <p class="slds-text-heading_medium">${!v.T1AvailableBudget}</p>
+                           </div>
+                           
+                      </div>
+                  </div>
+               </article>
+                    </div>
+             </div>
+            <div class="slds-col slds-size--1-of-1 slds-medium-size--1-of-3">
+                 <div class="slds-item  slds-box cardwidth lastCard">
+               <article class="slds-tile slds-tile_board">
+                  <h2 class="slds-tile__title slds-truncate" title="Anypoint Connectors">
+                     <b> <a href="#">Tier 2</a></b>
+                  </h2>
+                  <div class="slds-tile__detail" style="padding-top:4px;">
+                     <p class="slds-truncate">
+                        Reports: {!v.T2numberOfReports}
+                     </p>
+                     <p class="slds-truncate" >Completed Certifications: {!v.T2completedCertifications}</p>
+                     <p class="slds-truncate" >In-Progress Certifications: {!v.T2inProgressCertifications}</p>
+                       <div class="slds-grid slds-wrap">
+                             <div class="slds-col slds-p-bottom_small slds-medium-size--1-of-2">
+                                   <p class="slds-truncate" >Budget Utilized</p>
+                           <p class="slds-text-heading_medium">${!v.T2UtilizedBudget}</p>
+                           </div>
+                            <div class="slds-col slds-p-bottom_small slds-medium-size--1-of-2">
+                                   <p class="slds-truncate" >Budget Available</p>
+                           <p class="slds-text-heading_medium">${!v.T2AvailableBudget}</p>
+                           </div>
+                           
+                      </div>
+                  </div>
+               </article>
+                </div>
+             </div>
+            <div class="slds-col slds-size--1-of-1 slds-medium-size--1-of-3">
+                 <div class="slds-item  slds-box cardwidth lastCard">
+               <article class="slds-tile slds-tile_board" >
+                  <h2 class="slds-tile__title slds-truncate" title="Anypoint Connectors">
+                     <b> <a href="#">Tier 3</a></b>
+                  </h2>
+                  <div class="slds-tile__detail" style="padding-top:4px;">
+                     <p class="slds-truncate">
+                        Reports: {!v.T3numberOfReports}
+                     </p>
+                     <p class="slds-truncate" >Completed Certifications: {!v.T3completedCertifications}</p>
+                     <p class="slds-truncate" >In-Progress Certifications: {!v.T3inProgressCertifications}</p>
+                     <div class="slds-grid slds-wrap">
+                             <div class="slds-col slds-p-bottom_small slds-medium-size--1-of-2">
+                                   <p class="slds-truncate" >Budget Utilized</p>
+                           <p class="slds-text-heading_medium">${!v.T3UtilizedBudget}</p>
+                           </div>
+                            <div class="slds-col slds-p-bottom_small slds-medium-size--1-of-2">
+                                   <p class="slds-truncate" >Budget Available</p>
+                           <p class="slds-text-heading_medium">${!v.T3AvailableBudget}</p>
+                           </div>                  
+                      </div>
+                  </div>
+               </article>
+                </div>
+             </div>
+          </div>
+      </div>
+      <!--Modal/Popup Box Footer Starts here-->
+      <div class="slds-clearfix slds-page-header" role="banner">
+         <div class="slds-float_right">
+            <ul class="slds-list_horizontal slds-has-inline-block-links_space" style="">
+               <li>
+                  <lightning:button  variant="brand" label="Transit To Tier 2" title="" onclick="{!c.transitToTier2Handler }" />
+                  <span class="Col2">
+                                    <aura:if isTrue="{!and(not(empty(v.EmployeedataT2)),v.EmployeedataT2.length>=0)}">
+                      <span class="counterLabel">{!v.EmployeedataT2.length}</span>
+                      <aura:set attribute="else">
+                      <span class="counterLabel">0</span>
+                      </aura:set>
+                     </aura:if> 
+                  </span> 
+               </li>
+               <li padding="2">
+                  <lightning:button variant="brand"  label="Transit To Tier 3" title="Transit To Tier 3" onclick="{!c.transitToTier3Handler }"  />
+                  <span class="Col2">
+                  <span class="counterLabel">{!v.EmployeedataT3.length}</span>
+                  </span> 
+               </li>
+                
+                <li padding="2">
+                  <lightning:button variant="brand"  label="Manual Transition" title="Manual Transition" onclick="{!c.ManualTransitHandler }"  />
+                  
+               </li>
+            </ul>
+         </div>
+      </div>
+   </div>
+   <aura:if isTrue="{!v.isTierTransitionEnabled || v.isTier3TransitionEnabled}">
+      <c:EmployeeTierTransition_ClinicalCertification onclick="{!c.doInit}" empID="{!v.empID}" 
+         isTierTransitionEnabled="{!v.isTierTransitionEnabled}"
+         isTier3TransitionEnabled="{!v.isTier3TransitionEnabled}"/>
+   </aura:if>
+    <aura:if isTrue="{!v.isManualTransitionEnabled}">
+      <c:EmployeeManualTierTransition_Cmp onclick="{!c.doInit}" empID="{!v.empID}" 
+         isTierTransitionEnabled="{!v.isTierTransitionEnabled}" isManualTransitionEnabled="{!v.isManualTransitionEnabled}"
+         isTier3TransitionEnabled="{!v.isTier3TransitionEnabled}"/>
+   </aura:if>
+</aura:component>

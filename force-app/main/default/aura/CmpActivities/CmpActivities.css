@@ -1,0 +1,12 @@
+.THIS .RedColor {
+    background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,0.7));
+    border-radius: 5px;
+}
+.THIS .GreenColor {
+    background-image: linear-gradient(to right, rgba(58,174,89,0), rgba(58,174,89,0.7));
+    border-radius: 5px;
+}
+.THIS .OrangeColor {
+    background-image: linear-gradient(to right, rgba(233, 161, 27, 0), rgba(233, 161, 27,0.7));
+    border-radius: 5px;
+}

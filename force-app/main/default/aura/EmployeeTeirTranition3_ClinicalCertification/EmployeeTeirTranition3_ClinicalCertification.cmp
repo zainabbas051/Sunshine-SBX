@@ -1,0 +1,80 @@
+<aura:component controller="Ctrl_Clinical_Certification" implements="force:appHostable">
+   <aura:attribute name="isTierTransitionEnabled" type="boolean" default="false"/>
+   <aura:attribute name="progressIndicatorFlag" type="String" />
+   <aura:attribute name="Employeedata" type="Employee__c[]"/>
+   <aura:attribute name="SelectedEmployeedata" type="Object"/>
+   <aura:attribute name="Employeecolumns" type="List"/>
+   <aura:attribute name="empID" type="String"/>
+   <aura:attribute name="EmployeeSelected" type="Employee__c" default="{'Id':''}" />
+   <aura:attribute name="defaultRaiting" type="String" default="1"/>
+   <aura:attribute name="annualPerformanceOption" type="List" default="[
+      {'label': '1', 'value': '1'},
+      {'label': '2', 'value': '2'},
+      {'label': '3', 'value': '3'},
+      {'label': '4', 'value': '4'},
+      {'label': '5', 'value': '5'},
+      ]"/>
+   <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+   <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+   <lightning:messages />
+   <lightning:notificationsLibrary aura:id="notifLib"/>
+   <div >
+  
+      <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+         aria-modal="true" aria-describedby="modal-content-id-1" 
+         class="slds-modal slds-fade-in-open">
+         <div class="slds-modal__container demo-only">
+            <aura:if isTrue="{!v.spinner}">
+                
+                <lightning:spinner alternativeText="Loading" size="medium" variant="brand" class="spinnerUpdate"  />
+            
+           </aura:if>
+            <header class="slds-modal__header">
+               <lightning:buttonIcon iconName="utility:close"
+                  onclick="{! c.closeModel }"
+                  alternativeText="close"
+                  variant="bare-inverse"
+                  class="slds-modal__close"/>
+               <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Bulk Add Training</h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+              
+               <lightning:progressIndicator class="slds-p-bottom_medium" type="path" currentStep="{!v.progressIndicatorFlag}">
+                  <lightning:progressStep label="Select Employees" value="step1"/>
+                  <lightning:progressStep label="Finalize" value="step2"/>
+               </lightning:progressIndicator>
+               <div aura:id="stepOne">
+                  <lightning:datatable aura:id="employeeTable"
+                     columns="{! v.Employeecolumns }"
+                     onrowselection="{! c.updateSelectedTrainings }"
+                     data="{! v.Employeedata }"
+                     maxRowSelection="1"
+                     keyField="Id"
+                     />
+                  <div  class="slds-p-top_medium">
+                     <lightning:button  label="Next" onclick="{!c.goToStepTwo}" variant="brand"/>
+                  </div>
+               </div>
+               <div aura:id="stepTwo">
+                  <lightning:select name="select1" label="Have the Emloyee Been Written Up in the Last 12 Months ?" required="true" value="{!v.EmployeeSelected.Emloyee_Been_Written_Last_12_Month__c}">
+                     <option value="Yes">Yes</option>
+                     <option value="No">No</option>
+                  </lightning:select>
+                  <lightning:radioGroup name="radioGroup"
+                     label="What the Last Annual Performance Review Rating of the Employee?"
+                     options="{!v.annualPerformanceOption}"
+                     value="{!v.defaultRaiting}"
+                     type="radio"/>
+                 <lightning:input type="date" name="Tier 2 Transition Date"
+                     label="Tier 2 Transition Date" value="{!v.EmployeeSelected.Tier_2_Transition_Date__c}" />
+                  <div  class="slds-p-top_medium">
+                     <lightning:button label="Back" onclick="{!c.goBackToStepTwo}" />
+                     <lightning:button label="Save" onclick="{!c.SaveRecords}" variant="brand"/>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open overlay"></div>
+   </div>
+</aura:component>

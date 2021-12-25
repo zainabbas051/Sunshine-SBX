@@ -1,0 +1,92 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="Ctrl_Client_Satisfaction_Survey" access="global" >
+          <aura:attribute name="ListOfSurvey" type="Client_Satisfaction_Survey__c[]"  />
+    	  <aura:attribute name="isLoading" type="boolean" default="false"/>
+          <aura:attribute name="SurveyId" type="id"/>
+    	  <aura:attribute name="IsAuthenticated" type="boolean" default="false"/>
+    	  <aura:attribute name="SunshineCenter" type="string"  />
+    		<aura:attribute name="showCmp" type="boolean" default="true"  />
+    	
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler event="c:ClientSurveyLoggedin" action="{!c.handleClientSurveyLoggein}"/>
+    <!-- register an event -->
+    <aura:registerEvent name="ClientSatisfaction_Event" type="c:ClientSatifaction_Event"/>
+    <aura:registerEvent name="ShowCreateSurveyCmp_Event" type="c:ShowCreateSurveyCmp_Event"/>
+    <aura:handler event="c:ClientSatisfactionSurveyEvent_Invert" action="{!c.handleApplicationEvent}"/>
+    <aura:handler event="c:ShowSurveyGridviewCmp_Event" action="{!c.handleShowHideGridView}"/>
+      <aura:if isTrue="{!v.isLoading}">
+        <lightning:spinner aura:id="mySpinner" variant="brand" />
+    </aura:if>
+    
+    <aura:if isTrue="{!v.IsAuthenticated == true}"> 
+    
+   <aura:if isTrue="{!v.showCmp}">
+    <aura:if isTrue="{!v.SurveyId == null}">
+     
+    <div >
+       <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+      <thead>
+         <tr class="slds-text-title--caps">
+ 			<th scope="col">
+               <div class="slds-truncate" title="id">Survey Number</div>      
+            </th>          
+              <th scope="col">   
+               <div class="slds-truncate" title="Related Opportunity">Client Name</div>
+            </th>
+            <th scope="col">
+                <div class="slds-truncate" title="Date">Survey Date</div>
+            </th>
+            <th scope="col">   
+               <div class="slds-truncate" title="Status">Status</div>
+            </th>
+             
+             <th scope="col">   
+               <div class="slds-truncate" title="Sunshine Center">Sunshine Center</div>
+            </th>
+            
+         </tr>
+      </thead>
+      <!--table body start, 
+         Iterate contact list as a <tr>
+         -->
+      <tbody>
+          <aura:if isTrue="{!empty(v.ListOfSurvey)}">
+             <tr>
+             <td colspan="6" align="center">No latest Surveys found</td>
+             </tr>
+               </aura:if>
+         <aura:iteration items="{!v.ListOfSurvey}" var="survey">
+           
+             <tr class="slds-hint-parent">
+               <td data-label="id">
+                  <div class="slds-truncate" title="id"> <a href = "" onclick="{!c.select}" data-myvalue="{!survey.Id}" data-myvalue2="{!survey.Status__c}" aura:id="{!survey.Id}">{!survey.Name}</a></div>
+               </td>
+               <td data-label="relatedOpportunity">
+
+                   <div class="slds-truncate" title="Opportunity">{!survey.Related_Opportunity__r.Name}</div>
+               </td>
+
+               <td data-label="Survey Date">
+                  <div class="slds-truncate" title="Survey Date">{!survey.Survey_Date__c}</div>
+               </td>
+               <td data-label="Status">
+
+                   <div class="slds-truncate" title="Status">{!survey.Status__c}</div>
+               </td>
+
+               <td data-label="relatedOpportunity">
+
+                   <div class="slds-truncate" title="Opportunity">{!survey.Related_Opportunity__r.Sunshine_Center__r.Name}</div>
+               </td>
+            
+               
+            </tr>
+         </aura:iteration>
+      </tbody>
+   </table>
+    </div>
+         
+    </aura:if>
+        
+        </aura:if>
+        </aura:if>
+</aura:component>

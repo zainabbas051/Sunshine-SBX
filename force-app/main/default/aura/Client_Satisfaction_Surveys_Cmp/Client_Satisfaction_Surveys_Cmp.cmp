@@ -1,0 +1,901 @@
+<aura:component controller="Ctrl_Client_Satisfaction_Survey"
+  implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes"
+  access="global">
+  <aura:attribute name="isLoading" type="boolean" default="false" />
+  <aura:attribute name="SurveyId" type="string" />
+  <aura:attribute name="oppID" type="string" />
+  <aura:attribute name="AccountType" type="string" />
+  <aura:attribute name="SurveyStatus" type="string" />
+  <aura:attribute name="IsAuthenticated" type="Boolean" default="true" />
+  <aura:attribute name="IsReadOnly" type="Boolean" default="false" />
+  <aura:attribute name="returnCmp" type="string" default="view" />
+  <aura:attribute name="isEven" type="boolean" default="false" />
+  <aura:attribute name="surveyNumber" type="integer" default="0" />
+  <aura:attribute name="isChildHasError" type="boolean" default="false" />
+  <aura:handler event="c:ClientSurveyLoggedin" action="{!c.handleClientSurveyLoggein}" />
+  <aura:handler event="c:ClientSatifaction_Event" action="{!c.handleApplicationEvent}" />
+  <aura:handler event="c:ClientSatisfactionSurveyEvent_Invert" action="{!c.handleApplicationEventInvert}" />
+  <aura:handler event="c:ShowCreateSurveyCmp_Event" action="{!c.handleShowHide}" />
+
+  <aura:registerEvent name="ClientSatisfactionSurveyEvent_Invert" type="c:ClientSatisfactionSurveyEvent_Invert" />
+  <aura:if isTrue="{!v.isLoading}">
+    <lightning:spinner aura:id="mySpinner" variant="brand" />
+  </aura:if>
+  <aura:attribute name="options" type="List" default="[
+    {'label': '1', 'value': '1'},
+    {'label': '2', 'value': '2'},
+    {'label': '3', 'value': '3'},
+    {'label': '4', 'value': '4'},
+    {'label': '5', 'value': '5'}
+    ]" />
+
+    <aura:attribute name="options2" type="List" default="[
+    {'label': 'Yes', 'value': 'Yes'},
+    {'label': 'No', 'value': 'No'}
+    ]" />
+
+  <!-- Define Attribute-->
+
+
+  <aura:attribute name="ClientsPrimaryTherapist" type="string" default="" />
+  <aura:attribute name="ClientsCaseManager" type="string" default="" />
+  <aura:attribute name="AdditionalNotes" type="string" default="" />
+  <aura:attribute name="ClientSatisfactionObj" type="Client_Satisfaction_Survey__c" default="{ 
+                       																'sobjectType': 'Client_Satisfaction_Survey__c',
+                                                                                              }" />
+  <aura:attribute name="ClientOutcomeSurveyObj" access="PUBLIC" type="Client_Outcome_Survey__c"  default="{ 'sobjectType': 'Client_Outcome_Survey__c',
+                                                                                                                                       }" /> 
+
+  <aura:if isTrue="{!v.IsAuthenticated == true}">
+    <aura:if isTrue="{!v.oppID != null}">
+      <br />
+      <div class="slds-scrollable_y">
+        <div class="slds-align_absolute-center">
+        <!--  <div class="slds-form-element">
+            <ui:button class="slds-button slds-button_brand" press="{!c.back}">Back</ui:button>
+          </div> -->
+        </div>
+        <br />
+        <div class="slds-align_absolute-center">
+
+          <aura:if isTrue="{!v.AccountType =='Monarch Shores'}">
+
+            <img style="max-width: 15%" src="{!$Resource.MonarchShoresLogo}" />
+
+          </aura:if>
+          <aura:if isTrue="{!v.AccountType =='Mountain Springs Recovery'}">
+            <img style="max-width: 15%" src="{!$Resource.MountainSpringsLogo}" />
+          </aura:if>
+          <aura:if isTrue="{!v.AccountType =='Chapters Capistrano'}">
+            <img style="max-width: 15%" src="{!$Resource.Chapters_Logo}" />
+          </aura:if>
+          <aura:if isTrue="{!v.AccountType =='Willowsprings Recovery'}">
+            <img style="max-width: 15%" src="{!$Resource.Willow_Logo}" />
+          </aura:if>
+
+        </div>
+        <br />
+        <div class="slds-text-align_center slds-text-title_bold">Weekly Satisfaction Survey</div>
+        <div class="slds-text-align_center">Please rate your experience over the past week on the 1-5 scale below each
+          question.</div>
+        <div class="slds-text-align_center">1 = Strongly Disagree 2 = Disagree 3 = Neutral 4 = Agree 5 = Strongly Agree
+        </div>
+        <br />
+        <br />
+
+
+        <div class="slds-align_absolute-center" style="max-width: 80%;word-wrap:break-word">
+
+          <div class="slds-form">
+            <aura:if isTrue="{!v.AccountType !='Mountain Springs Recovery' }">
+              <div>
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q1"
+                      label="1) I am satisfied with the time I have spent with my Primary Therapist."
+                      name="radioButtonGroup1" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Satisfied_With_my_Primary_Therapist__c}"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q2"
+                      label="2) I am satisfied with the time I have spent with my Case Manager."
+                      name="radioButtonGroup2" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Satisfied_With_my_Case_Manager__c}" disabled="{! v.IsReadOnly }"
+                      required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q3"
+                      label="3) My interactions with the Behavioral Support Technicians have been positive and supportive."
+                      name="radioButtonGroup3" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Interactions_With_BHT_s_are_Positive__c}"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q4" label="4) I feel that I am making progress in my recovery."
+                      name="radioButtonGroup4" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Making_Progress_In_Recovery__c }" disabled="{! v.IsReadOnly }"
+                      required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q5"
+                      label="5) My physical environment is comfortable and well-maintained." name="radioButtonGroup5"
+                      options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Physical_Environment_is_Comfortable__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q6" label="6) My medical needs are being met."
+                      name="radioButtonGroup6" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Medical_Needs_are_being_Met__c }" disabled="{! v.IsReadOnly }"
+                      required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q7" label="7) I enjoy the food that is being provided for meals."
+                      name="radioButtonGroup7" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Enjoy_the_Food_Provided__c }" disabled="{! v.IsReadOnly }"
+                      required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q8"
+                      label="8) I find the group sessions informative, helpful, and engaging." name="radioButtonGroup8"
+                      options="{! v.options }" value="{! v.ClientSatisfactionObj.Group_Sessions_are_Engaging__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q9" label="9) I feel safe." name="radioButtonGroup9"
+                      options="{! v.options }" value="{! v.ClientSatisfactionObj.I_feel_Safe__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q10"
+                      label="10) Overall, I am satisfied with my experience in treatment." name="radioButtonGroup10"
+                      options="{! v.options }" value="{! v.ClientSatisfactionObj.Overall_Satisfied_with_Experience__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+                                    <fieldset class="slds-form-element slds-form-element_stacked">
+                
+                <label class="slds-form-element__label" for="form-element-p"><b>11) Is there any staff member that stood out for recognition this week?</b></label>
+                <div class="slds-form-element__control">
+                  <ui:inputText aura:id="form-element-p" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.staff_member_that_stood_out_recognition__c}" />
+                    <br />
+                </div>
+                   
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-02"><b>Please Explain</b></label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-02" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Why_the_staff_member_stood_out__c}" />
+                    <br />
+                </div>
+              </div>
+       
+                </fieldset>
+                  
+                                    <aura:if isTrue="{!v.surveyNumber ==1}">
+             <!--      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q11"
+                      label="12) Is your experience is in line with what the Admission Councilor described?" name="radioButtonGroup11"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Experience_matched_Councilor_Description__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                       
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Experience_matched_Councilor_Description__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c1">Additional Comments</label>
+                <div class="slds-form-element__control">
+                  <ui:inputText aura:id="form-element-c1" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Additional_Comments__c}" />
+                </div>
+                     </div> 
+                     <br/>
+            </aura:if>
+                </fieldset> -->
+                <p>
+                <b>12) Were you explained about the following policies at the time of speaking with Admissions ?</b>
+                    </p>
+                                        <div class="slds-border_left">
+                
+                  <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q12"
+                      label="1.  Electronics Policy" name="radioButtonGroup12"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Electronics_Policy__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Electronics_Policy__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c2">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c2" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Electronics_Policy__c}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                       <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q13"
+                      label="2. Packing list-what’s allowed, what isn’t" name="radioButtonGroup13"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Packing_list_what_s_allowed_what_isn_t__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Packing_list_what_s_allowed_what_isn_t__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c3">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c3" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Packing_list_what_s_allowed__c}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q14"
+                      label="3. Visiting Rules/Process" name="radioButtonGroup14"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Visiting_Rules_Process__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Visiting_Rules_Process__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c4">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c4" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Visiting_Rules_Process__c}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                <!--
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q15"
+                      label="4. Passes" name="radioButtonGroup15"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Passes__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Passes__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c5">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c5" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Passes__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                -->
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q15"
+                      label="4. COVID-19 Screening" name="radioButtonGroup15"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.COVID_19_Screening__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.COVID_19_Screening__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c5">Please Explain Why?</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c5" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.COVID_19_Screening_Comment__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <!-- <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q16"
+                      label="5. Outings/process" name="radioButtonGroup16"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Outings_process__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Outings_process__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c6">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c6" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Outings_process__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset> -->
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q16"
+                      label="5. COVID Intake Protocols" name="radioButtonGroup16"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.COVID_Intake_Protocols__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.COVID_Intake_Protocols__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c6">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c6" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.COVID_Intake_Protocols_Comment__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q17"
+                      label="6. Financials" name="radioButtonGroup17"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Financials__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Financials__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c7">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c7" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Financials__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q18"
+                      label="7. Insurance" name="radioButtonGroup18"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Insurance__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Insurance__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c8">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c8" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Insurance__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q19"
+                      label="8. Levels of care" name="radioButtonGroup19"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Levels_of_care__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Levels_of_care__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c9">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c9" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Levels_of_care__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                          <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q20"
+                      label="9. Detox process and Detox checks" name="radioButtonGroup20"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Detox_process_and_Detox_checks__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Detox_process_and_Detox_checks__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c10">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c10" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Detox_process_and_Detox_checks__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      
+                          <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q21"
+                      label="10. Intake process" name="radioButtonGroup21"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Intake_process__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Intake_process__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c11">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c11" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Intake_process__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      
+    
+                          <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q22"
+                      label="11. Did the facility meet your expectations as described by Admissions." name="radioButtonGroup22"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Did_the_facility_meet_your_expectations__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Did_the_facility_meet_your_expectations__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c12">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c12" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Did_the_facility_fulfills_your_e__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>  
+                    
+                </div>
+                    <!-- <label class="slds-form-element__label" for="form-element-02">Were you explained about the following policies at the time of speaking with Admissions :</label> -->
+                      
+                        </aura:if>
+              </div>
+            </aura:if>
+            <!-- -->
+
+
+
+            <aura:if isTrue="{!v.AccountType =='Mountain Springs Recovery'}">
+              <div>
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q1"
+                      label="1) I am satisfied with the time I have spent with my Primary Therapist."
+                      name="radioButtonGroup1" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Satisfied_With_my_Primary_Therapist__c}"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q3"
+                      label="2) My interactions with the Behavioral Support Technicians have been positive and supportive."
+                      name="radioButtonGroup3" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Interactions_With_BHT_s_are_Positive__c}"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q4" label="3) I feel that I am making progress in my recovery."
+                      name="radioButtonGroup4" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Making_Progress_In_Recovery__c }" disabled="{! v.IsReadOnly }"
+                      required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q5"
+                      label="4) My physical environment is comfortable and well-maintained." name="radioButtonGroup5"
+                      options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Physical_Environment_is_Comfortable__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q6" label="5) My medical needs are being met."
+                      name="radioButtonGroup6" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Medical_Needs_are_being_Met__c }" disabled="{! v.IsReadOnly }"
+                      required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q7" label="6) I enjoy the food that is being provided for meals."
+                      name="radioButtonGroup7" options="{! v.options }"
+                      value="{! v.ClientSatisfactionObj.Enjoy_the_Food_Provided__c }" disabled="{! v.IsReadOnly }"
+                      required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q8"
+                      label="7) I find the group sessions informative, helpful, and engaging." name="radioButtonGroup8"
+                      options="{! v.options }" value="{! v.ClientSatisfactionObj.Group_Sessions_are_Engaging__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q9" label="8) I feel safe." name="radioButtonGroup9"
+                      options="{! v.options }" value="{! v.ClientSatisfactionObj.I_feel_Safe__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q10"
+                      label="9) Overall, I am satisfied with my experience in treatment." name="radioButtonGroup10"
+                      options="{! v.options }" value="{! v.ClientSatisfactionObj.Overall_Satisfied_with_Experience__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                </fieldset>
+                  <fieldset class="slds-form-element slds-form-element_stacked">
+                
+                <label class="slds-form-element__label" for="form-element-02"><b>10) Is there any staff member that stood out for recognition this week?</b></label>
+                <div class="slds-form-element__control">
+                  <ui:inputText aura:id="form-element-Q11" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.staff_member_that_stood_out_recognition__c}" />
+                    <br />
+                </div>
+                   
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-12"><b>Please Explain</b></label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-12" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Why_the_staff_member_stood_out__c}" />
+                    <br />
+                </div>
+              </div>
+       
+                </fieldset>
+                  
+                   <aura:if isTrue="{!v.surveyNumber ==1}">
+                   <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q11"
+                      label="12) Is your experience is in line with what the Admission Councilor described?" name="radioButtonGroup11"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Experience_matched_Councilor_Description__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>
+                       
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Experience_matched_Councilor_Description__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c1">Additional Comments</label>
+                <div class="slds-form-element__control">
+                  <ui:inputText aura:id="form-element-c1" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Additional_Comments__c}" />
+                </div>
+                     </div> 
+                     <br/>
+            </aura:if>
+                </fieldset>
+                       <p>
+                <b>11) Were you explained about the following policies at the time of speaking with Admissions ?</b>
+                    </p>
+                                        <div class="slds-border_left">
+                
+                  <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q12"
+                      label="1.  Electronics Policy" name="radioButtonGroup12"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Electronics_Policy__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Electronics_Policy__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c2">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c2" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Electronics_Policy__c}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                       <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q13"
+                      label="2. Packing list-what’s allowed, what isn’t" name="radioButtonGroup13"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Packing_list_what_s_allowed_what_isn_t__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Packing_list_what_s_allowed_what_isn_t__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c3">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c3" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Packing_list_what_s_allowed__c}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q14"
+                      label="3. Visiting Rules/Process" name="radioButtonGroup14"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Visiting_Rules_Process__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Visiting_Rules_Process__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c4">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c4" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Visiting_Rules_Process__c}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <!--
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q15"
+                      label="4. Passes" name="radioButtonGroup15"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Passes__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Passes__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c5">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c5" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Passes__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                -->
+                <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q15"
+                      label="4. COVID-19 Screening" name="radioButtonGroup15"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.COVID_19_Screening__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.COVID_19_Screening__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c5">Please Explain Why?</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c5" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.COVID_19_Screening_Comment__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <!-- <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q16"
+                      label="5. Outings/process" name="radioButtonGroup16"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Outings_process__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Outings_process__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c6">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c6" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Outings_process__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset> -->
+<fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q17"
+                      label="6. Financials" name="radioButtonGroup17"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Financials__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Financials__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c7">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c7" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Financials__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q18"
+                      label="7. Insurance" name="radioButtonGroup18"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Insurance__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Insurance__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c8">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c8" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Insurance__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q19"
+                      label="8. Levels of care" name="radioButtonGroup19"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Levels_of_care__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Levels_of_care__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c9">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c9" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Levels_of_care__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                          <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q20"
+                      label="9. Detox process and Detox checks" name="radioButtonGroup20"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Detox_process_and_Detox_checks__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Detox_process_and_Detox_checks__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c10">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c10" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Detox_process_and_Detox_checks__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      
+                          <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q21"
+                      label="10. Intake process" name="radioButtonGroup21"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Intake_process__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Intake_process__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c11">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c11" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Intake_process__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>
+                      
+    
+                          <fieldset class="slds-form-element slds-form-element_stacked">
+                  <div class="slds-form-element__control">
+                    <lightning:radioGroup aura:id="Q22"
+                      label="11. Did the facility meet your expectations as described by Admissions." name="radioButtonGroup22"
+                      options="{! v.options2 }" value="{! v.ClientSatisfactionObj.Did_the_facility_meet_your_expectations__c }"
+                      disabled="{! v.IsReadOnly }" required="true" />
+                  </div>                  
+                 <aura:if isTrue="{!v.ClientSatisfactionObj.Did_the_facility_meet_your_expectations__c =='No'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-c12">Please Explain In Detail</label>
+                <div class="slds-form-element__control">
+                  <ui:inputTextArea aura:id="form-element-c12" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Comment_Did_the_facility_fulfills_your_e__c	}" />
+                    <br />
+                </div>
+              </div>
+            </aura:if>
+                </fieldset>  
+                    
+                </div>
+                  
+                        </aura:if>
+              </div>
+            </aura:if>
+              
+              <!--Outcome Survey -->
+              
+              
+            <aura:if isTrue="{!v.isEven}">
+              <c:OutcomeSurveyRAS24 oppID="{!v.OppID}" AccountType="{!v.OppID}" isChildHasError="{!v.isChildHasError}"
+                IsReadOnly="false" returnCmp="view"
+                ClientOutcomeSurveyObj="{!v.ClientOutcomeSurveyObj}" aura:id="outcomeComp" />
+            </aura:if>
+              
+            <div class="slds-form-element slds-form-element_stacked">
+              <label class="slds-form-element__label" for="form-element-01">Clients Primary Therapist</label>
+              <div class="slds-form-element__control">
+                <ui:inputText aura:id="form-element-01" disabled="{! v.IsReadOnly }" class="slds-input"
+                  value="{! v.ClientSatisfactionObj.Clients_Primary_Therapist__c}" />
+              </div>
+            </div>
+            <aura:if isTrue="{!v.AccountType !='Mountain Springs Recovery'}">
+              <div class="slds-form-element slds-form-element_stacked">
+                <label class="slds-form-element__label" for="form-element-02">Clients Case Manager</label>
+                <div class="slds-form-element__control">
+                  <ui:inputText aura:id="form-element-02" disabled="{! v.IsReadOnly }" class="slds-input"
+                    value="{! v.ClientSatisfactionObj.Clients_Case_Manager__c}" />
+                </div>
+              </div>
+            </aura:if>
+
+            
+
+
+
+            <div class="slds-form-element slds-form-element_stacked">
+              <label class="slds-form-element__label" for="form-element-03">Additional Notes</label>
+              <div class="slds-form-element__control">
+                <ui:inputTextArea aura:id="form-element-03" disabled="{! v.IsReadOnly }" class="slds-input"
+                  value="{! v.ClientSatisfactionObj.Additional_Notes__c}" />
+              </div>
+            </div>
+            <br />
+            <div class="slds-docked-form-footer">
+              <ui:button class="slds-button slds-button_brand" press="{!c.back}">Back</ui:button>
+              <ui:button disabled="{! v.IsReadOnly }" class="slds-button slds-button_brand" press="{!c.save}">Save
+              </ui:button>
+            </div>
+
+
+          </div>
+        </div>
+
+
+      </div>
+
+
+
+
+
+
+    </aura:if>
+  </aura:if>
+
+</aura:component>

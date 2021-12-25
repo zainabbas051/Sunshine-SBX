@@ -1,0 +1,57 @@
+<aura:component controller="CardInformation_Ctrl"
+  implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes"
+  access="global">
+  <aura:attribute name="isLoading" type="boolean" default="false" />
+  <aura:attribute name="oppID" type="string" />
+  <aura:attribute name="AccountType" type="string" />   
+    <lightning:notificationsLibrary aura:id="notifLib"/>  
+  <aura:attribute name="CardInformationObj" type="Card_Information__c"  default="{ 'sobjectType': 'Card_Information__c',Payment_Plan__c:'a0E3C000008T50vUAC'
+                                                                                                                                   }" /> 
+    <div class="slds-form">
+    <lightning:layout>
+   
+   <lightning:layoutItem padding="around-small" size="4">
+                        <div class="page-section page-right">
+                            <div class="slds-form-element slds-form-element_horizontal">
+                            <ul>
+                                <li>
+                                    <label class="slds-form-element__label" for="email">Name on Card: </label>
+                                     <lightning:input type="text" aura:id="field" class="slds-form-element__control"  value="{!v.CardInformationObj.Name_on_Card__c}"/>  
+                                   
+                                </li>
+                                <li>
+                                    <label class="slds-form-element__label" for="phone">Card Number: </label>
+                                    <lightning:input type="phone"  aura:id="field" class="slds-form-element__control"  value="{!v.CardInformationObj.Card_Number__c}" />
+                              
+                                </li>
+                                <li>
+                                  <label class="slds-form-element__label" >Expiration Date: </label>
+                                    <lightning:input type="text" aura:id="field" class="slds-form-element__control" value="{!v.CardInformationObj.Expiration_Month__c}"></lightning:input>
+                                    <lightning:input type="text" aura:id="field" class="slds-form-element__control" value="{!v.CardInformationObj.Expiration_Year__c}"></lightning:input>
+                                    
+                                </li>
+                  				 <li>
+                                  <label class="slds-form-element__label">CVV: </label>
+                                    <lightning:input type="text" aura:id="field" class="slds-form-element__control" value="{!v.CardInformationObj.CVV__c}"></lightning:input>
+                                   
+                                    
+                                </li>
+                            
+                            </ul>
+                            </div>
+                        </div>
+        <div class="row">
+                    <br/>
+                     <!-- Neutral variant (default) -->
+                    <lightning:button label="Cancel" title="Cancel" onclick="{!c.cancelForm}"/>
+
+                    <!-- Brand variant: Identifies the primary action in a group of buttons -->
+                    <lightning:button variant="brand"   label="Save" title="Save" onclick="{!c.saveCardInformation}" />
+                    <br/>
+                </div>
+                    </lightning:layoutItem>
+      
+    </lightning:layout>
+    </div>
+	
+</aura:component>

@@ -1,0 +1,87 @@
+<aura:component controller="Ctrl_Clinical_Certification">
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="dataSize" type="Integer" default="20"/> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="isNew" type="boolean" default="false"/> 
+    <aura:attribute name="TableTitle" type="String"/>
+    <aura:attribute name="selectedId" type="String"/>
+    <aura:attribute name="certificationId" type="String"/>
+    <aura:attribute name="empID" type="String"/>
+    <aura:attribute name="empTier" type="String"/>
+    <aura:attribute name="showRequested" type="boolean"/>
+    <aura:attribute name="enableRequestBtn" type="boolean"/>
+    <aura:attribute name="isEmployeeRedirect" type="Boolean"/>
+  <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+ 	<aura:registerEvent name="UpdateAvailableCertifications" type="c:UpdateAvailableCertifications"/>
+    <aura:handler event="c:UpdateRequestedCertifications" action="{!c.UpdateData}"/>
+    <aura:registerEvent name="UpdateEmpBudget" type="c:UpdateEmpBudget"/>
+  
+<aura:if isTrue="{!not(empty(v.data))}">
+     <div class="slds-section slds-is-open">
+
+    <span class="slds-truncate slds-p-horizontal_small slds-text-heading_large slds-section__title slds-theme_shade" style="color: darkorange;font-weight: bold;" title="Section Title">Requested Certifications</span>
+  <lightning:layout multipleRows="true">  
+    <aura:iteration items="{!v.data}" var="records" >
+      <lightning:layoutItem  size="12">  
+        <div id="Tilu" class="slds-box">
+            {!records.Other_Certification_Title__c}
+            <lightning:tile label="{!if(empty(records.Other_Certification_Title__c),records.Certification_Name__c,records.Other_Certification_Title__c)}">
+                <lightning:layout multipleRows="true">
+                      <lightning:layoutItem  size="12">
+                     <div style="float:right;"><lightning:button variant="destructive" value="{!records}" label="Cancel Request" title="Cancel Request" onclick="{! c.handleRowAction}"/>
+                         </div>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="3"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                       <b><p class="">Date Submitted</p></b> 
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        <p class="slds-truncate">{!records.Date_Requested__c}</p>
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                <lightning:layoutItem padding="around-small" size="3"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b><p class="slds-truncate">Status</p></b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        <p class="slds-truncate">{!records.Status__c}</p>
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    <lightning:layoutItem padding="around-small" size="3"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b><p class="slds-truncate">Cost</p></b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        <p class="slds-truncate">${!records.Certification_Cost__c}</p>
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                                  <lightning:layoutItem padding="around-small" size="3"> 
+                    <dl class="slds-dl_horizontal">
+                    <dt class="slds-dl_horizontal__label">
+                        <b><p class="slds-truncate">Paid by</p></b>
+                    </dt>
+                    <dd class="slds-dl_horizontal__detail slds-tile__meta">
+                        <p class="slds-truncate">{!records.Certification_Cost_Paid_By__c}</p>
+                    </dd>
+                        </dl>
+                    </lightning:layoutItem>
+                    
+
+                    
+                </lightning:layout>
+               
+            </lightning:tile>
+        </div> 
+       </lightning:layoutItem>
+    </aura:iteration>
+ </lightning:layout>
+    </div>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,32 @@
+<aura:component access="global" implements="force:appHostable" controller="Ctrl_Clinical_Certification">
+  <aura:attribute name="empID" type="string" />
+  <aura:attribute name="empTier" type="string" default="Tier 2"/>
+    <aura:attribute name="totalBudget" type="decimal" />
+    <aura:attribute name="isEmployeeRedirect" type="Boolean" default="false" />
+    <aura:attribute name="selectedEmployeeId" type="string"/>
+ <!-- <aura:handler event="force:refreshView" action="{!c.onRefreshView}" /> -->
+    <aura:handler name="UpdateEmpBudget" event="c:UpdateEmpBudget" action="{!c.handleBudget}"/>
+    <div class="slds-box slds-theme_default">
+   
+      <aura:if isTrue="{!!v.isEmployeeRedirect}">
+
+      
+
+        <c:EmployeeProfile empID="{!v.empID}" aura:id="employeeCmp"  budgetUtilization="{!v.totalBudget}" /> 
+ 
+		
+        <c:CertificationsDashboard empID="{!v.empID}" empTier="{!v.empTier}" isEmployeeRedirect = "{!v.isEmployeeRedirect}"
+        selectedEmployeeId = "{!v.selectedEmployeeId}" /> 
+
+        <!-- To show employees-->
+        <aura:set attribute="else">
+          <div class="slds-page-header" >
+          <lightning:button  label="Back" variant="brand" title="Back" onclick="{! c.handleClick }" />
+          </div>
+          <c:EmployeeProfile empID="{!v.selectedEmployeeId}" aura:id="employeeCmp"  budgetUtilization="{!v.totalBudget}" isEmployeeRedirect = "{!v.isEmployeeRedirect}" /> 
+         <c:CertificationsDashboard empID="{!v.selectedEmployeeId}" empTier="{!v.empTier}" isEmployeeRedirect = "{!v.isEmployeeRedirect}" /> 
+         </aura:set>
+
+      </aura:if>
+</div>
+</aura:component>

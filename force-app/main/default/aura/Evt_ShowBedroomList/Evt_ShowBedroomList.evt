@@ -1,0 +1,5 @@
+<aura:event type="Component" description="To Show Bedrooms">
+    <aura:attribute name="HouseName" type="string"/>
+    <aura:attribute name="HouseLineItemType" type="string"/>
+    
+</aura:event>

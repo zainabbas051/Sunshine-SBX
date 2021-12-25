@@ -1,0 +1,288 @@
+<aura:component controller="MaintenanceCheckListCtrl">
+    <!-- Handler Start-->
+    <aura:handler name="init" value="{! this }" action="{! c.myAction }" />
+    <!-- Handler End-->
+    <!-- Event Start-->
+    <aura:registerEvent name="GoBackEvent" type="c:Evt_GoBack" />
+    <!-- Event End-->
+    <!--Variable Start-->
+    <aura:attribute name="selectedHouse" type="string" />
+    <aura:attribute name="maintenanceType" type="string" />
+    <aura:attribute name="AccessType" type="string" />
+    <aura:attribute name="data" type="Task_Line_Items__c[]" />
+    <aura:attribute name="loaded" type="Boolean" />
+    <aura:attribute name="isCompleted" type="Boolean" default="true" />
+    <aura:attribute name="enableBtn" type="Boolean" default="selectedYear" />
+    <aura:attribute name="completedBy" type="string" default="" />
+    <aura:attribute name="ReviewedBy" type="string" default="" />
+    <aura:attribute name="showModal" type="Boolean" default="false" />
+    <aura:attribute name="selectedDate" type="string" />
+    <aura:attribute name="selectedYear" type="string" />
+    <aura:attribute name="errors" type="string" default="" />
+    <!--Variable End-->
+
+    <!-- Notification library-->
+    <lightning:notificationsLibrary aura:id="notifLib" />
+
+    <!--Header Component Start-->
+    <c:Cmp_Header screen="House Grid" title="Maintenance Tasks" loaded="{!v.loaded}" />
+    <!--Header Component End-->
+    <div class="slds-p-bottom_large slds-p-left_large" style="width:500px">
+      
+            <div class="slds-grid">
+                <aura:if isTrue="{!and(v.maintenanceType !='Seasonally', v.maintenanceType !='Yearly') }">
+                <div style="margin-top:16px; " class="slds-col  slds-size_1-of-12">
+                    <lightning:icon iconName="action:filter" size="x-small" alternativeText="Filter" title="Filter" />
+                </div>
+
+                <div class="slds-col slds-size_5-of-12">
+                    <lightning:select name="select1" aura:id="selectFilter" onchange="{!c.onFilterSelection}">
+                        <aura:if isTrue="{!v.maintenanceType =='Monthly'}">
+                            <option value="0">--Select Month--</option>
+                            <option value="1">Jan</option>
+                            <option value="2">Feb</option>
+                            <option value="3">Mar</option>
+                            <option value="4">Apr</option>
+                            <option value="5">May</option>
+                            <option value="6">Jun</option>
+                            <option value="7">Jul</option>
+                            <option value="8">Aug</option>
+                            <option value="9">Sep</option>
+                            <option value="10">Oct</option>
+                            <option value="11">Nov</option>
+                            <option value="12">Dec</option>
+                        </aura:if>
+                        <aura:if isTrue="{!v.maintenanceType =='Quarterly'}">
+                            <option value="0">--Select Quarter--</option>
+                            <option value="1">Q1</option>
+                            <option value="2">Q2</option>
+                            <option value="3">Q3</option>
+                            <option value="4">Q4</option>
+                        </aura:if>
+                        <!-- <option value="This_Month">This Month</option>
+        <option value="Next_Month">Next Month</option>
+        <option value="Last_month">Last Month</option>
+-->
+                    </lightning:select>
+                </div>
+           
+                &nbsp;
+             </aura:if>
+             <aura:if isTrue="{!v.maintenanceType !='Seasonally' }">
+                <div class="slds-col slds-size_5-of-12">
+                <lightning:select name="select2" aura:id="selectYearFilter" onchange="{!c.onYearFilterSelection}">
+                    <option value="0">--Select Year--</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </lightning:select>
+            </div>
+            </aura:if>
+
+    </div>
+   
+
+    </div>
+    <br />
+    <ul class="slds-has-dividers_bottom-space">
+
+        <div style="min-height: 300px">
+            <table class="slds-table slds-table--bordered slds-table--cell-buffer" role="grid">
+                <thead>
+                    <tr class="slds-text-title--caps">
+                        <th scope="col">
+                            <div class="slds-truncate" title="Task Name">Task Name</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="BHT Status">Due Date</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="BHT Status">Staff Status</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Completed By">Staff Detail</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Completed Date">Staff Completed Date</div>
+                        </th>
+                        <aura:if isTrue="{!v.AccessType =='Supervisor'}">
+                            <th scope="col">
+                                <div class="slds-truncate" title="BHT Status">Supervisor Status</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate" title="BHT Status">Supervisor Detail</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate" title="BHT Status">Supervisor Completed Date</div>
+                            </th>
+                        </aura:if>
+
+
+
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:if isTrue="{!empty(v.data)}">
+                        <tr>
+                            <td colspan="6">No Task Available</td>
+                        </tr>
+                    </aura:if>
+                    <aura:iteration items="{!v.data}" var="item">
+                        <tr>
+                            <td>
+                                <div class="slds-truncate" title="{!item.Task_Name__c}">
+                                    {!item.Task_Name__c}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate" title="{!item.Due_Date__c}">
+                                    {!item.Due_Date__c}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="slds-truncate" title="{!item.BHT_Status__c}" indexVar="index">
+                                    <lightning:input name="" label="" type="toggle" aura:id="inputToggleBHT"
+                                        messageToggleActive="Done" messageToggleInactive="Not Done"
+                                        onchange="{!c.enableCompleteBtn}" checked="{!item.BHT_Status__c}"
+                                        class="{!item.BHT_Status__c ? 'sldstoggleGreen' : 'sldstoggleRed'}"
+                                        disabled="{!or(item.Status__c == 'Under Review',and(item.Status__c==null,item.Enabled_Task__c == false))}" />
+
+
+
+                                </div>
+                            </td>
+                            <td>
+                                <aura:if isTrue="{!item.Staff_Completed_By__c != null}">
+                                    <div class="demo-only" style="width:50px">
+                                        <article class="slds-tile">
+                                     
+                                            <div class="slds-tile__detail">
+                                                <p>{!item.Staff_Completed_By__c} </p>
+                                            
+                                                <aura:if isTrue="{!item.Staff_Notes__c!=null}">
+                                                    <span style="display: inline-block">Notes: </span>
+                                                    </aura:if>
+                                                    <span style="display: inline-block">
+                                                        {!item.Staff_Notes__c}
+                                                    </span>
+                                        
+                                                <!--<ul class="slds-list_horizontal slds-has-dividers_right">
+                                                    <li class="slds-item">
+
+                                                        <p>
+                                                            ><lightning:formattedDateTime
+                                                                value="{!item.Staff_Completed_Date__c}" />
+                                                        </p>
+                                                    </li>
+
+                                                </ul>-->
+                                            </div>
+
+                                        </article>
+                                    </div>
+                                </aura:if>
+                            </td>
+                            <td>
+                                <lightning:formattedDateTime
+                                value="{!item.Staff_Completed_Date__c}" />
+                            </td>
+
+                            <aura:if isTrue="{!v.AccessType =='Supervisor'}">
+                                <td>
+                                    <div class="slds-truncate" title="{!item.Supervisor_Status_chkb__c}">
+                                        <lightning:input name="" label="" type="toggle" messageToggleActive="Done"
+                                            messageToggleInactive="Not Done" onchange="{!c.enableCompleteBtn}"
+                                            class="{!item.Supervisor_Status__c ? 'sldstoggleGreen' : 'sldstoggleRed'}"
+                                            checked="{!item.Supervisor_Status__c}"
+                                            disabled="{!or(or(item.Status__c == 'Completed',item.Status__c == 'Incomplete'),and(item.Status__c==null,item.Enabled_Task__c == false))}" />
+                                    </div>
+                                </td>
+                               
+                             <td>
+                                    <aura:if isTrue="{!item.Supervisor_Reviewed_By__c != null}">
+                                        <div class="demo-only" style="width:50px">
+                                            <article class="slds-tile">
+                                                <div class="slds-tile__detail">
+                                                    <p>{!item.Supervisor_Reviewed_By__c} </p>
+                                                    <aura:if isTrue="{!item.Suprevisor_Notes__c!=null}">
+                                                    <span style="display: inline-block">Notes: </span>
+                                                    </aura:if>
+                                                    <span style="display: inline-block">
+                                                        {!item.Suprevisor_Notes__c}
+                                                    </span>
+                                                    <!--<ul class="slds-list_horizontal slds-has-dividers_right">
+                                                        <li class="slds-item">
+
+                                                            <p>
+                                                                <lightning:formattedDateTime
+                                                                    value="{!item.Supervisor_Completed_Date__c}" />
+                                                            </p>
+                                                        </li>
+
+                                                    </ul>-->
+                                                </div>
+
+                                            </article>
+                                        </div>
+                                    </aura:if>
+                                </td> 
+                                <td>
+                                    <lightning:formattedDateTime
+                                    value="{!item.Supervisor_Completed_Date__c}" />
+                                </td>
+
+                            </aura:if>
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>
+        </div>
+        <br />
+    </ul>
+    <aura:if isTrue="{!v.showModal}">
+
+        <!-- Modal/Popup Box starts here-->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box Header Starts here-->
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModal }" alternativeText="close"
+                        variant="bare-inverse" class="slds-modal__close" />
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Please Fill in the
+                        Following</h2>
+                </header>
+                <!--Modal/Popup Box Body Starts here-->
+                <div class="slds-modal__content slds-p-around_x-small" id="modal-content-id-1">
+                    <lightning:input aura:id="inputCmp" value="{!v.completedBy}" required="true" label="Completed By" />
+                </div>
+                <div class="slds-modal__content slds-p-around_x-small" id="modal-content-id-1">
+                    <lightning:textarea value="{!v.ReviewedBy}" label="Notes" />
+                </div>
+
+                <!--Modal/Popup Box Footer Starts here-->
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{! c.closeModal }" />
+                    <lightning:button variant="brand" label="OK" title="OK" onclick="{!c.completeHouseLineItem}" />
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+
+    <!-- Action Div Start-->
+    <div class="slds-docked-form-footer">
+        <aura:if isTrue="{!!empty(v.data)}">
+
+            <ui:button press="{!c.openModal}" aura:id="cmpltBtn" disabled="{!v.isCompleted}"
+                class="slds-button slds-button_brand">Complete</ui:button>
+        </aura:if>
+    </div>
+    <!-- Action Div End-->
+
+</aura:component>

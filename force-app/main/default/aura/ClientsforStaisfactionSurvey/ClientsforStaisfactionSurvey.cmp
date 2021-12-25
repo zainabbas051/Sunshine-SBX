@@ -1,0 +1,78 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="Ctrl_Client_Satisfaction_Survey" access="global" >
+     <aura:attribute name="isLoading" type="boolean" default="false"/>
+     <aura:attribute name="showCmp" type="boolean" default="true"/>
+     <aura:attribute name="IsAuthenticated" type="boolean" default="true"/>
+     <aura:attribute name="SunshineCenter" type="string" />
+     <aura:attribute name="ListOfOpportunity" type="sObject[]" />
+     <aura:attribute name="selectedOppID" type="string" />
+    <aura:attribute name="selectedSunshineCenter" type="string" />
+    <aura:attribute name="selectedKIPUPrimaryTherapist" type="string" />
+    <aura:attribute name="selectedKIPUCaseManager" type="string" />
+    <aura:attribute name="isEven" type="boolean" default="false" />
+    <aura:attribute name="surveyNumber" type="integer" default="0" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler event="c:ShowCreateSurveyCmp_Event" action="{!c.handleShowHide}"/>
+     <aura:handler event="c:ClientSatisfactionSurveyEvent_Invert" action="{!c.handleApplicationEvent}"/>
+    <aura:handler event="c:ClientSurveyLoggedin" action="{!c.handleClientSurveyLoggein}"/>
+    <aura:registerEvent name="ClientSatisfaction_Event" type="c:ClientSatifaction_Event"/>
+    <aura:registerEvent name="ShowSurveyGridViewCmp_Event" type="c:ShowSurveyGridviewCmp_Event"/>
+	<aura:if isTrue="{!v.IsAuthenticated}">
+    <aura:if isTrue="{!v.showCmp}">
+    <aura:if isTrue="{!v.isLoading}">
+        <lightning:spinner aura:id="mySpinner" variant="brand" />
+    </aura:if>
+    <ui:scrollerWrapper class="slds-scrollable_y scrollerSize"  >
+    <div >
+       <table class="slds-table slds-table_bordered slds-max-medium-table_stacked-horizontal">
+      <thead>
+         <tr class="slds-text-title--caps">
+ 			         
+              <th scope="col">   
+               <div class="slds-truncate" title="Related Opportunity">Client Name</div>
+            </th>
+            
+             <th scope="col">   
+               
+            </th>
+            
+         </tr>
+      </thead>
+      <!--table body start, 
+         Iterate contact list as a <tr>
+         -->
+           
+     
+      <tbody>
+           <aura:if isTrue="{!empty(v.ListOfOpportunity)}">
+             <tr>
+             <td colspan="6" >No Client Available</td>
+             </tr>
+               </aura:if>
+         <aura:iteration items="{!v.ListOfOpportunity}" var="client" indexVar="idx">
+           <tr class="slds-hint-parent">
+              
+               <td data-label="Client Name">
+
+                   <div class="slds-truncate" title="Client Name">{!client.Name}</div>
+               </td>
+
+
+               
+               <td data-label="Action">
+
+                   <div class="slds-truncate" title="Create Survey" >
+                   <a href = "" onclick="{!c.create}" class="slds-button slds-button_brand" data-oppid="{!idx}" >Create Survey</a>
+       
+                   </div>
+               </td>
+            
+               
+            </tr>
+         </aura:iteration>
+      </tbody>
+   </table>
+    </div>
+         </ui:scrollerWrapper>
+         </aura:if>
+        </aura:if>
+</aura:component>

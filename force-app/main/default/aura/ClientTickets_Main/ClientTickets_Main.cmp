@@ -1,0 +1,14 @@
+<aura:component>
+
+    <aura:attribute name="employeeId" type="string"/>
+    <aura:attribute name="selectedRecordId" type="string"/>
+
+    <aura:if isTrue="{!v.selectedRecordId == undefined}">
+        <c:ClientTicket_List employeeId="{!v.employeeId}" selectedRecordId="{!v.selectedRecordId}"/>
+        <aura:set attribute="else">
+            <c:ClientTicket_Detail RecordId="{!v.selectedRecordId}"
+            empId="{!v.employeeId}" 
+             ></c:ClientTicket_Detail>
+        </aura:set>
+    </aura:if>
+</aura:component>

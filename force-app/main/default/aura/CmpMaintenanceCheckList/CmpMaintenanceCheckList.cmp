@@ -1,0 +1,37 @@
+<aura:component implements="force:appHostable" controller="MaintenanceCheckListCtrl">
+
+    <!-- Event Handler Start-->
+    <aura:handler name="GoBackEvent" event="c:Evt_GoBack" action="{!c.ToggleScreen}" />
+    <aura:handler name="showHouseGrid_Evt" event="c:showHouseGrid_Evt" action="{!c.enableHouseGridAccess}" />
+    <!-- Event Handler End-->
+    <!--Variable Start-->
+    <aura:attribute name="selectedHouse" type="string" />
+    <aura:attribute name="enableHouseGrid" type="boolean" default="false" />
+    <aura:attribute name="IsTaskListEnabled" type="Boolean" default="false" />
+    <aura:attribute name="HouseLineItemType" type="string" />
+    <aura:attribute name="viewType" type="string" />
+    <aura:attribute name="HouseLineItems" type="House_Line_Items__c[]" />
+    <aura:attribute name="AccessType" type="string" />
+    <aura:attribute name="loaded" type="Boolean" default="false" />
+
+    <!-- Variable End-->
+
+    <div class="slds-box slds-theme_default">
+        <div class="spinner">
+            <aura:if isTrue="{! v.loaded }">
+                <lightning:spinner alternativeText="Loading" />
+
+            </aura:if>
+        </div>
+        <aura:if isTrue="{!v.enableHouseGrid==false}">
+            <c:MaintenanceStaffType />
+        </aura:if>
+        <aura:if isTrue="{!v.enableHouseGrid}">
+
+                <c:Maintence_HouseGrid loaded="{!v.loaded}" AccessType="{!v.AccessType}" IsTaskListEnabled="{!v.IsTaskListEnabled}" />
+
+        </aura:if>
+        
+    </div>
+
+</aura:component>

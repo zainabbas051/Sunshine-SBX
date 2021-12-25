@@ -1,0 +1,175 @@
+<aura:component controller="PaymentCollection_Cntr" implements="lightning:isUrlAddressable,forceCommunity:availableForAllPageTypes,force:appHostable,force:lightningQuickActionWithoutHeader,flexipage:availableForAllPageTypes,force:hasRecordId" access="global" >
+    
+    <aura:attribute name="payment" type="Map"
+                    default="{ 	'amount': 0,
+                             'currency': '',
+                             'holderName' : '',
+                             'card' : '',
+                             'cvv': '',
+                             'year': '',
+                             'month': '',
+                             'currencyval' : '',
+                             'description': '',
+                             'notes': '',
+                             'oppName': 'None',
+                             'contact' : '',
+                             'invNotes': ''}"/>
+    <aura:attribute name="empId" type="string"/>
+    <aura:attribute name="contactName" type="String" default=""/>
+    <aura:attribute name="contactEmail" type="String" default=""/>
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="result" type="String" />
+    <aura:attribute name="amounttoshow" type="String" />
+    <aura:attribute name="currtoshow" type="String" />
+    <aura:attribute name="invoice" type="SObject[]" />
+    <aura:attribute name="invoiceNumber" type="String" />
+    <aura:attribute name="budgetAmount" type="String"/>
+    <aura:attribute name="NonpaidStatus" type="boolean"/>
+    <aura:attribute name="environmentType" access="global" type="String" default="Standard" description="This variable is used to indicate which environment this component is displayed on, f.i. community vs standard lightning" />
+    <aura:attribute name="HideSpinner" type="Boolean" default="true"/>
+    <aura:attribute name="AddedCards" type="Object" default="['Enter New Card']"/>
+    
+    <lightning:navigation aura:id="navService"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit1}" />
+    
+    <!--aura handler with waiting and donewaiting events-->
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    
+    <!--{!v.pageReference.state.testAttribute}-->
+    
+    <lightning:layout horizontalAlign="center">
+         
+        <lightning:layoutItem class="slds-align_absolute-center">
+            <!-- CREATE NEW PAYMENT -->
+            <div aria-labelledby="newpaymentform">
+                <!-- BOXED AREA -->
+                <fieldset class="slds-box slds-align_absolute-centerslds-theme--default slds-container--medium">
+                    <legend id="newexpenseform" class="slds-text-heading--small 
+                                                       slds-p-vertical--medium">
+                        Payment Collection
+                    </legend>
+                    <div style="padding-bottom: 20px;">
+                        Payment of Due Housing Rent
+                    </div>
+                    <div class="slds-text-color_error slds-text-align_center">{!v.result}</div>
+                    
+                    <!-- CREATE NEW PAYMENT FORM -->
+                    
+                    <form class="slds-form--stacked">                     
+                        
+                        <p class="contactname"> <b>Client Name</b> </p>
+                        <ui:outputText class="receiptemail" value="{!v.payment.oppName}"/>
+                        
+                        
+                        <p class="receiptemail"> <b>Amount *</b> </p>
+                       <!-- <ui:outputcurrency class="receiptemail" value="{!v.payment.amount}"/> -->
+                        <!--<lightning:formattedNumber value="{!v.payment.amount}"
+                                                   style="decimal"
+                                                   minimumFractionDigits=  "2"
+                                                   maximumFractionDigits="2"
+                                                   class="receiptemail"/>
+                        -->
+                        
+
+                        <lightning:input type="text" aura:id="Amount" 
+                        label="Amount"
+                        name="HolderName"
+                        formatter="currency"
+                        required="true"
+                        value="{!v.payment.amount}"
+                        messageWhenValueMissing="Please Enter Amount"/>
+                        
+                        <p class="receiptemail"> <b>Existing Cards *</b></p>
+                        
+                        <lightning:select name="cStat" 
+                        label="Existing Cards" 
+                        aura:id="cardsPicklist" 
+                        onchange="{!c.onChange}">
+                            <option value="Enter New Card">Enter New Card</option>
+                            <aura:iteration items="{!v.AddedCards}" var="opt">
+                            <option value="{!opt.CardNumber}">{!opt.CardNumber}</option>
+                            </aura:iteration>
+                        </lightning:select>
+
+                        <p class="cardholder"> <b>Card Holder Name *</b></p>
+                        <lightning:input type="text" aura:id="HolderName" label="Card Holder Name"
+                                         name="HolderName"
+                                         formatter="text"
+                                         placeholder="Name displayed on Card"
+                                         required="true"
+                                         value="{!v.payment.holderName}"
+                                         
+                                         messageWhenValueMissing="Please Enter Card Holder Name"/>
+                        
+                        <p class="cardholder"> <b>Card Number *</b></p>
+                        <lightning:input aura:id="expenseform" label="Card Number"
+                                         name="card"
+                                         value="{!v.payment.card}"
+                                         placeholder="Card Number"
+                                         pattern="[0-9]{13,16}"
+                                         required="true"
+                                         messageWhenValueMissing="Please Enter Card Number"/> 
+                        
+                        
+                        <fieldset class="slds-form--compound">
+                            <div class="form-element__group">
+                                <div class="slds-form-element__row">
+                                    <div class="slds-form-element slds-size--1-of-3">
+                                        <p class="cardholder"><b>Expiry Month *</b></p>
+                                        <lightning:input type="Number" aura:id="expenseform" label="Expiry Month"
+                                                         name="Card Month"
+                                                         min="1"
+                                                         max="12"
+                                                         required="true"
+                                                         value="{!v.payment.month}"
+                                                         placeholder="MM"
+                                                         messageWhenRangeUnderflow="Enter card month from 1 to 12"
+                                                         messageWhenValueMissing="Please Enter Expiry Month from 1 to 12"/>
+                                    </div>
+                                    <div class="slds-form-element slds-size--1-of-3">
+                                        <p class="cardholder"><b>Expiry Year *</b></p>
+                                        <lightning:input aura:id="expenseform" label="Expiry Year"
+                                                         name="Card Year"
+                                                         required="true"
+                                                         value="{!v.payment.year}"
+                                                         pattern="[0-9]{4}"
+                                                         placeholder="YYYY"
+                                                         messageWhenValueMissing="Please Enter Expiry Year"/>
+                                    </div>
+                                    <div class="slds-form-element slds-size--1-of-3">
+                                        <p class="cardholder"><b>Card CVV *</b></p>
+                                        <lightning:input aura:id="expenseform" label="Card CVV"
+                                                         name="Card CVV Code"
+                                                         required="true"
+                                                         value="{!v.payment.cvv}"
+                                                         placeholder="3 digit # on the back of card"
+                                                         pattern="[0-9]{3,4}"
+                                                         messageWhenRangeUnderflow="Card CVV"
+                                                         messageWhenValueMissing="Please Enter 3 digit # Number from the Back of Your Card"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        
+                        <div class="slds-text-align_center">
+                            <aura:if isTrue="{!v.NonpaidStatus}">
+                                <lightning:button label="Submit Payment" 
+                                                  class="slds-m-top--medium"
+                                                  variant="brand"
+                                                  onclick="{!c.submitPayment}"
+                                                  />
+                            </aura:if>
+                        </div>
+                    </form>
+                    <!-- / CREATE NEW PAYMENT FORM -->
+                    
+                </fieldset>
+                <!-- / BOXED AREA -->
+            </div>
+            <!-- / CREATE NEW PAYMENT -->
+        </lightning:layoutItem>
+    </lightning:layout>
+    
+</aura:component>

@@ -1,0 +1,5 @@
+<aura:event type="Component" description="To Show Activities">
+    <aura:attribute name="isActivitiesEnabled" type="Boolean"/>
+    <aura:attribute name="HouseId" type="string"/>
+    <aura:attribute name="viewType" type="string"/>
+</aura:event>

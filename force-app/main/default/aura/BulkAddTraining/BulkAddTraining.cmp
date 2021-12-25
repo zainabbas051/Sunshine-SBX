@@ -1,0 +1,120 @@
+<aura:component controller="Ctrl_Clinical_Certification" implements="force:appHostable">
+    <aura:attribute name="isBulkAdd" type="boolean" default="false"/> 
+    <aura:attribute name="progressIndicatorFlag" type="String" />
+    <aura:attribute name="Trainingdata" type="Object"/>
+    <aura:attribute name="SelectedTrainingdata" type="Certifications__c[]"/>
+    <aura:attribute name="Employeedata" type="Employee__c[]"/>
+    <aura:attribute name="SelectedEmployeedata" type="Object"/>
+    <aura:attribute name="Trainingcolumns" type="List"/>
+    <aura:attribute name="Employeecolumns" type="List"/>
+    <aura:attribute name="empID" type="String"/>
+    <aura:attribute name="dateOfTraining" type="Date"/>
+    <aura:attribute name="Notes" type="string"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    <aura:attribute name="spinner" type="boolean" default="FALSE"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    
+
+        <lightning:messages />
+        
+        <div class="demo-only" >
+            
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" 
+                     aria-modal="true" aria-describedby="modal-content-id-1" 
+                     class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.closeModel }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Bulk Add Training</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+                        
+                        <lightning:progressIndicator class="slds-p-bottom_medium" type="path" currentStep="{!v.progressIndicatorFlag}">
+                            <lightning:progressStep label="Select Trainings" value="step1"/>
+                            <lightning:progressStep label="Select Employees" value="step2"/>
+                            <lightning:progressStep label="Finalize" value="step3"/>
+                            
+                        </lightning:progressIndicator>
+                        
+                        <div aura:id="stepOne">	
+                             <lightning:datatable aura:id="trainingTable"
+                                columns="{! v.Trainingcolumns }"
+                                onrowselection="{! c.updateSelectedTrainings }"
+                                data="{! v.Trainingdata }"
+                                maxRowSelection="1"
+                                keyField="Id"
+                                />
+                             <div  class="slds-p-top_medium">
+                            <lightning:button  label="Next" onclick="{!c.goToStepTwo}" variant="brand"/> 
+                            </div>
+                            </div>
+                        <div aura:id="stepTwo">
+                            <lightning:datatable aura:id="EmpTable"
+                                columns="{! v.Employeecolumns }"
+                                onrowselection="{! c.updateSelectedEmployees }"
+                                data="{! v.Employeedata }"
+                                keyField="Id"
+                                />
+                            <div  class="slds-p-top_medium">
+                            <lightning:button label="Back" onclick="{!c.goBackToStepOne}" />
+                            <lightning:button label="Next" onclick="{!c.goToStepThree}" variant="brand"/> 
+                        </div>
+                            </div>
+                        
+                        <div aura:id="stepThree">
+						<lightning:Layout multipleRows="true">
+                            <lightning:LayoutItem size="12">
+                                <lightning:Layout>
+                            <lightning:LayoutItem size="5">
+                            <lightning:input type="date" name="input1" aura:id="DoT" value="{!v.dateOfTraining}" required="true" label="Date of Training" />
+                            
+                            </lightning:LayoutItem >
+                             <lightning:LayoutItem class="slds-p-left_medium" size="5">
+                             <lightning:select aura:id="LoT" name="select1" label="Location of Training" required="true">
+        <option value="">choose one...</option>
+        <option value="1">On-Site</option>
+        <option value="2">Remote</option>
+                               
+        
+    </lightning:select>
+                            </lightning:LayoutItem>
+                                    </lightning:Layout>
+                            <lightning:LayoutItem flexibility="auto"  size="10">
+                                
+                            <lightning:textarea name="input3" aura:id="notesA" label="Notes" value="{!v.Notes}"/>
+                            </lightning:LayoutItem>
+                                
+                            </lightning:LayoutItem>
+                            </lightning:Layout>
+                            
+                            <div  class="slds-p-top_medium">
+                            <lightning:button label="Back" onclick="{!c.goBackToStepTwo}" />
+                            <lightning:button label="Save" onclick="{!c.SaveRecords}" variant="brand"/> 
+                        </div>
+                            </div>
+     
+                        
+                        
+                    </div>
+                    
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open overlay"></div>
+        </div>
+  
+</aura:component>
