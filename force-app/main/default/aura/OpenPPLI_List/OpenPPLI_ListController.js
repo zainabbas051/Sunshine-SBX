@@ -14,9 +14,19 @@
             {label: 'Pay', type : 'button', initialWidth: 135,typeAttributes: { label: 'Pay', name: 'view_details', title: 'Click to Pay'}},
         ]);
 
+        helper.getAllSunshines(component);
         helper.getAllPPLIsUpdated(component);
         helper.expandAllRows(component, event);
     },
+
+    onChange: function (component, event, helper) {
+        var selPickListValue = event.getSource().get("v.value");
+        console.log('*selPickListValue :'+selPickListValue );
+        component.set("v.SelectedSunSh", selPickListValue);
+        console.log('*sel sunsh attr :'+component.get("v.SelectedSunSh"));
+        
+    },
+
     expandAllRows : function(component, event, helper){
         helper.expandAllRows(component, event);
     },

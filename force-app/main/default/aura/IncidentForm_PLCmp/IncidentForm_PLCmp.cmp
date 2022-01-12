@@ -1,8 +1,10 @@
 <aura:component>
     <aura:attribute name="sunshineCentres" type="String[]" default="Chapters Capistrano,Monarch Shores,Mountain Springs Recovery,Willowsprings Recovery"/>
+    <aura:attribute name="selectedSunshineAccess" type="List"/>
     <aura:attribute name="showForm" type="boolean" default="false"/>
     <aura:attribute name="showFormPL" type="boolean" default="false"/>
     <aura:attribute name="selectedSunShineCentre" type="string"/>
+
     <aura:attribute name="title" type="string"/>
     <div class="slds-scope">
         <div class="slds-align_absolute-center">
@@ -11,21 +13,29 @@
          <div class="slds-align_absolute-center">
             <div class="slds-box" style="width: 70%;">
                 <div class="row">
-                    <lightning:select name="select"  aura:id="sunshineCentre" label="Select a Sunshine Centre" required="true">
+               <!--     <lightning:select name="select"  aura:id="sunshineCentre" label="Select a Sunshine Centre" required="true">
                         <aura:iteration items="{!v.sunshineCentres}" var="sunshineCentre">
                             <option text="{!sunshineCentre}"></option>
                         </aura:iteration>
+                    </lightning:select>-->
+                    
+                    <lightning:select name="select"  aura:id="sunshineCentre" label="Select a Sunshine Centre" required="true">
+                     <aura:iteration items="{!v.selectedSunshineAccess}" var="sunshineCentre">
+                     <option text="{!sunshineCentre}"></option>
+                     </aura:iteration> 
                     </lightning:select>
+
                                     <br/>
                 </div>
                 <div class="row">
                     <br/>
                      <!-- Neutral variant (default) -->
                     <lightning:button label="Cancel" title="Cancel" onclick="{!c.cancelForm}"/>
-    
+    <aura:if isTrue="{!not(empty(v.selectedSunshineAccess))}">
+
                     <!-- Brand variant: Identifies the primary action in a group of buttons -->
                     <lightning:button variant="brand" disabled="{!v.disabled}"  label="Next" title="Next" onclick="{!c.openIncForm}" />
-                    <br/>
+                  <br/> </aura:if> 
                 </div>
             </div>
          </div>

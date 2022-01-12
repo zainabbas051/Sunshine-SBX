@@ -6,9 +6,9 @@
             {label: 'Report Name', fieldName: 'linkName', type: 'url',
                 typeAttributes: {label: { fieldName: 'Name' }, target: '_blank'}},
             
-            {label: 'Date-Time', fieldName: 'DateAndTime__c',type: 'date',
-             typeAttributes:{day:'2-digit',month:'2-digit',year:'2-digit',
-             hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}},
+            {label: 'Date-Time', fieldName: 'DateAndTime__c',type: 'date', sortable:true,
+            typeAttributes:{day:'2-digit',month:'2-digit',year:'2-digit',
+            hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}},
             {label: 'Completed By', fieldName: 'Completed_By_Name__c', type: 'text'},
             {label: 'Staff Name', fieldName: 'Staff_Member_Observed__c', type: 'text'},
             {label: 'Sunshine Centre', fieldName: 'Sunshine_Center_Name__c', type: 'text'},
@@ -17,6 +17,18 @@
         helper.getEmployeeSunshine(component)
         component.set("v.RecordId",undefined);
 
+    },
+
+    handleSort : function(component,event,helper){
+        //Returns the field which has to be sorted
+        var sortBy = event.getParam("fieldName");
+        //returns the direction of sorting like asc or desc
+        var sortDirection = event.getParam("sortDirection");
+        //Set the sortBy and SortDirection attributes
+        component.set("v.sortBy",sortBy);
+        component.set("v.sortDirection",sortDirection);
+        // call sortData helper function
+        helper.sortData(component,sortBy,sortDirection);
     },
 
     showForm : function(component,event,helper){

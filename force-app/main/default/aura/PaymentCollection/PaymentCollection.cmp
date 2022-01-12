@@ -16,7 +16,7 @@
                              'invNotes': ''}"/>
     <aura:attribute name="empId" type="string"/>
     <aura:attribute name="contactName" type="String" default=""/>
-    <aura:attribute name="contactEmail" type="String" default=""/>
+    <aura:attribute name="PaymentPlanId" type="String" default=""/>
     <aura:attribute name="recordId" type="String" />
     <aura:attribute name="result" type="String" />
     <aura:attribute name="amounttoshow" type="String" />
@@ -28,7 +28,14 @@
     <aura:attribute name="environmentType" access="global" type="String" default="Standard" description="This variable is used to indicate which environment this component is displayed on, f.i. community vs standard lightning" />
     <aura:attribute name="HideSpinner" type="Boolean" default="true"/>
     <aura:attribute name="AddedCards" type="Object" default="['Enter New Card']"/>
-    
+    <aura:attribute name="paymentLineItemList" type="object[]"/>
+    <aura:attribute name="fileName" type="string" />
+    <aura:attribute name="disabled" type="boolean" default="false"></aura:attribute>
+    <aura:attribute name="selectedCardValue" type="String" default="Enter New Card"/>
+    <aura:attribute name="AddNewCard" type="Boolean" default="true"/>
+
+    <ltng:require scripts="{!$Resource.AWS}" />
+    <lightning:notificationsLibrary aura:id="notifLib"/>
     <lightning:navigation aura:id="navService"/>
     
     <aura:handler name="init" value="{!this}" action="{!c.doInit1}" />
@@ -79,17 +86,19 @@
                         formatter="currency"
                         required="true"
                         value="{!v.payment.amount}"
+                        disabled="{!v.disabled}"
                         messageWhenValueMissing="Please Enter Amount"/>
                         
                         <p class="receiptemail"> <b>Existing Cards *</b></p>
                         
                         <lightning:select name="cStat" 
                         label="Existing Cards" 
-                        aura:id="cardsPicklist" 
+                        aura:id="cardsPicklist"
+                        value="{!v.selectedCardValue}"
                         onchange="{!c.onChange}">
                             <option value="Enter New Card">Enter New Card</option>
                             <aura:iteration items="{!v.AddedCards}" var="opt">
-                            <option value="{!opt.CardNumber}">{!opt.CardNumber}</option>
+                            <option value="{!opt.CardNumber}" selected="{!opt.selected}">{!opt.CardNumber}</option>
                             </aura:iteration>
                         </lightning:select>
 
@@ -154,12 +163,25 @@
                         </fieldset>
                         
                         <div class="slds-text-align_center">
-                            <aura:if isTrue="{!v.NonpaidStatus}">
-                                <lightning:button label="Submit Payment" 
+                            <lightning:button label="Cancel" 
+                                                  class="slds-m-top--medium"
+                                                  onclick="{!c.Cancel}"/>
+                            <aura:if isTrue="{!v.AddNewCard}">
+                                <lightning:button label="Add New Card" 
                                                   class="slds-m-top--medium"
                                                   variant="brand"
-                                                  onclick="{!c.submitPayment}"
+                                                  onclick="{!c.AddNewCard}"
+                                                  disabled="{!v.disabled}"
                                                   />
+                                <aura:set attribute="else">
+                                    
+                                    <lightning:button label="Submit Payment" 
+                                    class="slds-m-top--medium"
+                                    variant="brand"
+                                    onclick="{!c.submitPayment}"
+                                    disabled="{!v.disabled}"
+                                    />
+                                </aura:set>
                             </aura:if>
                         </div>
                     </form>

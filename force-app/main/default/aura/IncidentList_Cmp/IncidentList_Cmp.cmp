@@ -47,7 +47,7 @@
                      <aura:iteration items="{!v.selectedSunshineAccess}" var="opt">
                      <option value="{!selectedSunshineAccess}">{!opt}</option>
                      </aura:iteration> 
-                     <!--   <option value="All">All</option>
+                     <!-- comment   <option value="All">All</option>
                            <option value="Chapters Capistrano">Chapters Capistrano</option>
                            <option value="Monarch Shores">Monarch Shores</option>
                            <option value="Mountain Springs Recovery">Mountain Springs Recovery</option>

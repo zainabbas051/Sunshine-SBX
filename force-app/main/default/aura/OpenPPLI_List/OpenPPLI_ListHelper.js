@@ -81,6 +81,25 @@
 		$A.enqueueAction(action);
     },
 
+    getAllSunshines : function(component){
+
+        var action = component.get("c.getAllSunshinesAccess");
+        var empId = component.get("v.employeeId");
+        action.setParams({
+            'empId' : empId
+        });
+        action.setCallback(this, function (a) {
+            var state = a.getState();
+            if(state == 'SUCCESS'){
+                
+                var resultData = a.getReturnValue();
+                component.set("v.AllSunSh",resultData);
+            }
+        });
+        //adds the server-side action to the queue        
+		$A.enqueueAction(action);
+    },
+
     getAllPPLIsUpdated : function(component){
 
         var action = component.get("c.getAllPPLIs");
@@ -131,7 +150,14 @@
         var jsonString = component.get("v.alldata");
         var jsonObj = JSON.parse(jsonString);
         var totalData = component.get("v.dataSize");
-        
+        var selSunSh = component.get("v.SelectedSunSh");
+
+        /*console.log('jsonObj!!=='+jsonString);
+        if(selSunSh != "All"){
+            var jsonObj1 = JSON.parse(jsonString);
+            console.log('jsonObj1!!=='+jsonObj1);
+        }*/
+
         var recordToShow = pageSize * pageNumber;
         var pagedData = [];
         var childrenData = [];
@@ -157,7 +183,7 @@
                 var obj = jsonObj[x];
                 obj._children = _children;
                 pagedData.push(obj);
-                
+                console.log('obj='+obj);
             	
                 
             }
@@ -189,6 +215,33 @@
                 if(ele.getRootNode().readyState == "complete" && tree.attributes.data.Kh != null)
                 {
                     tree.expandAll();
+                    setTimeout(function(){
+                        var tbl = ele.getElementsByTagName("table")[0];
+                        if(tbl && tbl.rows && tbl.rows.length > 0)
+                        {
+                            console.log(tbl.rows.length);
+                            for(var x=0;x<= tbl.rows.length -1;x++)
+                            {
+                                var row =tbl.rows[x];
+                                //console.log(row);
+                                var attr = row.getAttribute('data-row-key-value');
+                                console.log(attr);
+                                if(attr && attr.indexOf('row-') == 0)
+                                {
+                                    console.log('inside if condition, printing cell');
+                                    console.log(row.cells[5]);
+                                    //row.cells[5].style.display = "none";
+                                    var btn = row.cells[5].getElementsByTagName('button')[0];
+                                    var span = row.cells[5].getElementsByTagName('span')[0];
+                                    //console.log(span);
+                                    //span.style.display = "none";
+                                    row.cells[5].innerHTML = "";
+                                    //btn.style.display = "none";
+                                }
+                            }
+                        }    
+                    },1000);
+                    
                 }
             }
             else{

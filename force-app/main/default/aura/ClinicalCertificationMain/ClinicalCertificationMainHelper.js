@@ -37,12 +37,19 @@
                 if(resultData.Tabs_Access__c.indexOf('Certification Dashboard') != -1){
                     component.set('v.showClinicalDashboard',true);
                     component.set('v.selectedTab','cl');
-                }              
+                } 
+                
+                let sunshineaccessvalues = [];
+                sunshineaccessvalues = resultData.Sunshine_Center_Access__c.split(';');
+                console.log('sunshineaccessvalues::' + sunshineaccessvalues);
+                component.set('v.selectedSunshineAccess',sunshineaccessvalues);
+                console.log('sunshineAccessValuesfromHTML:'+ component.get('v.selectedSunshineAccess'));
+
             }
+
         });
         $A.enqueueAction(action);
     }
 
-
-
+   
 })

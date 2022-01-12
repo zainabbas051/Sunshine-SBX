@@ -3,6 +3,7 @@
    <aura:attribute name="isSuperVisor" type="Boolean" default="false"/>
    <aura:attribute name="empTier" type="string" />
    <aura:attribute name="sunshineCenter" type="string" />
+   <aura:attribute name="selectedSunshineAccess" type="List"/><!--added by ahad-->
    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
    <aura:attribute name="totalBudget" type="decimal" />
@@ -40,11 +41,11 @@
             </aura:if>
             <aura:if isTrue="{!v.showIncidentReport}">
                <lightning:tab label="Incident Report" id="two">
-                  <c:IncidentReportMain_Cmp empId="{!v.empID}"/>
+                  <c:IncidentReportMain_Cmp empId="{!v.empID}" selectedSunshineAccess="{!v.selectedSunshineAccess}"/>
                </lightning:tab>
             </aura:if>
             <lightning:tab label="Infection Control Report" id="three">
-               <c:InfectionControlMain_Cmp empId="{!v.empID}"/>
+               <c:InfectionControlMain_Cmp empId="{!v.empID}" selectedSunshineAccess="{!v.selectedSunshineAccess}"/>
             </lightning:tab>
              
             <lightning:tab label="Client Ticket" id="four">
@@ -52,7 +53,7 @@
                <c:ClientTickets_Main employeeId="{!v.empID}" />
             </lightning:tab>
             <lightning:tab label="Hand Hygiene Report" id="five">
-               <c:HandHygieneReportMain empId="{!v.empID}"/>
+               <c:HandHygieneReportMain empId="{!v.empID}" selectedSunshineAccess="{!v.selectedSunshineAccess}"/>
             </lightning:tab>
             <lightning:tab label="Due Payment" id="six">
                <c:OpenPPLIPayment_Main employeeId="{!v.empID}"/>

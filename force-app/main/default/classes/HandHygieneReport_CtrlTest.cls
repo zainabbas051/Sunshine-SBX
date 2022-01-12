@@ -1,6 +1,8 @@
 @isTest
 public  class HandHygieneReport_CtrlTest {
     
+    public static List<String> AccessValues = New List<String>();
+
     @TestSetup
     static void createTestData() {
 
@@ -18,7 +20,11 @@ public  class HandHygieneReport_CtrlTest {
        supvisor.Name__c = 'supervisor';
        supvisor.Designation__c = 'bht';
        supvisor.email__c = 'safia.osman@hotmail.com';
+       supvisor.Sunshine_Center_Access__c = 'Monarch Shores;Chapters Capistrano;Willowsprings Recovery';
+
        insert supvisor;
+       AccessValues.add(supvisor.Sunshine_Center_Access__c);
+
 
     }
 
@@ -33,12 +39,13 @@ public  class HandHygieneReport_CtrlTest {
         pageRef.getParameters().put('id',incidentId);   
         Test.setCurrentPage(pageRef);
        // string email= HandHygieneReport_Ctrl.sunshineEmail('Monarch Shores');
-        HandHygieneReport_Ctrl.getAllHandHygieneReports(10,10,'test');
+        HandHygieneReport_Ctrl.getAllHandHygieneReports(10,10,'Willowsprings Recovery',AccessValues,date.today(),date.today());
+        HandHygieneReport_Ctrl.getAllHandHygieneReports(10,10,'Willowsprings Recovery',AccessValues,null,null);
         HandHygieneReport_Ctrl.getHandHygieneReportById(incidentId);
         HandHygieneReport_Ctrl.getEmpSunshine(emp.Id);
         HandHygieneReport_Ctrl.getSearchHandHygiene(Date.Today().addDays(-2),
                                                 Date.Today().addDays(2),
-                                                'test',1,10);
+                                                'All',1,10,AccessValues);
         HandHygieneReport_Ctrl.saveHandHygiene(new Hand_Hygiene_Report__c(Sunshine_Center__c = accId,Completed_By_Email__c = 'test@test.com'));
         HandHygieneReport_Ctrl.sendEmail(incidentId,'http://test.com');
 

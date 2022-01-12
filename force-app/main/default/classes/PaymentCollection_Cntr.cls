@@ -15,6 +15,7 @@ public without sharing class PaymentCollection_Cntr {
             for(Payment_Plan_Line_Items__c ppli : getPaymentLineItem(OppId)){
                 totalAmt += ppli.Amount_For_Collection__c;
                 pwrap.ClientName = ppli.Payment_Plan__r.Opportunity__r.Name;
+                pwrap.PPId = ppli.Payment_Plan__c;
             }
             List<Card_Information__c> cards = getCardInfoList(OppId);
             list<CardWrapper> ListOfCards = new list<CardWrapper>();
@@ -48,6 +49,31 @@ public without sharing class PaymentCollection_Cntr {
     }
 
     @AuraEnabled
+    public static string saveCard(string PPId, string cardNum, string cardHoldName, string expMon, string expYr, string Cvv)
+    {
+        string msgToReturn = 'Success';
+        try
+        {
+            Card_Information__c newCard = new Card_Information__c();
+            newCard.Name_On_Card__c = cardHoldName;
+            newCard.Card_Number__c = cardNum;
+            newCard.CVV__c = integer.valueOf(Cvv);
+            newCard.Expiration_Month__c = expMon;
+            newCard.Expiration_Year__c = expYr;
+            newCard.Payment_Plan__c = PPId;
+            newCard.Card_Approved__c = true;
+            insert newCard;
+        }
+        catch(Exception ex){
+            system.debug('---'+ex.getMessage());
+            system.debug(ex.getStackTraceString());
+            msgToReturn = ex.getMessage();
+            throw new AuraHandledException(ex.getMessage());
+         }
+         return msgToReturn;
+    }
+
+    @AuraEnabled
     public static string returnSelectedCard(string cardNum, string OppId)
     {
         CardWrapper cw = new CardWrapper();
@@ -61,6 +87,7 @@ public without sharing class PaymentCollection_Cntr {
             cw.CardHolderName = card.Name_On_Card__c;
             cw.CardNumber = cardNum;
             cw.ExpMonth = integer.valueOf(card.Expiration_Month__c);
+            cw.ExpYear = Integer.valueOf(card.Expiration_Year__c);
             if(!string.isBlank(card.Expiration_Year__c) && card.Expiration_Year__c.length() == 2)
             {
                 cw.ExpYear = Integer.valueOf('20'+card.Expiration_Year__c);
@@ -70,6 +97,65 @@ public without sharing class PaymentCollection_Cntr {
         }
         return jsonString;
     }
+    @AuraEnabled
+    public static string returnPaymentLineItem(string OppId){
+
+        
+        List<Payment_Plan_Line_Items__c> ppLineItem = [Select Name,Payment_Plan__c,Payment_Plan__r.Name,Due_Date__c,Sunshine_Center__c,
+                                                        Amount_For_Collection__c,Status__c,Closed_Date__c ,
+                                                        Payment_Receipt_URL__c, Date_of_Cash_Collection__c,
+                                                        Payment_Plan__r.Opportunity__c, Payment_Plan__r.Opportunity__r.Name
+                                                        FROM 
+                                                        Payment_Plan_Line_Items__c WHERE 
+                                                        Type_of_Collection__c = 'Housing' and Opportunity__c =: OppId and 
+                                                        (Status__c ='Open' OR Status__c ='Card Declined')];
+        
+       
+        return json.serialize(ppLineItem);
+    }
+
+
+    @auraEnabled
+    public static List<Payment_Plan_Line_Items__c> createPaymentLineItem(string OppId,decimal otherAmount){
+
+        List<Payment_Plan_Line_Items__c> ppl;
+        try{
+            ppl = PaymentLineItemService.createPaymentLineItem(getPaymentLineItem(OppId),otherAmount);
+        }
+        catch(Exception ex){
+           system.debug('---'+ex.getMessage());
+             system.debug(ex.getStackTraceString());
+            throw new AuraHandledException(ex.getMessage());
+        }
+        return ppl;
+    }
+
+    @auraEnabled
+    public static string processPayment(string OppId,string fileName,string cardNumber, string CVC,decimal totalDueAmount){
+        
+        string ppl;
+        try{
+            ppl =  PaymentLineItemService.processPayment(getPaymentLineItem(OppId),fileName,cardNumber,CVC,totalDueAmount);
+        }
+       catch(Exception ex){
+            throw new AuraHandledException(ex.getMessage());
+        }
+        return ppl;
+    }
+
+    @auraEnabled
+    public static List<string> processPdf(List<string> ppl){
+
+        List<string> pdfContents;
+        try{
+            pdfContents = PaymentLineItemService.processPdfs(ppl);
+        }
+        catch(Exception ex){
+            throw new AuraHandledException(ex.getMessage());
+        }
+        return pdfContents;
+    }
+
 
     public static List<Payment_Plan_Line_Items__c> getPaymentLineItem(string OppId){
 
@@ -130,6 +216,8 @@ public without sharing class PaymentCollection_Cntr {
 
         @AuraEnabled
         public string ClientName {get; set;}
+        @AuraEnabled
+        public string PPId {get; set;}
         @AuraEnabled
         public decimal TotalAmount {get; set;}
         @AuraEnabled

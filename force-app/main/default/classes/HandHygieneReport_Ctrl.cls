@@ -33,24 +33,59 @@ public without sharing class HandHygieneReport_Ctrl {
     @AuraEnabled
     public static List<Hand_Hygiene_Report__c> getAllHandHygieneReports(Integer pageSize,
                                                                  Integer pageNumber,
-                                                                 string empSunshine){
-        
+                                                                 string empSunshine,
+                                                                 List<String> empSunshineAccess,      
+                                                                 date startDate,
+                                                                 date endDate){
+                                                                     
         Integer offset = (pageNumber - 1) * pageSize;
         string sunshineCenterName = empSunshine;
         string query = 'Select ID,Name,Completed_By_Name__c, Sunshine_Center_Name__c,';
         query += 'Staff_Member_Observed__c, DateAndTime__c';
         query += ' FROM Hand_Hygiene_Report__c ';
-        if(sunshineCenterName != 'All'){
+       /* if(sunshineCenterName != 'All'){
             query += ' WHERE  Sunshine_Center_Name__c =:sunshineCenterName';
-        }
-        query += ' ORDER BY NAME LIMIT :pageSize OFFSET :offset';
+        }*/
+                                                                     
+	if (startDate == null || endDate == null ){
+                                                                   
+     //Logic to handle next and previous   
+                                                            
+       If ((pageNumber == 1 && sunshineCenterName == 'All') || (pageNumber != 1 && sunshineCenterName == 'All') ){
+		query += ' WHERE  Sunshine_Center_Name__c IN :empSunshineAccess';
+           	
+      }                                                                  
+         
+		If ((pageNumber != 1 && sunshineCenterName != 'All') || (pageNumber == 1 && sunshineCenterName != 'All') ){
+		query += ' WHERE  Sunshine_Center_Name__c  =: sunshineCenterName';
+     	
+        }     
+     
+     }
+                                                                     
+	//If date filters are applied                                                               
+      if (startDate != null && endDate != null ){
+      dateTime defaultEndDate =   endDate;
+      defaultEndDate.addHours(24);
+      //Logic to handle next and previous   
+      return  getSearchHandHygiene(startDate, endDate, sunshineCenterName, pageSize, pageNumber, empSunshineAccess);
+      
+     }                                                                      
+
+        query += ' ORDER BY DateAndTime__c desc LIMIT :pageSize OFFSET :offset';
         return database.query(query);
     }
     @AuraEnabled
-    public static string getEmpSunshine( string empId){
-        Employee__c empObj = [Select Id,Sunshine_Center_Relation_To__r.Name
+    public static List<String> getEmpSunshine( string empId){
+        Employee__c empObj = [Select Id,Sunshine_Center_Access__c,Sunshine_Center_Relation_To__r.Name
                              From Employee__c WHERE Id =:empId];
-        return empObj.Sunshine_Center_Relation_To__r.Name;
+        
+        List<String> SunshineAccessValues = empObj.Sunshine_Center_Access__c.split(';');
+	
+          If(SunshineAccessValues.size()>0){
+          return SunshineAccessValues;    
+        }
+        return null;
     }
 
     
@@ -83,9 +118,20 @@ public without sharing class HandHygieneReport_Ctrl {
         string emailAddress = sunshineEmail(incObj.Sunshine_Center__r.Name);
         emailAddress += ';'+ incObj.Completed_By_Email__c;
        //string emailAddress=incObj.Completed_By_Email__c;
+       
+         string fromaddress;
+        
+        if(System.Label.Production_or_Sanbox == 'Sandbox'){       
+         fromaddress =   'naveenc@sunshinebh.com';
+        }
+
+        if(System.Label.Production_or_Sanbox == 'Production'){       
+         fromaddress =   'clientservices@sunshinebh.com';
+        }
+        
         EmailUtility.sendEmail(emailAddress,emailBody,
                                 'Hand Hygiene Report',
-                                'clientservices@sunshinebh.com',
+                                fromaddress,
                                 true,
                                 pageUrl,
                                 incObj.Name,incidentId);
@@ -133,7 +179,8 @@ public without sharing class HandHygieneReport_Ctrl {
                                                            Date endDate,
                                                            string sunshineCenterName,
                                                            Integer pageSize,
-                                                           Integer pageNumber){
+                                                           Integer pageNumber,
+                                                           List<String> sunshineCentersAccess){
         try {
             Integer offset = (pageNumber - 1) * pageSize;
             Date defaultStartDate = Date.today().addYears(-10);
@@ -155,30 +202,40 @@ public without sharing class HandHygieneReport_Ctrl {
             if(endDate != null){
                 defaultEndDate = endDate;
             }
+            
+            Datetime dEnd;
+    
 
             if(sunshineCenterName == 'All'){
+			
+           //     dEnd =  defaultEndDate.addHours(23);
+           //     dEnd =  defaultEndDate.addminutes(59);
                 return [SELECT Id,Name,
                         Completed_By_Name__c,
                         Sunshine_Center_Name__c,
                         Staff_Member_Observed__c,
                         DateAndTime__c
                         FROM Hand_Hygiene_Report__c 
-                        WHERE DateAndTime__c
-                        >=: defaultStartDate AND DateAndTime__c <=: defaultEndDate
-                        ORDER BY NAME
+                        WHERE Date_and_Time_Formula__c
+                        >=: startDate AND Date_and_Time_Formula__c <=: endDate AND Sunshine_Center_Name__c IN :  sunshineCentersAccess
+                        ORDER BY DateAndTime__c DESC
                         LIMIT :pageSize 
                         OFFSET :offset];
             }
+            
+           // dEnd =  defaultEndDate.addHours(23); 
+           // dEnd =  defaultEndDate.addminutes(59);
+
             return [SELECT Id,Name,
                     Completed_By_Name__c,
                     Sunshine_Center_Name__c,
                     Staff_Member_Observed__c,
                     DateAndTime__c
                     FROM Hand_Hygiene_Report__c 
-                    WHERE DateAndTime__c>=: defaultStartDate 
-                    AND DateAndTime__c <=: defaultEndDate 
-                    AND Sunshine_Center__r.Name IN :  lstOfSunchineCentre
-                    ORDER BY NAME
+                    WHERE Date_and_Time_Formula__c>=: startDate 
+                    AND Date_and_Time_Formula__c <=: endDate 
+                    AND Sunshine_Center_Name__c =:  sunshineCenterName
+                    ORDER BY DateAndTime__c DESC
                     LIMIT :pageSize 
                     OFFSET :offset];
 

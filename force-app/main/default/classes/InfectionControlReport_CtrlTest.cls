@@ -1,6 +1,8 @@
 @isTest
 public  class InfectionControlReport_CtrlTest {
-    
+       
+    public static List<String> AccessValues = New List<String>();
+
     @TestSetup
     static void createTestData() {
 
@@ -18,7 +20,10 @@ public  class InfectionControlReport_CtrlTest {
        supvisor.Name__c = 'supervisor';
        supvisor.Designation__c = 'bht';
        supvisor.email__c = 'safia.osman@hotmail.com';
+       supvisor.Sunshine_Center_Access__c = 'Monarch Shores;Chapters Capistrano;Willowsprings Recovery';
+
        insert supvisor;
+        AccessValues.add(supvisor.Sunshine_Center_Access__c);
 
     }
 
@@ -32,12 +37,13 @@ public  class InfectionControlReport_CtrlTest {
         PageReference pageRef = Page.IncidentReportPDF_HTML; // Add your VF page Name here
         pageRef.getParameters().put('id',incidentId);   
         Test.setCurrentPage(pageRef);
-        InfectionControlReport_Ctrl.getAllInfectionReports(10,10,'test');
+        InfectionControlReport_Ctrl.getAllInfectionReports(10,10,'Willowsprings Recovery',AccessValues,date.today(),date.today());
+        InfectionControlReport_Ctrl.getAllInfectionReports(10,10,'Willowsprings Recovery',AccessValues,null,null);
         InfectionControlReport_Ctrl.getInfectionReportById(incidentId);
         InfectionControlReport_Ctrl.getEmpSunshine(emp.Id);
         InfectionControlReport_Ctrl.getSearchInfection(Date.Today().addDays(-2),
                                                 Date.Today().addDays(2),
-                                                'test',1,10);
+                                                'All',1,10,AccessValues);
         InfectionControlReport_Ctrl.saveIncident(new Infection_Control_Report__c(Sunshine_Center__c = accId,Completed_By_Email__c = 'test@test.com'));
         InfectionControlReport_Ctrl.sendEmail(incidentId,'http://test.com');
 

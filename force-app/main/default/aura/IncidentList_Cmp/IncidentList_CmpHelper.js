@@ -18,7 +18,9 @@
             'pageSize' : pageSize,
             'pageNumber' : pageNumber,
             'empSunshine' : empSunshine,
-            'empSunshineAccess' : empSunshineAccess
+            'empSunshineAccess' : empSunshineAccess,
+            'startDate' :  component.get("v.minDate"),
+            'endDate' : component.get("v.maxDate")
         });
         action.setCallback(this, function (a) {
             var state = a.getState();
@@ -33,6 +35,8 @@
                 }
                 component.set("v.dataSize", resultData.length);
                 component.set("v.data",resultData);
+               
+
             }
         });
         //adds the server-side action to the queue        
@@ -46,9 +50,6 @@
         var pageSize = component.get("v.pageSize").toString();
         var pageNumber = component.get("v.pageNumber").toString();
         var selectedSunShine = component.get("v.selectedSunshine");
-
-        console.log('pageSize::'+ pageSize + 'pageNumber::'+ pageNumber + 'selectedSunShine::'+ selectedSunShine);
-        console.log('sunshineCentersAccess::'+ component.get("v.selectedSunshineAccess"));
 
 
         action.setParams({
@@ -82,7 +83,7 @@
     getEmployeeSunshine : function(component){
         var action = component.get("c.getEmpSunshine");
         var empId = component.get("v.employeeId");
-        console.log('emp Id::' + empId);// a3D3C0000013etOUAQ
+      //  console.log('emp Id::' + empId);// a3D3C0000013etOUAQ
         action.setParams({
             'empId' : empId
         });
@@ -93,6 +94,8 @@
                 var resultData = a.getReturnValue();
          //       component.set("v.selectedSunshine",resultData);
                 component.set("v.selectedSunshineAccess",resultData);
+                component.set("v.selectedSunshine",'All');
+
 
                 if(resultData == null){
                      component.set("v.selectedSunshine",'All');

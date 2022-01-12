@@ -49,20 +49,52 @@ public without sharing class IncidentReport_Ctrl {
     public static List<Incident_Report_SBH__c> getAllIncidents(Integer pageSize,
                                                                 Integer pageNumber,
                                                                 string empSunshine,
-                                                              	List<String> empSunshineAccess){
+                                                              	List<String> empSunshineAccess,
+                                                               date startDate,
+                                                               date endDate
+                                                               ){
         
         Integer offset = (pageNumber - 1) * pageSize;
         string sunshineCenterName = empSunshine;
         string query = 'Select ID,Name,Completed_By_Name__c, Sunshine_Center_Name__c,CreatedDate,';
         query += 'Completed_By_Position_Title__c,Name_of_Person_s_Involved__c, Date_Time_of_Incident__c';
         query += ' FROM Incident_Report_SBH__c ';
-        if(sunshineCenterName != 'All'){
-            query += ' WHERE  Sunshine_Center_Name__c IN :empSunshineAccess';
-            //query += ' WHERE  Sunshine_Center_Name__c =:sunshineCenterName';
-
-        }
-        query += ' order by Date_Time_of_Incident__c desc LIMIT :pageSize OFFSET :offset';
+       
+     /*                                                               
                                                                     
+  //  if(sunshineCenterName != 'All'){
+		query += ' WHERE  Sunshine_Center_Name__c IN :empSunshineAccess';
+          //   query += ' WHERE  Sunshine_Center_Name__c =:sunshineCenterName';
+   		 //    }
+        query += ' order by Date_Time_of_Incident__c desc LIMIT :pageSize OFFSET :offset';
+     
+     */
+                                                                   
+     //If Date Filters are not applied                                                              
+	 if (startDate == null || endDate == null ){
+                                                                   
+     //Logic to handle next and previous   
+                                                            
+       If ((pageNumber == 1 && sunshineCenterName == 'All') || (pageNumber != 1 && sunshineCenterName == 'All') ){
+		query += ' WHERE  Sunshine_Center_Name__c IN :empSunshineAccess';
+           	
+      }                                                                  
+         
+		If ((pageNumber != 1 && sunshineCenterName != 'All') || (pageNumber == 1 && sunshineCenterName != 'All') ){
+		query += ' WHERE  Sunshine_Center_Name__c  =: sunshineCenterName';
+     	
+        }     
+     
+     }
+    //If date filters are applied                                                               
+      if (startDate != null && endDate != null ){
+      dateTime defaultEndDate =   endDate;
+      defaultEndDate.addHours(24);
+      //Logic to handle next and previous   
+      return  getSearchIncident(startDate, endDate, sunshineCenterName, pageSize, pageNumber, empSunshineAccess);
+      
+     }                                                                                                                         
+		query += ' order by Date_Time_of_Incident__c desc LIMIT :pageSize OFFSET :offset';                                                                    
         return database.query(query);
     }
     
@@ -124,10 +156,20 @@ public without sharing class IncidentReport_Ctrl {
         
         string emailAddress = sunshineEmail(incObj.Sunshine_Center__r.Name);
         emailAddress += ';'+ incObj.Completed_By_Email__c;
+        string fromaddress;
+        
+        if(System.Label.Production_or_Sanbox == 'Sandbox'){       
+         fromaddress =   'naveenc@sunshinebh.com';
+        }
+
+        if(System.Label.Production_or_Sanbox == 'Production'){       
+         fromaddress =   'clientservices@sunshinebh.com';
+        }
+        
        // string emailAddress = incObj.Completed_By_Email__c;
         EmailUtility.sendEmail(emailAddress,emailBody,
                                 'Incident Report Copy',
-                                'clientservices@sunshinebh.com',
+                                fromaddress,
                                 true,
                                 pageUrl,
                                 incObj.Name,incidentId);
@@ -185,8 +227,9 @@ public without sharing class IncidentReport_Ctrl {
                                                            List<String> sunshineCentersAccess){
         try {
             Integer offset = (pageNumber - 1) * pageSize;
-            Date defaultStartDate = Date.today().addYears(-10);
-            Date defaultEndDate = Date.today().addYears(20);
+            DateTime defaultStartDate = Date.today().addYears(-10);
+            DateTime defaultEndDate = Date.today().addYears(20);
+        
             List<string> lstOfSunchineCentre = new List<string>();
             lstOfSunchineCentre.add('Chapters Capistrano');
             lstOfSunchineCentre.add('Monarch Shores');
@@ -204,23 +247,29 @@ public without sharing class IncidentReport_Ctrl {
             }
             if(endDate != null){
                 defaultEndDate = endDate;
+       
             }
-
+			
+             Datetime dEnd;
             if(sunshineCenterName == 'All'){
-                //system.debug('in if');
+  				
+                 dEnd =  defaultEndDate.addHours(24);
+                
                 return [Select Name,Date_Time_of_Incident__c,Name_of_Person_s_Involved__c,CreatedDate,
                 Completed_By_Name__c,Completed_By_Email__c,Sunshine_Center_Name__c
-                FROM Incident_Report_SBH__c WHERE Date_Time_of_Incident__c
-                >=: defaultStartDate AND Date_Time_of_Incident__c <=: defaultEndDate
-                 AND Sunshine_Center_Name__c IN :  sunshineCentersAccess //New Line Added by Ahad        
+                FROM Incident_Report_SBH__c WHERE Date_and_Time_of_Incident_formula__c
+                >=: startDate AND Date_and_Time_of_Incident_formula__c <=: endDate
+                 AND Sunshine_Center_Name__c IN :  sunshineCentersAccess        
                 ORDER BY Date_Time_of_Incident__c DESC 
                 LIMIT :pageSize 
                 OFFSET :offset];
             }
+             dEnd =  defaultEndDate.addHours(24); 
+
             return [Select Name,Date_Time_of_Incident__c,Name_of_Person_s_Involved__c,CreatedDate,
                     Completed_By_Name__c,Completed_By_Email__c,Sunshine_Center_Name__c
-                    FROM Incident_Report_SBH__c WHERE Date_Time_of_Incident__c
-                    >=: defaultStartDate AND Date_Time_of_Incident__c <=: defaultEndDate 
+                    FROM Incident_Report_SBH__c WHERE Date_and_Time_of_Incident_formula__c
+                    >=: startDate AND Date_and_Time_of_Incident_formula__c <=: endDate 
                     AND Sunshine_Center_Name__c =:  sunshineCenterName
                     ORDER BY Date_Time_of_Incident__c DESC
                     LIMIT :pageSize 

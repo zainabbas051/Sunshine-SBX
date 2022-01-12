@@ -7,19 +7,55 @@ public without sharing class OpenHousingPPLI_Ctrl {
     public static string SunshineCenter {get; set;} 
 
     @AuraEnabled
+    public static list<string> getAllSunshinesAccess(string empId){
+        list<String> listSunshineAcces = new list<string>();
+        
+        Employee__c emp = [select id, Sunshine_Center_Relation_To__c, 
+                                Sunshine_Center_Relation_To__r.Name,
+                                Sunshine_Center_Access__c
+                                 from Employee__c where id =: empId];
+        
+        String AccountID = emp.Sunshine_Center_Relation_To__c;
+        
+        if(!String.isBlank(emp.Sunshine_Center_Access__c)){
+            if(emp.Sunshine_Center_Access__c.contains(';')){
+                listSunshineAcces = emp.Sunshine_Center_Access__c.split(';');
+            }
+                
+            else {
+                listSunshineAcces.add(emp.Sunshine_Center_Access__c);
+            } 
+        }
+        return listSunshineAcces;
+    }
+
+    @AuraEnabled
     public static string getAllPPLIs(Integer pageSize, Integer pageNumber, string empId)
     {
         string JSONResult = '';
+        list<String> listSunshineAcces = new list<string>();
         Integer offset = (pageNumber - 1) * pageSize;
         Employee__c emp = [select id, Sunshine_Center_Relation_To__c, 
-                                Sunshine_Center_Relation_To__r.Name
+                                Sunshine_Center_Relation_To__r.Name,
+                                Sunshine_Center_Access__c
                                  from Employee__c where id =: empId];
+        
         String AccountID = emp.Sunshine_Center_Relation_To__c;
+        
+        if(!String.isBlank(emp.Sunshine_Center_Access__c)){
+            if(emp.Sunshine_Center_Access__c.contains(';')){
+                listSunshineAcces = emp.Sunshine_Center_Access__c.split(';');
+            }
+                
+            else {
+                listSunshineAcces.add(emp.Sunshine_Center_Access__c);
+            } 
+        }
         SunshineCenter = emp.Sunshine_Center_Relation_To__r.Name;
 
         if(SunshineCenter != null && !String.isBlank(SunshineCenter))
         {
-            map<string, list<Payment_Plan_Line_items__c>> mapOfPPLI = returnAllPPs(SunshineCenter);
+            map<string, list<Payment_Plan_Line_items__c>> mapOfPPLI = returnAllPPs(listSunshineAcces);
             list<paymentPlanWrapper> listPPs = new list<paymentPlanWrapper>();
             for(string OppId : mapOfPPLI.keyset())
             {
@@ -35,6 +71,7 @@ public without sharing class OpenHousingPPLI_Ctrl {
                     ppliWrap.DueDate = ppli.Due_Date__c;
                     ppliWrap.id = ppli.id;
                     ppliWrap.Name = ppli.Name;
+                    ppwrap.SunshineName = ppli.Payment_Plan__r.Opportunity__r.Sunshine_Center_Name__c;
                     totalAm += ppli.Amount_For_Collection__c;
                     listPPli.add(ppliWrap);
                 }
@@ -93,18 +130,19 @@ public without sharing class OpenHousingPPLI_Ctrl {
         return JSONResult;
     }
 
-    public static map<string, list<Payment_Plan_Line_items__c>> returnAllPPs(string SCName)
+    public static map<string, list<Payment_Plan_Line_items__c>> returnAllPPs(list<string> ListSCName)
     {
         map<string, list<Payment_Plan_Line_items__c>> MapOfClientsPPLIs = new map<string, list<Payment_Plan_Line_items__c>>();
         mapOfOpp = new map<string, string>();
         for(Payment_Plan_Line_items__c ppli : [Select id, Name, Payment_Plan__r.Opportunity__r.Name,
-                                                    Payment_Plan__r.Opportunity__c, 
+                                                    Payment_Plan__r.Opportunity__c,
+                                                    Payment_Plan__r.Opportunity__r.Sunshine_Center_Name__c,
                                                     Due_Date__c, Amount_For_Collection__c from 
                                                     Payment_Plan_Line_items__c where 
                                                     Type_of_Collection__c =: 'Housing' 
                                                     AND Due_Date__c <= TODAY AND 
                                                     (Status__c = 'Open' OR Status__c = 'Card Declined') 
-                                                    AND Sunshine_Center__c =: SCName])
+                                                    AND Sunshine_Center__c IN: ListSCName])
         {
             
             list<Payment_Plan_Line_items__c> listPPLI = new list<Payment_Plan_Line_items__c>();
@@ -155,6 +193,8 @@ public without sharing class OpenHousingPPLI_Ctrl {
 
     public class paymentPlanWrapper
     {
+        @AuraEnabled
+        public String SunshineName {get; set;}
         @AuraEnabled
         public String ClientName {get; set;}
         @AuraEnabled

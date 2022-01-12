@@ -498,7 +498,7 @@ public without sharing class Ctrl_Clinical_Certification {
         @AuraEnabled
     public static Employee__c getEmployeeProfileInfo(string empId) {
 
-        return [select id,Name__c,Designation__c,Sunshine_Center_Relation_To__r.Name,Tier_Allocation__c,email__c,phone__c,
+        return [select id,Sunshine_Center_Access__c,Name__c,Designation__c,Sunshine_Center_Relation_To__r.Name,Tier_Allocation__c,email__c,phone__c,
         Supervisor_Name__r.Name__c,Employee_Biography__c,Tabs_Access__c from 
                 Employee__c where id=:Id.ValueOf(empId) 
                   limit 1  ];
@@ -613,7 +613,7 @@ public without sharing class Ctrl_Clinical_Certification {
                                     string IpAddress){
     
         List<Employee__c> lstEmp = new List<Employee__c>();
-        lstEmp = [select id,Username__c,Password__c,IsSupervisor__c,User_Role__c,Tier_Allocation__c from Employee__c 
+        lstEmp = [select id,isActive__c,Username__c,Password__c,IsSupervisor__c,User_Role__c,Tier_Allocation__c from Employee__c 
                  where Username__c=:Username and Password__c=:Password];
         
         if(lstEmp.isEmpty()){

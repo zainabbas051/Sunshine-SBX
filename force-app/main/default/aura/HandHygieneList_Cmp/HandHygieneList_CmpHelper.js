@@ -5,15 +5,28 @@
         var pageSize = component.get("v.pageSize").toString();
         var pageNumber = component.get("v.pageNumber").toString();
         var empSunshine = component.get("v.selectedSunshine");
+        let empSunshineAccess = [];
+        empSunshineAccess = component.get("v.selectedSunshineAccess");
+      
+     if(component.get("v.selectedSunshineAccess") != null){
+
+           component.set("v.sunshineEnabled", true);
+
+       }
+       
         action.setParams({
             'pageSize' : pageSize,
             'pageNumber' : pageNumber,
-            'empSunshine' : empSunshine
+            'empSunshine' : empSunshine,
+            'empSunshineAccess' : empSunshineAccess,
+            'startDate' :  component.get("v.minDate"),
+            'endDate' : component.get("v.maxDate")
         });
         action.setCallback(this, function (a) {
             var state = a.getState();
             if(state == 'SUCCESS'){
                 var resultData = a.getReturnValue();
+
                 resultData.forEach(function(record){
                     record.linkName = '/ccp/s/reportformreadonly?Id='+record.Id+'&reporttype=HandHygieneReport';
                 });
@@ -40,7 +53,8 @@
             'endDate' : component.get("v.maxDate"),
             'sunshineCenterName' : selectedSunShine,
             'pageSize' : pageSize,
-            'pageNumber' : pageNumber
+            'pageNumber' : pageNumber,
+            'sunshineCentersAccess' : component.get("v.selectedSunshineAccess")
         });
 
         action.setCallback(this, function (a) {
@@ -73,7 +87,9 @@
             var state = a.getState();
             if(state == 'SUCCESS'){
                 var resultData = a.getReturnValue();
-                component.set("v.selectedSunshine",resultData);
+              //  component.set("v.selectedSunshine",resultData);
+                component.set("v.selectedSunshineAccess",resultData);
+                component.set("v.selectedSunshine",'All');
                 if(resultData == null){
                     component.set("v.selectedSunshine",'All');
                     component.set("v.sunshineEnabled",true);
@@ -83,5 +99,29 @@
            
         });
         $A.enqueueAction(action);
+    },
+    sortData : function(component,fieldName,sortDirection){
+        var data = component.get("v.data");
+        //function to return the value stored in the field
+        var key = function(a) { return a[fieldName]; }
+        var reverse = sortDirection == 'asc' ? 1: -1;
+        
+        // to handel number/currency type fields 
+        if(fieldName == 'DateAndTime__c'){ 
+            data.sort(function(a,b){
+                var a = key(a) ? key(a) : '';
+                var b = key(b) ? key(b) : '';
+                return reverse * ((a>b) - (b>a));
+            }); 
+        }
+        else{// to handel text type fields 
+            data.sort(function(a,b){ 
+                var a = key(a) ? key(a).toLowerCase() : '';//To handle null values , uppercase records during sorting
+                var b = key(b) ? key(b).toLowerCase() : '';
+                return reverse * ((a>b) - (b>a));
+            });    
+        }
+        //set sorted data to accountData attribute
+        component.set("v.data",data);
     }
 })

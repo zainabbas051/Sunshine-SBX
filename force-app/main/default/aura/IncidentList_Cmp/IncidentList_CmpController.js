@@ -5,12 +5,14 @@
         component.set('v.columns', [
             {label: 'Incident Name', fieldName: 'linkName', type: 'url',
                 typeAttributes: {label: { fieldName: 'Name' }, target: '_blank'}},
+       /*     {label: 'Incident Date', fieldName: 'Date_Time_of_Incident__c',type: 'date',sortable:true,
+                typeAttributes:{day:'2-digit',month:'2-digit',year:'2-digit',
+                hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}},    */
             {label: 'Incident Date', fieldName: 'Date_Time_of_Incident__c', type: 'date',sortable:true},
             {label: 'Completed By', fieldName: 'Completed_By_Name__c', type: 'text'},
             {label: 'Name of Person(s) Involved', fieldName: 'Name_of_Person_s_Involved__c', type: 'text'},
             {label: 'Sunshine Centre', fieldName: 'Sunshine_Center_Name__c', type: 'text'},
-        //    {label: 'Created Date', fieldName: 'CreatedDate', type: 'date',sortable:true}
-
+       
         ]);
        
         helper.getEmployeeSunshine(component)
@@ -53,6 +55,7 @@
     handlePrev : function(component, event, helper) {        
         var pageNumber = component.get("v.pageNumber");
         component.set("v.pageNumber", pageNumber-1);
+
         helper.getAllData(component);
     },
     doSearch : function(component,event,helper){

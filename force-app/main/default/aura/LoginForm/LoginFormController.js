@@ -2,7 +2,7 @@
 
 	login: function (component, event, helper) {
 		debugger;
-
+	
 		var inputCmp = component.find("reqField");
 		var isValid = true;
 		for (var i=0; i < inputCmp.length; i++) {
@@ -41,8 +41,7 @@
 			if (state == "SUCCESS") {
 				//Reset Form
 				var Employee = a.getReturnValue();
-
-				if (Employee != null) {
+				if (Employee != null && Employee.isActive__c == true) {
 
 					var urlEvent = $A.get("e.force:navigateToURL");
                     urlEvent.setParams({
@@ -55,15 +54,26 @@
                     }
 
                     urlEvent.fire();
-						
-
+				}
 				
+				
+				else if (Employee != null && Employee.isActive__c == false) {
 
-				} else {
+
 					component.find('notifLib').showToast({
 						"title": "Error!",
 						"variant": "Error",
-						"message": "User dosn't exist"
+						"message": "The User you are trying to log in as has been In Activated. Please contact the Administrator"
+					});
+					return;	
+
+				}
+				
+				else {
+					component.find('notifLib').showToast({
+						"title": "Error!",
+						"variant": "Error",
+						"message": "The UserName and Password Combination you are trying to Enter is either Incorrect or Does Not Exist"
 					});
 					return;
 				}

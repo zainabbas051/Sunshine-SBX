@@ -12,9 +12,12 @@
    <aura:attribute name="minDate" type="date"/>
    <aura:attribute name="maxDate" type="date"/>
    <aura:attribute name="selectedSunshine" type="string"/>
+   <aura:attribute name="selectedSunshineAccess" type="List"/>
    <aura:attribute name="sunshineEnabled" type="Boolean"/>
    <aura:attribute name="empSunshine" type="string"/>
    <aura:attribute name="employeeId" type="string"/>
+   <aura:attribute name="sortBy" type="String"/>
+   <aura:attribute name="sortDirection" type="String"/>
    <!-- handlers-->
    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
    <div class="slds-scope">
@@ -41,10 +44,14 @@
                      <div class="slds-col">
                         <lightning:select name="select1"  label="By Sunshine Centre?" value="{!v.selectedSunshine}">
                            <option value="All">All</option>
+                           <aura:iteration items="{!v.selectedSunshineAccess}" var="opt">
+                           <option value="{!selectedSunshineAccess}">{!opt}</option>
+                        </aura:iteration> 
+                        <!--          <option value="All">All</option>
                            <option value="Chapters Capistrano">Chapters Capistrano</option>
                            <option value="Monarch Shores">Monarch Shores</option>
                            <option value="Mountain Springs Recovery">Mountain Springs Recovery</option>
-                           <option value="Willow Springs Recovery">Willow Springs Recovery</option>
+                           <option value="Willow Springs Recovery">Willow Springs Recovery</option>-->
                      </lightning:select>
                      </div>
                   </aura:if>
@@ -68,7 +75,10 @@
                data="{! v.data }"
                columns="{! v.columns }"
                hideCheckboxColumn="true"
-               onrowaction="{! c.handleRowAction }"/>
+               onrowaction="{! c.handleRowAction }"
+               sortedBy="{!v.sortBy}"
+               sortedDirection="{!v.sortDirection}"
+               onsort="{!c.handleSort}"/>
             
                <div class="slds-clearfix">
                   <div class="slds-page-header" role="banner">

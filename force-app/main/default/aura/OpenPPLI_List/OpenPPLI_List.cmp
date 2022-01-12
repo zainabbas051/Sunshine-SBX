@@ -3,7 +3,7 @@
     <aura:attribute name="employeeId" type="string"/>
     <aura:attribute name="selectedRecordId" type="string"/>
     <aura:attribute name="pageNumber" type="Integer" default="1"/>
-    <aura:attribute name="pageSize" type="Integer" default="5"/>
+    <aura:attribute name="pageSize" type="Integer" default="4"/>
     <aura:attribute name="isLastPage" type="Boolean" default="false"/>
     <aura:attribute name="dataSize" type="Integer" default="5"/>
     <aura:attribute name="data" type="Object"/>
@@ -11,6 +11,8 @@
     <aura:attribute name="columns" type="List"/>
     <aura:attribute name="selectedCaseFilter" type="string" default="Open"/>
     <aura:attribute name="gridExpandedRows" type="Object" />
+    <aura:attribute name="SelectedSunSh" type="String" default=""/>
+    <aura:attribute name="AllSunSh" type="Boolean" default="true"/>
     
     <aura:attribute name="recordCounter" type="Integer" default="0"/>
     <aura:attribute name="pagedData" type="List"/>
@@ -28,7 +30,15 @@
                 <div class="slds-clearfix" style="padding:0.5rem">
                     <div class="slds-grid slds-gutters">
                         <div class="slds-col">
-                            Sunshine Center Name
+                            <lightning:select name="cStat" label="Sunshine Center" 
+                                aura:id="SunPicklist"
+                                value="{!v.SelectedSunSh}"
+                                onchange="{!c.onChange}">
+                                <option value="All">All</option>
+                                <aura:iteration items="{!v.AllSunSh}" var="opt">
+                                <option value="{!opt}" selected="{!opt.selected}">{!opt}</option>
+                            </aura:iteration>
+                        </lightning:select>
                         </div>
                     </div>            
                 </div>

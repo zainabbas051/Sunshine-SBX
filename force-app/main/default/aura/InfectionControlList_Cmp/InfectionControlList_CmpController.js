@@ -5,7 +5,7 @@
         component.set('v.columns', [
             {label: 'Report Name', fieldName: 'linkName', type: 'url',
                 typeAttributes: {label: { fieldName: 'Name' }, target: '_blank'}},
-            {label: 'Date of Symptoms Identified', fieldName: 'Date_Symptoms_Identified__c', type: 'date'},
+            {label: 'Date of Symptoms Identified', fieldName: 'Date_Identified_Formula__c', type: 'date',sortable:true},
             {label: 'Completed By', fieldName: 'Completed_By_Name__c', type: 'text'},
             {label: 'Client/Staff Name', fieldName: 'Client_Name__c', type: 'text'},
             {label: 'Sunshine Centre', fieldName: 'Sunshine_Center_Name__c', type: 'text'},
@@ -14,6 +14,18 @@
         helper.getEmployeeSunshine(component)
         component.set("v.RecordId",undefined);
 
+    },
+
+    handleSort : function(component,event,helper){
+        //Returns the field which has to be sorted
+        var sortBy = event.getParam("fieldName");
+        //returns the direction of sorting like asc or desc
+        var sortDirection = event.getParam("sortDirection");
+        //Set the sortBy and SortDirection attributes
+        component.set("v.sortBy",sortBy);
+        component.set("v.sortDirection",sortDirection);
+        // call sortData helper function
+        helper.sortData(component,sortBy,sortDirection);
     },
 
     showForm : function(component,event,helper){

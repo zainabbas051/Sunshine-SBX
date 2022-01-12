@@ -32,24 +32,60 @@ public without sharing class InfectionControlReport_Ctrl {
     @AuraEnabled
     public static List<Infection_Control_Report__c> getAllInfectionReports(Integer pageSize,
                                                                  Integer pageNumber,
-                                                                 string empSunshine){
+                                                                 string empSunshine,
+                                                                 List<String> empSunshineAccess,      
+                                                                 date startDate,
+                                                                 date endDate){
         
         Integer offset = (pageNumber - 1) * pageSize;
         string sunshineCenterName = empSunshine;
-        string query = 'Select ID,Name,Completed_By_Name__c, Sunshine_Center_Name__c,';
+        string query = 'Select ID,Name,Date_Identified_Formula__c,Completed_By_Name__c, Sunshine_Center_Name__c,';
         query += 'Client_Name__c, Date_Symptoms_Identified__c';
         query += ' FROM Infection_Control_Report__c ';
-        if(sunshineCenterName != 'All'){
+    /*    if(sunshineCenterName != 'All'){
             query += ' WHERE  Sunshine_Center_Name__c =:sunshineCenterName';
-        }
-        query += ' ORDER BY NAME LIMIT :pageSize OFFSET :offset';
+        }*/
+         
+		if (startDate == null || endDate == null ){
+                                                                   
+     //Logic to handle next and previous   
+                                                            
+       If ((pageNumber == 1 && sunshineCenterName == 'All') || (pageNumber != 1 && sunshineCenterName == 'All') ){
+		query += ' WHERE  Sunshine_Center_Name__c IN :empSunshineAccess';
+           	
+      }                                                                  
+         
+		If ((pageNumber != 1 && sunshineCenterName != 'All') || (pageNumber == 1 && sunshineCenterName != 'All') ){
+		query += ' WHERE  Sunshine_Center_Name__c  =: sunshineCenterName';
+     	
+        }     
+     
+     }
+                                                                     
+	//If date filters are applied                                                               
+      if (startDate != null && endDate != null ){
+     // dateTime defaultEndDate =   endDate;
+    //  defaultEndDate.addHours(24);
+      //Logic to handle next and previous   
+      return  getSearchInfection(startDate, endDate, sunshineCenterName, pageSize, pageNumber, empSunshineAccess);
+      
+     }                                                                       
+        query += ' ORDER BY Date_Symptoms_Identified__c desc LIMIT :pageSize OFFSET :offset';
         return database.query(query);
     }
     @AuraEnabled
-    public static string getEmpSunshine( string empId){
-        Employee__c empObj = [Select Id,Sunshine_Center_Relation_To__r.Name
+    public static List<String> getEmpSunshine( string empId){
+        Employee__c empObj = [Select Id,Sunshine_Center_Access__c,Sunshine_Center_Relation_To__r.Name
                              From Employee__c WHERE Id =:empId];
-        return empObj.Sunshine_Center_Relation_To__r.Name;
+        
+         List<String> SunshineAccessValues = empObj.Sunshine_Center_Access__c.split(';');
+	
+          If(SunshineAccessValues.size()>0){
+          return SunshineAccessValues;    
+        
+          }
+        
+        return null;
     }
 
     
@@ -66,7 +102,13 @@ public without sharing class InfectionControlReport_Ctrl {
         }
        
         incJsonStr.Sunshine_Center__c = acc.Id;
-        insert incJsonStr;  
+        try{
+        insert incJsonStr; 
+        }
+        catch (exception e){
+            system.debug('exception:'+ e.getMessage());
+            
+        }
         string pageUrl = URL.getSalesforceBaseUrl().toExternalForm() + '/apex/infectionControlReportPDF_HTML';
         system.debug('*****: ' + pageUrl);
         sendEmail(incJsonStr.Id,pageUrl);  
@@ -82,9 +124,19 @@ public without sharing class InfectionControlReport_Ctrl {
         string emailAddress = sunshineEmail(incObj.Sunshine_Center__r.Name);
         emailAddress += ';'+ incObj.Completed_By_Email__c;
         
+         string fromaddress;
+        
+        if(System.Label.Production_or_Sanbox == 'Sandbox'){       
+         fromaddress =   'naveenc@sunshinebh.com';
+        }
+
+        if(System.Label.Production_or_Sanbox == 'Production'){       
+         fromaddress =   'clientservices@sunshinebh.com';
+        }
+        
         EmailUtility.sendEmail(emailAddress,emailBody,
                                 'Infection Control Report',
-                                'clientservices@sunshinebh.com',
+                                fromaddress,
                                 true,
                                 pageUrl,
                                 incObj.Name,incidentId);
@@ -132,7 +184,8 @@ public without sharing class InfectionControlReport_Ctrl {
                                                            Date endDate,
                                                            string sunshineCenterName,
                                                            Integer pageSize,
-                                                           Integer pageNumber){
+                                                           Integer pageNumber,
+                                                           List<String> sunshineCentersAccess){
         try {
             Integer offset = (pageNumber - 1) * pageSize;
             Date defaultStartDate = Date.today().addYears(-10);
@@ -154,22 +207,23 @@ public without sharing class InfectionControlReport_Ctrl {
             if(endDate != null){
                 defaultEndDate = endDate;
             }
-
+            
             if(sunshineCenterName == 'All'){
+                
                 return [Select Name,Client_Name__c,Community_Acquired__c,Completed_By_Email__c,Completed_By_Name__c,Date_of_Admission__c,Date_Symptoms_Identified__c,Facility_Acquired__c,Notes__c,
-                    Sunshine_Center__c,Sunshine_Center_Name__c,Symptoms_Identified__c,Treatment__c,Type_of_Infection__c,Type_of_Infection_Other_Description__c
+                    Sunshine_Center__c,Sunshine_Center_Name__c,Date_Identified_Formula__c,Symptoms_Identified__c,Treatment__c,Type_of_Infection__c,Type_of_Infection_Other_Description__c
                         FROM Infection_Control_Report__c WHERE Date_Symptoms_Identified__c
-                >=: defaultStartDate AND Date_Symptoms_Identified__c <=: defaultEndDate
-                ORDER BY NAME
+                >=: startDate AND Date_Symptoms_Identified__c <=: endDate AND Sunshine_Center_Name__c IN :  sunshineCentersAccess
+                ORDER BY Date_Symptoms_Identified__c desc
                 LIMIT :pageSize 
                 OFFSET :offset];
             }
             return [Select Name,Client_Name__c,Community_Acquired__c,Completed_By_Email__c,Completed_By_Name__c,Date_of_Admission__c,Date_Symptoms_Identified__c,Facility_Acquired__c,Notes__c,
-                    Sunshine_Center__c,Sunshine_Center_Name__c,Symptoms_Identified__c,Treatment__c,Type_of_Infection__c,Type_of_Infection_Other_Description__c
+                    Sunshine_Center__c,Sunshine_Center_Name__c,Date_Identified_Formula__c,Symptoms_Identified__c,Treatment__c,Type_of_Infection__c,Type_of_Infection_Other_Description__c
                     FROM Infection_Control_Report__c WHERE Date_Symptoms_Identified__c
                     >=: defaultStartDate AND Date_Symptoms_Identified__c <=: defaultEndDate 
-                    AND Sunshine_Center__r.Name IN :  lstOfSunchineCentre
-                    ORDER BY NAME
+                    AND Sunshine_Center_Name__c =:  sunshineCenterName
+                    ORDER BY  Date_Symptoms_Identified__c desc
                     LIMIT :pageSize 
                     OFFSET :offset];
 
@@ -178,4 +232,5 @@ public without sharing class InfectionControlReport_Ctrl {
             throw new AuraHandledException(e.getMessage());
         }
     }
+
 }

@@ -45,10 +45,25 @@
             }
         }
         helper.getEmployeeProfileInfo(component);
+       // helper.getSunshineAccess(component);
+        
     },
     logoutButton: function(component,event,helper){
       
-        var returnUrl='https://sunshinebh.force.com/ccp/s/certificationportallogin'; 
+        var SandboxORProduction = $A.get("$Label.c.Production_or_Sanbox");
+        var returnUrl;
+
+        if(SandboxORProduction == 'Sandbox'){
+
+            returnUrl= 'https://smsmagic-sunshinebh.cs60.force.com/ccp/s/certificationportallogin';
+
+        }
+
+        else {
+
+            returnUrl='https://sunshinebh.force.com/ccp/s/certificationportallogin';
+        }
+
         // paste your login page link here, where you want to come back
        window.location.href=returnUrl;       
          
