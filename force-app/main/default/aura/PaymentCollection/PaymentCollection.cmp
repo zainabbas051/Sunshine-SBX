@@ -33,6 +33,13 @@
     <aura:attribute name="disabled" type="boolean" default="false"></aura:attribute>
     <aura:attribute name="selectedCardValue" type="String" default="Enter New Card"/>
     <aura:attribute name="AddNewCard" type="Boolean" default="true"/>
+    <aura:attribute name="amountDisabled" type="boolean" default="true"/>
+
+    <aura:attribute name="selectedVal2" type="String" default="Full" />  
+    <aura:attribute name="options"   
+                    type="List"   
+                    default="[{'label': 'Full Payment', 'value': 'Full'},  
+                              {'label': 'Custom Payment', 'value': 'Custom'}]"/>
 
     <ltng:require scripts="{!$Resource.AWS}" />
     <lightning:notificationsLibrary aura:id="notifLib"/>
@@ -70,29 +77,29 @@
                         <ui:outputText class="receiptemail" value="{!v.payment.oppName}"/>
                         
                         
-                        <p class="receiptemail"> <b>Amount *</b> </p>
-                       <!-- <ui:outputcurrency class="receiptemail" value="{!v.payment.amount}"/> -->
-                        <!--<lightning:formattedNumber value="{!v.payment.amount}"
-                                                   style="decimal"
-                                                   minimumFractionDigits=  "2"
-                                                   maximumFractionDigits="2"
-                                                   class="receiptemail"/>
-                        -->
+                        <p class="receiptemail"> <b>Payment Type *</b> </p>
+                        <lightning:radioGroup  
+                              options="{! v.options }"  
+                              value="{! v.selectedVal2 }"  
+                              type="radio"
+                              required="true"
+                              onchange="{!c.ptSelect}"
+                              /> 
                         
-
+                        <p class="receiptemail"> <b>Amount *</b> </p> 
                         <lightning:input type="text" aura:id="Amount" 
-                        label="Amount"
                         name="HolderName"
                         formatter="currency"
                         required="true"
                         value="{!v.payment.amount}"
-                        disabled="{!v.disabled}"
+                        disabled="{!v.amountDisabled}"
                         messageWhenValueMissing="Please Enter Amount"/>
-                        
+                        <aura:if isTrue="{!!v.amountDisabled}">
+                            <p>*The amount should be greater than the due amount and multiple of $50</p>
+                        </aura:if>
                         <p class="receiptemail"> <b>Existing Cards *</b></p>
                         
                         <lightning:select name="cStat" 
-                        label="Existing Cards" 
                         aura:id="cardsPicklist"
                         value="{!v.selectedCardValue}"
                         onchange="{!c.onChange}">
@@ -102,8 +109,8 @@
                             </aura:iteration>
                         </lightning:select>
 
-                        <p class="cardholder"> <b>Card Holder Name *</b></p>
-                        <lightning:input type="text" aura:id="HolderName" label="Card Holder Name"
+                       <p class="cardholder"> <b>Card Holder Name *</b></p>
+                        <lightning:input type="text" aura:id="HolderName"
                                          name="HolderName"
                                          formatter="text"
                                          placeholder="Name displayed on Card"
@@ -112,8 +119,8 @@
                                          
                                          messageWhenValueMissing="Please Enter Card Holder Name"/>
                         
-                        <p class="cardholder"> <b>Card Number *</b></p>
-                        <lightning:input aura:id="expenseform" label="Card Number"
+                        <p class="cardholder"> <b>Card Number *</b></p> 
+                        <lightning:input aura:id="expenseform" 
                                          name="card"
                                          value="{!v.payment.card}"
                                          placeholder="Card Number"
@@ -127,7 +134,7 @@
                                 <div class="slds-form-element__row">
                                     <div class="slds-form-element slds-size--1-of-3">
                                         <p class="cardholder"><b>Expiry Month *</b></p>
-                                        <lightning:input type="Number" aura:id="expenseform" label="Expiry Month"
+                                        <lightning:input type="Number" aura:id="expenseform"
                                                          name="Card Month"
                                                          min="1"
                                                          max="12"
@@ -139,7 +146,7 @@
                                     </div>
                                     <div class="slds-form-element slds-size--1-of-3">
                                         <p class="cardholder"><b>Expiry Year *</b></p>
-                                        <lightning:input aura:id="expenseform" label="Expiry Year"
+                                        <lightning:input aura:id="expenseform" 
                                                          name="Card Year"
                                                          required="true"
                                                          value="{!v.payment.year}"
@@ -149,7 +156,7 @@
                                     </div>
                                     <div class="slds-form-element slds-size--1-of-3">
                                         <p class="cardholder"><b>Card CVV *</b></p>
-                                        <lightning:input aura:id="expenseform" label="Card CVV"
+                                        <lightning:input aura:id="expenseform" 
                                                          name="Card CVV Code"
                                                          required="true"
                                                          value="{!v.payment.cvv}"
@@ -165,7 +172,7 @@
                         <div class="slds-text-align_center">
                             <lightning:button label="Cancel" 
                                                   class="slds-m-top--medium"
-                                                  onclick="{!c.Cancel}"/>
+                                                  onclick="{!c.cancelForm}"/>
                             <aura:if isTrue="{!v.AddNewCard}">
                                 <lightning:button label="Add New Card" 
                                                   class="slds-m-top--medium"

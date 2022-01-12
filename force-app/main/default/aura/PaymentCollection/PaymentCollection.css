@@ -30,9 +30,19 @@
        
 }
 
+.THIS .customClass{
+    visibility: visible !important;
+}
+
+.THIS .slds-radio {  
+    display: inline !important;
+    
+} 
+
+
 .THIS .slds-form-element__label {
-      display: none;
-      visibility: hidden;
+      font-weight: bold;
+      
 }
 .THIS.exampleHolder{
     position: relative;

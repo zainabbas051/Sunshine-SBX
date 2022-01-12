@@ -31,6 +31,18 @@
         
     },
 
+    cancelForm : function(component,event,helper){
+        component.set('v.recordId',undefined);
+    },
+
+    ptSelect : function(component,event,helper){
+        var selVal = event.getSource().get("v.value");
+        if(selVal == 'Custom')
+            component.set('v.amountDisabled',false);
+        else
+            component.set('v.amountDisabled',true);
+    },
+
     cardHide: function(component, event, helper) {
         let hideNum = [];
           for(let i = 0; i < card.length; i++){
