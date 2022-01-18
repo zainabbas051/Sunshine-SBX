@@ -107,6 +107,8 @@
                 component.set("v.payment.oppName", jsonResp.ClientName);
                 component.set("v.AddedCards", jsonResp.ListCards);
                 
+                
+                
             }
             else if(state === "ERROR")
             {
@@ -178,6 +180,40 @@
                 component.set("v.payment.year", jsonResp.ExpYear);
                 component.set("v.payment.cvv", jsonResp.CVV);
 
+            }
+            else if(state === "ERROR")
+            {
+                var errors = response.getError();
+                if (errors) {
+                    if (errors[0] && errors[0].message) {
+                        console.log("Error message: " + errors[0].message);
+                        component.set("v.result", errors[0].message);  
+                    }
+                } else {
+                    console.log("Unknown error");
+                }
+            }
+        });
+        $A.enqueueAction(action);
+    },
+
+    callAllExsCards: function(component){
+        var recId = component.get("v.recordId");
+        var action = component.get("c.retExsCardInfoList");
+        action.setParams({
+            "OppId" : recId
+        });
+        action.setCallback(this, function(response){
+            var state = response.getState();
+            if(state === "SUCCESS"){
+                console.log(response.getReturnValue());
+                var jsonResp = JSON.parse(response.getReturnValue()); 
+                component.set("v.ExistingCardsListFromApex", jsonResp);
+                
+                var existCardsList = component.get("v.ExistingCardsListFromApex");
+                if($A.util.isEmpty(existCardsList)) {
+                    component.set("v.NoCardsFoundMsg", "No Saved Cards Found! Please add a new Card");
+                }
             }
             else if(state === "ERROR")
             {
@@ -373,7 +409,7 @@
                     "type": "success",
                 });
                 resultsToast.fire();
-
+                component.set('v.recordId',undefined);
             /*if(err == null){
                 component.set("v.disabled",true);
                
@@ -426,5 +462,25 @@
         }
     },
 
+    validateCVV : function(component){
+        var cvvValid = true;
+        var ExistingCard = component.get('v.selectedCardValue');
+        var newCVVToValidate = component.get('v.ExsCardCVV');
+        var validCVV = component.get('v.payment.cvv');
+        if(ExistingCard == 'Please Select'){
+            return false;
+        }
+        else{
+            if(!newCVVToValidate){
+                return false;
+            }
+            else if(newCVVToValidate === validCVV){
+                return cvvValid;
+            }
+            else{
+                return false;
+            }
+        }
+    }
 
 })

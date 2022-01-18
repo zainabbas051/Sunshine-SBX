@@ -192,6 +192,40 @@ public without sharing class PaymentCollection_Cntr {
         return cl;
         
     }
+
+    @AuraEnabled
+    public static string retExsCardInfoList(string OppId){
+    
+        mapOfCards = new map<string,Card_Information__c>();
+
+        List<Card_Information__c> cl=[select id,Card_Number__c, 
+                                        Name_on_Card__c, CVV__c, 
+                                        Expiration_Month__c, 
+                                        Expiration_Year__c 
+                                        from Card_Information__c 
+                                        where Payment_Plan__r.Opportunity__c =:OppId];
+        
+        list<CardWrapper> ListOfCards = new list<CardWrapper>();
+        for(Card_Information__c cr: cl)
+        {
+            CardWrapper cw = new CardWrapper();
+            cw.CardHolderName = cr.Name_On_Card__c;
+            cw.CardNumber = cr.Card_Number__c;
+            cw.ExpMonth = integer.valueOf(cr.Expiration_Month__c);
+            cw.ExpYear = Integer.valueOf(cr.Expiration_Year__c);
+            if(!string.isBlank(cr.Expiration_Year__c) && cr.Expiration_Year__c.length() == 2)
+            {
+                cw.ExpYear = Integer.valueOf('20'+cr.Expiration_Year__c);
+            }
+            cw.CVV = string.valueOf(cr.CVV__c);
+
+            ListOfCards.add(cw);
+        }
+        string JsonStr = JSON.serialize(ListOfCards);
+        system.debug('JsonStr='+JsonStr);
+        return JsonStr;
+        
+    }
     
     public static map<string,Card_Information__c> returnCardsMap(string OppId){
     
