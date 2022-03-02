@@ -151,10 +151,14 @@ public without sharing class IncidentReport_Ctrl {
     public static void sendEmail(string incidentId,string pageUrl){
 
         string emailBody = 'Thanks for raising the incident Please find your copy in an attachment';
-        Incident_Report_SBH__c incObj = [Select Name,Completed_By_Email__c,
+        Incident_Report_SBH__c incObj = [Select Name,Completed_By_Email__c,Sunshine_Center_Name__c,
                                          Sunshine_Center__r.Name from Incident_Report_SBH__c where Id=:incidentId limit 1];
-        
-        string emailAddress = sunshineEmail(incObj.Sunshine_Center__r.Name);
+        system.debug('incObj.Sunshine_Center__r.Name:'+incObj.Sunshine_Center__r.Name);
+        Sunshine_Center_Id__C rec = Sunshine_Center_Id__c.getValues(incObj.Sunshine_Center__r.Name);
+
+     //   string emailAddress = sunshineEmail(incObj.Sunshine_Center__r.Name);
+        string emailAddress = rec.Additional_recipients_Email__c;
+
         emailAddress += ';'+ incObj.Completed_By_Email__c;
         string fromaddress;
         
@@ -175,7 +179,7 @@ public without sharing class IncidentReport_Ctrl {
                                 incObj.Name,incidentId);
     }
     
-    private static string sunshineEmail(string sunshineCentreName){
+  /*  private static string sunshineEmail(string sunshineCentreName){
         
         switch on sunshineCentreName{
             when 'Chapters Capistrano'{
@@ -195,7 +199,7 @@ public without sharing class IncidentReport_Ctrl {
         }
         
         return '';
-    }
+    }*/
 
     @AuraEnabled
     public static Incident_Report_SBH__c getIncidentById(string recordId){

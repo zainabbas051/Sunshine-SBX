@@ -6,8 +6,13 @@ public  class InfectionControlReport_CtrlTest {
     @TestSetup
     static void createTestData() {
 
+          Sunshine_Center_Id__C rec = New Sunshine_Center_Id__C();
+        rec.Name = 'Chapters Capistrano';
+        rec.Additional_recipients_Email__c = 'test@gmail.com';
+        insert rec;
+        
         Account acc = new Account();
-        acc.Name = 'Willowsprings Recovery';
+        acc.Name = 'Chapters Capistrano';
         insert acc;
 
         Infection_Control_Report__c inc = new Infection_Control_Report__c();
@@ -37,15 +42,19 @@ public  class InfectionControlReport_CtrlTest {
         PageReference pageRef = Page.IncidentReportPDF_HTML; // Add your VF page Name here
         pageRef.getParameters().put('id',incidentId);   
         Test.setCurrentPage(pageRef);
-        InfectionControlReport_Ctrl.getAllInfectionReports(10,10,'Willowsprings Recovery',AccessValues,date.today(),date.today());
-        InfectionControlReport_Ctrl.getAllInfectionReports(10,10,'Willowsprings Recovery',AccessValues,null,null);
+        InfectionControlReport_Ctrl.getAllInfectionReports(10,10,'Willowsprings Recovery',AccessValues,date.today(),date.today(),null);
+        InfectionControlReport_Ctrl.getAllInfectionReports(10,10,'Willowsprings Recovery',AccessValues,null,null,null);
+        InfectionControlReport_Ctrl.getAllInfectionReports(10,10,'Monarch Shores',AccessValues,date.today(),date.today(),'M1');
         InfectionControlReport_Ctrl.getInfectionReportById(incidentId);
         InfectionControlReport_Ctrl.getEmpSunshine(emp.Id);
         InfectionControlReport_Ctrl.getSearchInfection(Date.Today().addDays(-2),
                                                 Date.Today().addDays(2),
-                                                'All',1,10,AccessValues);
+                                                'All',1,10,AccessValues,null);
         InfectionControlReport_Ctrl.saveIncident(new Infection_Control_Report__c(Sunshine_Center__c = accId,Completed_By_Email__c = 'test@test.com'));
         InfectionControlReport_Ctrl.sendEmail(incidentId,'http://test.com');
+        InfectionControlReport_Ctrl.getHouseLocations('Monarch Shores');
+
+
 
         test.StopTest();
     }

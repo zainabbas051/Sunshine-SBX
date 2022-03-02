@@ -45,6 +45,10 @@
     <aura:attribute name="NoCardsFoundMsg" type="String" default=""/>
     <aura:attribute name="ExsCardCVV" type="String" default=""/>
     <aura:attribute name="showValidateCVV" type="boolean" default="false"/>
+    <aura:attribute name="NewCardSaved" type="boolean" default="false"/>
+    <aura:attribute name="CustomAmount" type="decimal"/>
+    <aura:attribute name="NewlyAddedCardNumber" type="string"/>
+
 
     <aura:attribute name="selectedVal2" type="String" default="Full" />  
     <aura:attribute name="options"   
@@ -111,21 +115,28 @@
                                          required="true"
                                          value="{!v.payment.amount}"
                                          disabled="{!v.amountDisabled}"
-                                         messageWhenValueMissing="Please Enter Amount"/>
+                                         messageWhenValueMissing="Please Enter Amount"
+                                         onmouseout="{!c.populateCustomAmount}"/>
                         <aura:if isTrue="{!!v.amountDisabled}">
                             <p>*The amount should be greater than the due amount and multiple of $50</p>
                         </aura:if>
                         
-                        
-                        <p class="receiptemail"> <b>Card Selection</b> </p>
-                        <lightning:select name="exsNewCardSel" 
-                                aura:id="exsNewCardSel"
-                                value="{!v.NewExiCardSel}"
-                                onchange="{!c.exsNewCardSelect}">
-                                <aura:iteration items="{!v.NewExsCardOpt}" var="opt">
-                                    <option value="{!opt.value}">{!opt.label}</option>
-                                </aura:iteration>
-                        </lightning:select>
+                        <aura:if isTrue="{!!v.NewCardSaved}">
+                            <p class="receiptemail"> <b>Card Selection</b> </p>
+                            <lightning:select name="exsNewCardSel" 
+                                    aura:id="exsNewCardSel"
+                                    value="{!v.NewExiCardSel}"
+                                    onchange="{!c.exsNewCardSelect}">
+                                    <aura:iteration items="{!v.NewExsCardOpt}" var="opt">
+                                        <option value="{!opt.value}">{!opt.label}</option>
+                                    </aura:iteration>
+                            </lightning:select>
+                        </aura:if>
+                        <aura:if isTrue="{!v.NewCardSaved}">
+                            <p class="receiptemail"> <b>Card Number</b> </p> 
+                            <lightning:input value="{!v.NewlyAddedCardNumber}" disabled="true">
+                            </lightning:input>
+                        </aura:if>
                        
                             <aura:if isTrue="{!not(empty(v.ExistingCardsListFromApex))}">
                                 <p class="receiptemail"> <b>Existing / Saved Cards</b> </p>                         
@@ -140,7 +151,7 @@
                                     </lightning:select>
                                     <aura:if isTrue="{!v.showValidateCVV}">
                                         <p class="cardholder"><b>Card CVV</b></p>
-                                        <lightning:input aura:id="expenseform" 
+                                        <lightning:input aura:id="Outerexpenseform" 
                                                         name="Card CVV Code"
                                                         required="true"
                                                         value="{!v.ExsCardCVV}"
@@ -207,7 +218,7 @@
                                                                          name="Card Year"
                                                                          required="true"
                                                                          value="{!v.NewCExpYear}"
-                                                                         pattern="[0-9]{4}"
+                                                                         pattern="[0-9]{2}"
                                                                          placeholder="YYYY"
                                                                          messageWhenValueMissing="Please Enter Expiry Year"/>
                                                     </div>

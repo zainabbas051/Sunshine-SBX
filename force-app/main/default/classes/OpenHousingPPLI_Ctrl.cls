@@ -53,7 +53,7 @@ public without sharing class OpenHousingPPLI_Ctrl {
         }
         SunshineCenter = emp.Sunshine_Center_Relation_To__r.Name;
 
-        if(SunshineCenter != null && !String.isBlank(SunshineCenter))
+        if(listSunshineAcces.size() > 0)
         {
             map<string, list<Payment_Plan_Line_items__c>> mapOfPPLI = returnAllPPs(listSunshineAcces);
             list<paymentPlanWrapper> listPPs = new list<paymentPlanWrapper>();
@@ -72,7 +72,8 @@ public without sharing class OpenHousingPPLI_Ctrl {
                     ppliWrap.id = ppli.id;
                     ppliWrap.Name = ppli.Name;
                     ppwrap.SunshineName = ppli.Payment_Plan__r.Opportunity__r.Sunshine_Center_Name__c;
-                    totalAm += ppli.Amount_For_Collection__c;
+                    decimal amountToAdd = ppli.Amount_For_Collection__c != null ? ppli.Amount_For_Collection__c : 0;
+                    totalAm += amountToAdd;
                     listPPli.add(ppliWrap);
                 }
                 ppwrap.Pay = 'Pay';
@@ -139,7 +140,7 @@ public without sharing class OpenHousingPPLI_Ctrl {
                                                     Payment_Plan__r.Opportunity__r.Sunshine_Center_Name__c,
                                                     Due_Date__c, Amount_For_Collection__c from 
                                                     Payment_Plan_Line_items__c where 
-                                                    Type_of_Collection__c =: 'Housing' 
+                                                    Type_of_Collection__c = 'Housing' 
                                                     AND Due_Date__c <= TODAY AND 
                                                     (Status__c = 'Open' OR Status__c = 'Card Declined') 
                                                     AND Sunshine_Center__c IN: ListSCName])
@@ -170,7 +171,7 @@ public without sharing class OpenHousingPPLI_Ctrl {
         for(Payment_Plan_Line_items__c ppli : [Select id,Name ,Payment_Plan__r.Opportunity__r.Name, 
                                                     Due_Date__c, Amount_For_Collection__c from 
                                                     Payment_Plan_Line_items__c where 
-                                                    Type_of_Collection__c =: 'Housing' 
+                                                    Type_of_Collection__c = 'Housing' 
                                                     AND Due_Date__c <= TODAY AND 
                                                     (Status__c = 'Open' OR Status__c = 'Card Declined') 
                                                     AND Sunshine_Center__c =: SCName 

@@ -21,7 +21,7 @@ public without sharing class HandHygieneReport_Ctrl {
              disabled = true;
         }
        
-        HandHygieneReport = (id == null) ? new Hand_Hygiene_Report__c() : [select Id,AT_Cleaned_hands_with_alcohol_sanitizer__c,AT_Cleaned_hands_with_soap_and_water__c, 
+        HandHygieneReport = (id == null) ? new Hand_Hygiene_Report__c() : [select Id,Sunshine_Center_Name__c,AT_Cleaned_hands_with_alcohol_sanitizer__c,AT_Cleaned_hands_with_soap_and_water__c, 
                                                                             Before_Touching_Applied_appropriate_PPE__c, BT_Cleaned_hands_with_alcohol_sanitizer__c, 
                                                                             BT_Cleaned_hands_with_soap_and_water__c, Completed_By_Email__c, Completed_By_Name__c, 
                                                                             DateAndTime__c, Staff_Member_Observed__c, Sunshine_Center__c,Sunshine_Center__r.Name 
@@ -36,18 +36,16 @@ public without sharing class HandHygieneReport_Ctrl {
                                                                  string empSunshine,
                                                                  List<String> empSunshineAccess,      
                                                                  date startDate,
-                                                                 date endDate){
+                                                                 date endDate,
+                                                                 string houseLocation){
                                                                      
         Integer offset = (pageNumber - 1) * pageSize;
         string sunshineCenterName = empSunshine;
         string query = 'Select ID,Name,Completed_By_Name__c, Sunshine_Center_Name__c,';
         query += 'Staff_Member_Observed__c, DateAndTime__c';
         query += ' FROM Hand_Hygiene_Report__c ';
-       /* if(sunshineCenterName != 'All'){
-            query += ' WHERE  Sunshine_Center_Name__c =:sunshineCenterName';
-        }*/
-                                                                     
-	if (startDate == null || endDate == null ){
+                                                                
+	if (startDate == null || endDate == null){
                                                                    
      //Logic to handle next and previous   
                                                             
@@ -58,20 +56,19 @@ public without sharing class HandHygieneReport_Ctrl {
          
 		If ((pageNumber != 1 && sunshineCenterName != 'All') || (pageNumber == 1 && sunshineCenterName != 'All') ){
 		query += ' WHERE  Sunshine_Center_Name__c  =: sunshineCenterName';
-     	
-        }     
-     
+        }
+            
+            
      }
                                                                      
-	//If date filters are applied                                                               
-      if (startDate != null && endDate != null ){
-      dateTime defaultEndDate =   endDate;
-      defaultEndDate.addHours(24);
-      //Logic to handle next and previous   
-      return  getSearchHandHygiene(startDate, endDate, sunshineCenterName, pageSize, pageNumber, empSunshineAccess);
-      
-     }                                                                      
+	//If date filters are applied    	                                                           
+      if ((startDate != null && endDate != null) || (houseLocation != null) ){
 
+      //Logic to handle next and previous   
+      return  getSearchHandHygiene(startDate, endDate, sunshineCenterName, pageSize, pageNumber, empSunshineAccess, houseLocation);
+      
+     }                                                                       
+     
         query += ' ORDER BY DateAndTime__c desc LIMIT :pageSize OFFSET :offset';
         return database.query(query);
     }
@@ -89,6 +86,23 @@ public without sharing class HandHygieneReport_Ctrl {
     }
 
     
+    @AuraEnabled
+    public static List<String> getHouseLocations(string sunshineCentreName){
+            
+        House_Location__mdt[] houseLocationMetada = [SELECT Id,Sunshine_Centre__c,MasterLabel from House_Location__mdt where Sunshine_Centre__c =: sunshineCentreName];
+        
+        List<String> ListOfHouseLocationValues = New List<String>();
+                
+        for (House_Location__mdt rec : houseLocationMetada){
+            ListOfHouseLocationValues.add(rec.MasterLabel);
+        }
+
+        If(ListOfHouseLocationValues.size()>0){
+            ListOfHouseLocationValues.sort();
+        	return ListOfHouseLocationValues;
+        }      
+        return null;
+    }
 
     @AuraEnabled
     public static string saveHandHygiene(Hand_Hygiene_Report__c incJsonStr){
@@ -113,9 +127,15 @@ public without sharing class HandHygieneReport_Ctrl {
     public static void sendEmail(string incidentId,string pageUrl){
 
         string emailBody = 'Thanks for creating the Hand Hygiene Report. Please find your copy in the attachment';
-        Hand_Hygiene_Report__c incObj = [Select Name,Sunshine_Center__r.Name,Completed_By_Email__c from Hand_Hygiene_Report__c where Id=:incidentId limit 1];
+        Hand_Hygiene_Report__c incObj = [Select Name,Sunshine_Center__r.Name,Sunshine_Center_Name__c,Completed_By_Email__c from Hand_Hygiene_Report__c where Id=:incidentId limit 1];
+       
+        Sunshine_Center_Id__C rec = Sunshine_Center_Id__c.getValues(incObj.Sunshine_Center__r.Name);
+
+        
         system.debug('*****: ' + incObj.Completed_By_Email__c);
-        string emailAddress = sunshineEmail(incObj.Sunshine_Center__r.Name);
+   //     string emailAddress = sunshineEmail(incObj.Sunshine_Center__r.Name);
+        string emailAddress = rec.Additional_recipients_Email__c;
+
         emailAddress += ';'+ incObj.Completed_By_Email__c;
        //string emailAddress=incObj.Completed_By_Email__c;
        
@@ -136,7 +156,7 @@ public without sharing class HandHygieneReport_Ctrl {
                                 pageUrl,
                                 incObj.Name,incidentId);
     }
-    private static string sunshineEmail(string sunshineCentreName){
+   /* private static string sunshineEmail(string sunshineCentreName){
         
         switch on sunshineCentreName{
             when 'Chapters Capistrano'{
@@ -156,7 +176,7 @@ public without sharing class HandHygieneReport_Ctrl {
         }
         
         return '';
-    }
+    }*/
 
     @AuraEnabled
     public static Hand_Hygiene_Report__c getHandHygieneReportById(string recordId){
@@ -164,7 +184,8 @@ public without sharing class HandHygieneReport_Ctrl {
             return [select Id,AT_Cleaned_hands_with_alcohol_sanitizer__c,AT_Cleaned_hands_with_soap_and_water__c, 
                                                                             Before_Touching_Applied_appropriate_PPE__c, BT_Cleaned_hands_with_alcohol_sanitizer__c, 
                                                                             BT_Cleaned_hands_with_soap_and_water__c, Completed_By_Email__c, Completed_By_Name__c, 
-                                                                            DateAndTime__c, Staff_Member_Observed__c, Sunshine_Center__c,Sunshine_Center_Name__c 
+                                                                            DateAndTime__c, Staff_Member_Observed__c, Sunshine_Center__c,Sunshine_Center_Name__c,
+                                                                            House_location__c  
                                                                             from Hand_Hygiene_Report__c
                                                                               WHERE Id =: recordId
         ];
@@ -180,7 +201,8 @@ public without sharing class HandHygieneReport_Ctrl {
                                                            string sunshineCenterName,
                                                            Integer pageSize,
                                                            Integer pageNumber,
-                                                           List<String> sunshineCentersAccess){
+                                                           List<String> sunshineCentersAccess,
+                                                           String houseLocation){
         try {
             Integer offset = (pageNumber - 1) * pageSize;
             Date defaultStartDate = Date.today().addYears(-10);
@@ -204,41 +226,61 @@ public without sharing class HandHygieneReport_Ctrl {
             }
             
             Datetime dEnd;
-    
+
+            system.debug('Sunshine_Center_Name__c ='+sunshineCenterName);
+            system.debug('House_location__c=' + houseLocation );
+
 
             if(sunshineCenterName == 'All'){
 			
            //     dEnd =  defaultEndDate.addHours(23);
            //     dEnd =  defaultEndDate.addminutes(59);
+                system.debug('When Sunshine Centre = All');
                 return [SELECT Id,Name,
                         Completed_By_Name__c,
                         Sunshine_Center_Name__c,
                         Staff_Member_Observed__c,
                         DateAndTime__c
                         FROM Hand_Hygiene_Report__c 
-                        WHERE Date_and_Time_Formula__c
-                        >=: startDate AND Date_and_Time_Formula__c <=: endDate AND Sunshine_Center_Name__c IN :  sunshineCentersAccess
+                        WHERE Date_and_Time_Formula__c>=: startDate 
+                        AND Date_and_Time_Formula__c <=: endDate 
+                        AND Sunshine_Center_Name__c IN :  sunshineCentersAccess
                         ORDER BY DateAndTime__c DESC
                         LIMIT :pageSize 
                         OFFSET :offset];
             }
-            
-           // dEnd =  defaultEndDate.addHours(23); 
-           // dEnd =  defaultEndDate.addminutes(59);
+            else {
+                if(sunshineCenterName != 'All' && (sunshineCenterName == 'Chapters Capistrano' || sunshineCenterName == 'Monarch Shores')){
 
-            return [SELECT Id,Name,
+                    system.debug('When Sunshine Centre != All and centre = Chapters Capistrano or Monarch Shores ');
+                    return [SELECT Id,Name,
+                        Completed_By_Name__c,
+                        Sunshine_Center_Name__c,
+                        Staff_Member_Observed__c,
+                        DateAndTime__c
+                        FROM Hand_Hygiene_Report__c 
+                        WHERE Date_and_Time_Formula__c>=: startDate 
+                        AND Date_and_Time_Formula__c <=: endDate 
+                        AND Sunshine_Center_Name__c =:  sunshineCenterName
+                        AND House_location__c =: houseLocation
+                        ORDER BY DateAndTime__c DESC
+                        LIMIT :pageSize 
+                        OFFSET :offset];
+                }
+                system.debug('When Sunshine Centre != All and centre = other');
+                return [SELECT Id,Name,
                     Completed_By_Name__c,
                     Sunshine_Center_Name__c,
                     Staff_Member_Observed__c,
                     DateAndTime__c
-                    FROM Hand_Hygiene_Report__c 
-                    WHERE Date_and_Time_Formula__c>=: startDate 
+                    FROM Hand_Hygiene_Report__c  
+                    WHERE Date_and_Time_Formula__c>=: startDate
                     AND Date_and_Time_Formula__c <=: endDate 
                     AND Sunshine_Center_Name__c =:  sunshineCenterName
-                    ORDER BY DateAndTime__c DESC
+                    ORDER BY  DateAndTime__c desc
                     LIMIT :pageSize 
                     OFFSET :offset];
-
+            }
             
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());

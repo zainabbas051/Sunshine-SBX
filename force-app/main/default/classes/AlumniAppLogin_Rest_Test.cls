@@ -32,6 +32,7 @@ public without sharing class AlumniAppLogin_Rest_Test {
         RestContext.response = res;
         Test.startTest();
         AlumniAppLogin_Rest.getLogin();
+        AlumniAppDetail_Selector.getUserDetailByUserName('test@test.com');
         Test.stopTest();  
     
     }

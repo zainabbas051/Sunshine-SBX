@@ -6,8 +6,15 @@ public  class IncidentReport_CtrlTest {
     @TestSetup
     static void createTestData() {
 
+        
+          Sunshine_Center_Id__C rec = New Sunshine_Center_Id__C();
+        rec.Name = 'Chapters Capistrano';
+        rec.Additional_recipients_Email__c = 'test@gmail.com';
+        insert rec;
+        
+        
       Account acc = new Account();
-        acc.Name = 'Willowsprings Recovery';
+        acc.Name = 'Chapters Capistrano';
         insert acc;
 
         Incident_Report_SBH__c inc = new Incident_Report_SBH__c();

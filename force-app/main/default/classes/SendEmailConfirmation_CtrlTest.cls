@@ -36,6 +36,10 @@ private class SendEmailConfirmation_CtrlTest{
         oms.Sunshine_Center__c = a1.Id;
         insert oms;
         
+        KIPU_Chart_Audit__c kipu = new KIPU_Chart_Audit__c();
+        kipu.Opportunity__c = oms.Id;
+        insert kipu;
+        
         Payment_Plan__c  ppRecord = new Payment_Plan__c();
         ppRecord.Opportunity__c = oms.id;
         ppRecord.Start_Date__c = date.Today();

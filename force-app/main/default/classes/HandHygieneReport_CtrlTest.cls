@@ -6,8 +6,13 @@ public  class HandHygieneReport_CtrlTest {
     @TestSetup
     static void createTestData() {
 
+        Sunshine_Center_Id__C rec = New Sunshine_Center_Id__C();
+        rec.Name = 'Chapters Capistrano';
+        rec.Additional_recipients_Email__c = 'test@gmail.com';
+        insert rec;
+
         Account acc = new Account();
-        acc.Name = 'Willowsprings Recovery';
+        acc.Name = 'Chapters Capistrano';
         insert acc;
 
         Hand_Hygiene_Report__c inc = new Hand_Hygiene_Report__c();
@@ -38,14 +43,16 @@ public  class HandHygieneReport_CtrlTest {
         PageReference pageRef = Page.IncidentReportPDF_HTML; // Add your VF page Name here
         pageRef.getParameters().put('id',incidentId);   
         Test.setCurrentPage(pageRef);
-       // string email= HandHygieneReport_Ctrl.sunshineEmail('Monarch Shores');
-        HandHygieneReport_Ctrl.getAllHandHygieneReports(10,10,'Willowsprings Recovery',AccessValues,date.today(),date.today());
-        HandHygieneReport_Ctrl.getAllHandHygieneReports(10,10,'Willowsprings Recovery',AccessValues,null,null);
+       // string email= HandHygieneReport_Ctrl.sunshineEmail('Monarch Shores'); //
+        HandHygieneReport_Ctrl.getAllHandHygieneReports(10,10,'Willowsprings Recovery',AccessValues,date.today(),date.today(),null);
+        HandHygieneReport_Ctrl.getAllHandHygieneReports(10,10,'Willowsprings Recovery',AccessValues,null,null,null);
+        HandHygieneReport_Ctrl.getAllHandHygieneReports(10,10,'Monarch Shores',AccessValues,date.today(),date.today(),'M1');
         HandHygieneReport_Ctrl.getHandHygieneReportById(incidentId);
+        HandHygieneReport_Ctrl.getHouseLocations('Monarch Shores');
         HandHygieneReport_Ctrl.getEmpSunshine(emp.Id);
         HandHygieneReport_Ctrl.getSearchHandHygiene(Date.Today().addDays(-2),
                                                 Date.Today().addDays(2),
-                                                'All',1,10,AccessValues);
+                                                'All',1,10,AccessValues,null);
         HandHygieneReport_Ctrl.saveHandHygiene(new Hand_Hygiene_Report__c(Sunshine_Center__c = accId,Completed_By_Email__c = 'test@test.com'));
         HandHygieneReport_Ctrl.sendEmail(incidentId,'http://test.com');
 

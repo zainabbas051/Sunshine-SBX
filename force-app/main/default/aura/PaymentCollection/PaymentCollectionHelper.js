@@ -253,14 +253,21 @@
     executePayment : function(component){
         
         var dueAmount = parseFloat(component.get("v.budgetAmount"));
-        var totalAmount = parseFloat(component.get("v.paymment.amount"));
+        //var totalAmount = component.get('v.paymment.amount');
+        var totalAmount = component.get('v.CustomAmount');
         var diffAmount = 0.0;
 
-        this.processAmountHelper(component);
+        //this.processAmountHelper(component);
 
+        console.log('dueAmount='+dueAmount);
+        console.log('totalAmount='+totalAmount);
+        console.log('amm='+component.get('v.paymment.amount'));
         if(totalAmount - dueAmount > 0){
             diffAmount = totalAmount - dueAmount;
             this.createPaymentPlan(component, diffAmount);
+        }
+        else{
+            this.processAmountHelper(component);
         }
     },
 

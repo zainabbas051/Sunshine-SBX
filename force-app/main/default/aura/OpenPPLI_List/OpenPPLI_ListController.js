@@ -6,7 +6,7 @@
             {label: 'Client Name', fieldName: 'ClientName', type: 'text'},
             //{label: 'View', type: 'button', initialWidth: 135, typeAttributes: { label: 'View Details', name: 'view_details', title: 'Click to View Details'}},
             {label: 'Total Due', fieldName : 'TotalDue', type : 'currency'},
-            {label: 'Name', fieldName: 'Name', type: 'date'},
+            {label: 'Name', fieldName: 'Name', type: 'text'},
             {label: 'Due Date', fieldName: 'DueDate', type: 'date'},
             {label: 'Amount', fieldName: 'Amount', type: 'currency'},
             //{label : 'Pay', fieldName:'Pay', type: 'url'},

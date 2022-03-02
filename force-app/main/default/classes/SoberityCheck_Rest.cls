@@ -1,3 +1,6 @@
+/*
+Test Class : SoberityCheck_Rest_Test
+*/
 @RestResource(urlMapping='/sobriety_check/*')
 global class SoberityCheck_Rest {
 
@@ -9,6 +12,7 @@ global class SoberityCheck_Rest {
 
         try{
             string requestBodyStr = req.requestBody.toString();
+            system.debug('#requestBodyStr='+requestBodyStr);
             if(string.isEmpty(requestBodyStr) || !RestContext.request.headers.containsKey('id')){
                 mapOfRequest.put('success','false');
                 mapOfRequest.put('message','In Valid Request');
@@ -20,6 +24,32 @@ global class SoberityCheck_Rest {
             SoberityCheckRequestWrapper soberityWrapper = (SoberityCheckRequestWrapper)JSON.deserialize(requestBodyStr,SoberityCheckRequestWrapper.CLASS);
             soberityWrapper.loginId = RestContext.request.headers.get('id');
 
+            /*
+            Update Request
+            Jira ticket : PIHRC-33
+            Author : Zain Abbas
+            Date : 24-01-22
+            */
+
+            //Start
+
+           /* Alumni_App_Detail__c appDet = [select id, Longest_Checkin__c, Current_Checkin_Streak__c from Alumni_App_Detail__c where id =:soberityWrapper.loginId];
+            if(appDet != null){
+                if(appDet.Current_Checkin_Streak__c != null){
+                    appDet.Current_Checkin_Streak__c = appDet.Current_Checkin_Streak__c + 1;
+                }
+                else{
+                    appDet.Current_Checkin_Streak__c = 1;
+                }
+                if(appDet.Longest_Checkin__c != null && appDet.Longest_Checkin__c < (appDet.Current_Checkin_Streak__c + 1)){
+                    appDet.Longest_Checkin__c = appDet.Current_Checkin_Streak__c + 1;
+                }
+
+                update appDet;
+            } */
+            
+            //End
+            
             Alumni_App_Sobriety_Checkin__c allsObj = new Alumni_App_Sobriety_Checkin__c();
             allsObj.Anxiety_Score__c = soberityWrapper.anxious;
             allsObj.Cravings_Score__c = soberityWrapper.craving;

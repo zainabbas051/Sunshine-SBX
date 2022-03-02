@@ -22,7 +22,7 @@ public Inherited Sharing class AlumniAppDetail_Selector {
 
         List<Alumni_App_Detail__c> lstAppDetail = new List<Alumni_App_Detail__c>();
 
-        lstAppDetail = [SELECT First_Login__c, ID,Number_of_Days_Sober__c,Is_Intake__c,(Select ID FROM Alumni_App_Sobriety_Checkins__r WHERE Sobriety_Checkin_Date__c = TODAY)
+        lstAppDetail = [SELECT First_Login__c, ID,Number_of_Days_Sober__c,Is_Intake__c, Next_Eligible_Checkin_Streak__c, Next_Eligible_Total_Checkins__c, Current_Checkin_Streak__c, Total_Number_of_Sobreity_Checkins__c, (Select ID FROM Alumni_App_Sobriety_Checkins__r WHERE Sobriety_Checkin_Date__c = TODAY)
                                                     FROM Alumni_App_Detail__c WHERE ID =: ID];
         return lstAppDetail;
     }

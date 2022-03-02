@@ -2,7 +2,6 @@ public inherited sharing class PaymentLineItemService {
     
     static string sunShineCentre;
     static List<string> refIds;
-    static Map<Id,Payment_Plan_Line_Items__c> mapPpl;
     static Authorize_Net_Transaction_Info__c authTransInfo;
     static List<Authorize_Net_Transaction_Info__c> lstAuthTransInfo;
     
@@ -18,29 +17,45 @@ public inherited sharing class PaymentLineItemService {
             clonePpl.Type_of_Collection__c = 'Housing';
             paymentNewPpl.add(clonePpl);
         }
-
-        insert paymentNewPpl;
+        system.debug('###paymentNewPpl='+paymentNewPpl);
         paymentPlanLst.addAll(paymentNewPpl);
         paymentNewPpl.clear();
         return paymentPlanLst;
 
     }
 
-    public static string processPayment(List<Payment_Plan_Line_Items__c> paymentPlanLst,string fileName,string cardNumber, string CVC,decimal totalDueAmount){
+    public static string processPayment(List<Payment_Plan_Line_Items__c> paymentPlanLst,
+                                        string fileName,
+                                        Card_Information__c cardDetails,
+                                        decimal totalDueAmount,
+                                        Boolean saveCardInformation){
+        system.debug('&&&&=>' + cardDetails.Id);
         
-        Card_Information__c cardInf = getCardDetail(cardNumber);
-        validateCardDetail(cardInf);
-        mapPpl = new Map<Id,Payment_Plan_Line_Items__c>(paymentPlanLst);
+        if(cardDetails.Id != null){
+              cardDetails = getCardDetail(cardDetails.ID);
+        }
+        else{
+             cardDetails.Id = null;
+        }    
+        validateCardDetail(cardDetails);
         PaymentAuthorization pp;
         //lstAuthInfo = new List<Authorize_Net_Transaction_Info__c>(); 
-        pp = new PaymentAuthorization(paymentPlanLst[0].Id,cardInf ,totalDueAmount,sunShineCentre);
-        string paymentLineItem = updateRecordLineItemAfterResponse(paymentPlanLst,pp,cardInf,fileName,totalDueAmount);
+        pp = new PaymentAuthorization(paymentPlanLst[0].Id,cardDetails ,totalDueAmount,sunShineCentre);
+        string paymentLineItem = updateRecordLineItemAfterResponse(paymentPlanLst,pp,cardDetails,fileName,totalDueAmount);
+        system.debug('=====>' + paymentLineItem);
+        system.debug('lstAuthTransInfo=====>' + lstAuthTransInfo);
+        system.debug('paymentPlanLst=====>' + paymentPlanLst);
+        system.debug('paymentPlanLst=====>' + paymentPlanLst.size());
+        insert lstAuthTransInfo;   
+        upsert paymentPlanLst;
+        if(saveCardInformation){
+             cardDetails.Payment_Plan__c = paymentPlanLst[0].Payment_Plan__c;
+             cardDetails.Active__c=true;
+             insert cardDetails;
+        }
         if(string.isEmpty(paymentLineItem)){
           return null;
-        }
-   
-        insert lstAuthTransInfo;
-        update paymentPlanLst;
+        } 
         return paymentLineItem;
     }
     
@@ -52,7 +67,7 @@ public inherited sharing class PaymentLineItemService {
          Card_Information__c iCard = [select id, Card_Number__c, Name_On_Card__c, Expiration_Month__c, Expiration_Year__c, CVV__c, AWS_Link__c, 
                                       Billing_Address__c, Billing_City__c, Billing_State__c, Billing_Zip__c, Payment_Plan_Authorization_URL__c, 
                                       Card_Approved__c, Credit_Card_Authorization_Ext1__c, Credit_Card_Authorization_Ext2__c from Card_Information__c
-                                      where Card_Number__c=:cardID limit 1];
+                                      where Id=:cardID limit 1];
         return iCard;
     }
     
@@ -94,7 +109,7 @@ public inherited sharing class PaymentLineItemService {
                                                             Card_Information__c ci,
                                                             string fileName,
                                                             decimal totalDueAmount){
-
+        boolean isValidTransaction = true;
         string jsonRequest = pp.JSONReq;
         string jsonRespone = pp.GetPaymentAuthorization();
         string amount = String.valueOf(totalDueAmount);
@@ -129,11 +144,14 @@ public inherited sharing class PaymentLineItemService {
             paymentLine.Payment_Receipt_URL__c = (paymentLine.Card_Transaction_Status__c == 'Approved') ?  receipt : '';
             if(paymentLine.Card_Transaction_Status__c != 'Approved'){
           
-               return '';
+               isValidTransaction  = false;
             }
             setOfLineItemId.add(paymentLine.Id);
             lstAuthTransInfo.add(authTransInfo);
          }
+         }
+         if(isValidTransaction == false){
+             return '';
          }
          return Json.serialize(setOfLineItemId);
     }
@@ -141,11 +159,15 @@ public inherited sharing class PaymentLineItemService {
     static string createPdfUrl(Id authId, Id paymentPLanLineItem){
         
         PageReference pdf = Page.PaymentPlanReceiptTemplate;
-        pdf.getParameters().put('trans_id',authId);
-        Blob body;   
-        body = pdf.getContentAsPDF();
-        string bodyContent =  EncodingUtil.base64Encode(body);
+        pdf.getParameters().put('Id',authId);
+        Blob body; 
+        string bodyContent = 'test';
+        if(!test.isRunningTest()){
+            body = pdf.getContentAsPDF();
+            bodyContent =  EncodingUtil.base64Encode(body);
+        }  
         return JSON.serialize(new WrapperClass(bodyContent,paymentPLanLineItem));
+       
     }
     
    
@@ -180,12 +202,15 @@ public inherited sharing class PaymentLineItemService {
                 }   
                 when '2' {      
                     paymentline.Card_Transaction_Status__c='Declined';
+                    authObj.Transaction_Status__c='Declined';
                 }
                 when '3' {       
                     paymentline.Card_Transaction_Status__c='Error';
+                    authObj.Transaction_Status__c='Error';
                 }
                 when '4' {       
                     paymentline.Card_Transaction_Status__c='Held for Review';
+                    authObj.Transaction_Status__c='Held for Review';
                 }
             }
     }
@@ -206,6 +231,37 @@ public inherited sharing class PaymentLineItemService {
             lstWrapperResponse.add(createPdfUrl(ppli.Authorize_Net_Transaction_Infos__r[0].Id,ppli.Id));
         }
         return lstWrapperResponse;
+    }
+    
+    public static void updateKipuChart(List<Payment_Plan_Line_Items__c> paymentLineItems){
+        
+        Map<Id,List<Payment_Plan_Line_Items__c>> opportunityMap = new Map<Id,List<Payment_Plan_Line_Items__c>>();
+        
+        for(Payment_Plan_Line_Items__c paymentLineItem : paymentLineItems){
+            
+            if(paymentLineItem.KIPU_Chart_Audit__c != null){
+                continue;
+            }
+            if(opportunityMap.containsKey(paymentLineItem.Opportunity__c)){
+                opportunityMap.get(paymentLineItem.Opportunity__c).add(paymentLineItem);
+            }
+        }
+        
+        if(opportunityMap.size() == 0){
+             return;
+        }
+ 
+        for(KIPU_Chart_Audit__c kipuAudi : [Select Id, Opportunity__c FROM KIPU_Chart_Audit__c WHERE
+                                                         Opportunity__c IN : opportunityMap.keySet()]){
+                                                         
+              for(Payment_Plan_Line_Items__c paymentLineItem : opportunityMap.get(kipuAudi.Opportunity__c)){
+                  paymentLineItem.KIPU_Chart_Audit__c = kipuAudi.Id;
+              }
+                                                 
+        }
+        
+    
+       
     }
     
     public class PaymentPlanException extends Exception {}

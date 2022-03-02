@@ -1,5 +1,5 @@
 @RestResource(urlMapping='/relapsed/*')
-global class Relapsed_Rest {
+global without sharing class Relapsed_Rest {
 
     @HttpGet
     global static void checkRelapsed(){

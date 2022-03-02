@@ -46,8 +46,15 @@
             component.set('v.amountDisabled',false);
         else
             component.set('v.amountDisabled',true);
+        
+        console.log('amounnttt='+component.get('v.payment.amount'));
     },
 
+    populateCustomAmount : function(component,event,helper){
+        console.log('am=='+component.get('v.payment.amount'));
+        var amountToCopy = component.get('v.payment.amount');
+        component.set('v.CustomAmount', amountToCopy);
+    },
 
     exsNewCardSelect : function(component,event,helper){
         var selVal = event.getSource().get("v.value");
@@ -109,10 +116,11 @@
         var selCard = component.get('v.selectedCardValue')
 
         var amount = component.get("v.payment.amount");
-
+        console.log('amount='+amount);
         var valid = helper.validateAmount(component,amount);
         var cvvValid = true;
         var isExistingCard = component.get("v.NewExiCardSel");
+        console.log('On Submit Card Sel=='+isExistingCard);
         if(isExistingCard == 'Existing'){
             cvvValid = helper.validateCVV(component);
             if(!cvvValid){
@@ -175,7 +183,8 @@
             component.set("v.payment.month",cem);
             component.set("v.payment.year",cey);
             component.set("v.payment.cvv",ccvv);
-            
+            component.set("v.NewCardSaved", true);
+            component.set("v.NewlyAddedCardNumber",cnum);
             helper.saveCard(component);
             component.set('v.isModalOpen',false);
             component.set('v.disabled',false);

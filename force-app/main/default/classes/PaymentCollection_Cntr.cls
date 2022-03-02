@@ -13,7 +13,8 @@ public without sharing class PaymentCollection_Cntr {
             PaymentWrapper pwrap = new PaymentWrapper();
             
             for(Payment_Plan_Line_Items__c ppli : getPaymentLineItem(OppId)){
-                totalAmt += ppli.Amount_For_Collection__c;
+                decimal amountToAdd = ppli.Amount_For_Collection__c != null ? ppli.Amount_For_Collection__c : 0;
+                totalAmt += amountToAdd;
                 pwrap.ClientName = ppli.Payment_Plan__r.Opportunity__r.Name;
                 pwrap.PPId = ppli.Payment_Plan__c;
             }
@@ -62,6 +63,7 @@ public without sharing class PaymentCollection_Cntr {
             newCard.Expiration_Year__c = expYr;
             newCard.Payment_Plan__c = PPId;
             newCard.Card_Approved__c = true;
+            newCard.Active__c = true;
             insert newCard;
         }
         catch(Exception ex){
@@ -135,7 +137,17 @@ public without sharing class PaymentCollection_Cntr {
         
         string ppl;
         try{
-            ppl =  PaymentLineItemService.processPayment(getPaymentLineItem(OppId),fileName,cardNumber,CVC,totalDueAmount);
+
+            //Updated on 24/01 by Zain after latest change in PaymentLineItemService class by Safia
+            //Start
+            map<string,Card_Information__c> mapOfAllCards = returnCardsMap(OppId);
+            if(mapOfAllCards.containsKey(cardNumber))
+            {
+                Card_Information__c card = mapOfAllCards.get(cardNumber);
+                ppl =  PaymentLineItemService.processPayment(getPaymentLineItem(OppId),fileName,card,totalDueAmount,false);
+            }
+            //End
+            
         }
        catch(Exception ex){
             throw new AuraHandledException(ex.getMessage());
@@ -184,7 +196,7 @@ public without sharing class PaymentCollection_Cntr {
                                         Expiration_Month__c, 
                                         Expiration_Year__c 
                                         from Card_Information__c 
-                                        where Payment_Plan__r.Opportunity__c =:OppId];
+                                        where Payment_Plan__r.Opportunity__c =:OppId AND Active__c = true];
         for(Card_Information__c cr: cl)
         {
             mapOfCards.put(cr.Card_Number__c,cr);
@@ -203,7 +215,7 @@ public without sharing class PaymentCollection_Cntr {
                                         Expiration_Month__c, 
                                         Expiration_Year__c 
                                         from Card_Information__c 
-                                        where Payment_Plan__r.Opportunity__c =:OppId];
+                                        where Payment_Plan__r.Opportunity__c =:OppId AND Active__c = true];
         
         list<CardWrapper> ListOfCards = new list<CardWrapper>();
         for(Card_Information__c cr: cl)
@@ -236,7 +248,7 @@ public without sharing class PaymentCollection_Cntr {
                                         Expiration_Month__c, 
                                         Expiration_Year__c 
                                         from Card_Information__c 
-                                        where Payment_Plan__r.Opportunity__c =:OppId];
+                                        where Payment_Plan__r.Opportunity__c =:OppId AND Active__c = true];
         for(Card_Information__c cr: cl)
         {
             mapOfAllCards.put(cr.Card_Number__c,cr);

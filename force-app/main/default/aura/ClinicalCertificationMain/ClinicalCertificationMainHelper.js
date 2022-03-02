@@ -33,10 +33,12 @@
                 if(resultData.Tabs_Access__c.indexOf('Incident Report') != -1){
                     component.set('v.showIncidentReport',true);
                     component.set('v.selectedTab','in');
+                    console.log('if success 1:')
                 }  
                 if(resultData.Tabs_Access__c.indexOf('Certification Dashboard') != -1){
                     component.set('v.showClinicalDashboard',true);
                     component.set('v.selectedTab','cl');
+                    console.log('if success 1:')
                 } 
                 
                 let sunshineaccessvalues = [];
