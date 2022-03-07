@@ -1,4 +1,5 @@
-public without sharing class HousingRentalCollection_Ctrl extends Aura_Ctrl_UploadPaymentReceipt{
+//test class HousingRentalCollection_CtrlTest
+public without sharing class HousingRentalCollection_Ctrl{
 
  @AuraEnabled 
     public static string fetchUser(){
@@ -9,44 +10,39 @@ public without sharing class HousingRentalCollection_Ctrl extends Aura_Ctrl_Uplo
    @AuraEnabled
     public static List<Payment_Plan_Line_Items__c> getPaymentLineItem(string OppId){
 
-        
         List<Payment_Plan_Line_Items__c> ppLineItem = [Select Name,Payment_Plan__c,Payment_Plan__r.Name,Due_Date__c,Sunshine_Center__c,
                                                         Amount_For_Collection__c,Status__c,Closed_Date__c ,
                                                         Payment_Receipt_URL__c, Date_of_Cash_Collection__c
                                                         FROM 
                                                         Payment_Plan_Line_Items__c WHERE 
-                                                        Type_of_Collection__c = 'Housing' and Opportunity__c =: OppId and Status__c IN ('Open','Closed') and Amount_For_Collection__c >0];
-        
-       
+                                                        Type_of_Collection__c = 'Housing' and Opportunity__c =: OppId and Status__c IN ('Open','Closed') and Amount_For_Collection__c >0];     
         return ppLineItem;
     }
       
     @AuraEnabled
     public static List<Card_Information__c> getCardInfoList(string OppId){
-    
-    List<Card_Information__c> cl=[select id,Card_Number__c, Name_on_Card__c, CVV__c, Expiration_Month__c, Expiration_Year__c from Card_Information__c where Payment_Plan__r.Opportunity__c =:OppId and Active__c = true];
-    return cl;
+
+        List<Card_Information__c> cl=[select id,Card_Number__c, Name_on_Card__c, CVV__c, Expiration_Month__c, Expiration_Year__c from Card_Information__c where Payment_Plan__r.Opportunity__c =:OppId and Active__c = true];
+        return cl;
     
     }
     
     @AuraEnabled
     public static boolean ValidateCVV(string cardId,Decimal CVV){
     
-    Card_Information__c cl;
-    try{
-     cl=[select id,Card_Number__c, Name_on_Card__c, CVV__c, Expiration_Month__c, Expiration_Year__c 
-                            from Card_Information__c where Id =:cardId and CVV__c =:CVV limit 1];
-                            }
-    catch(Exception e) {
- 
-       cl = null;
-
-     }
-     
-     if(cl== null) return false;
-     return true;
-
-    
+        Card_Information__c cl;
+        try{
+            cl = [select id,Card_Number__c, Name_on_Card__c, CVV__c, Expiration_Month__c, Expiration_Year__c 
+                from Card_Information__c where Id =:cardId and CVV__c =:CVV limit 1];
+        }
+        catch(Exception e) {
+        cl = null;
+        }
+        
+        if(cl== null) {
+            return false;
+        }
+        return true;
     }
     
     @auraEnabled
@@ -65,8 +61,7 @@ public without sharing class HousingRentalCollection_Ctrl extends Aura_Ctrl_Uplo
                                                         saveNewCard);
         }
        catch(Exception ex){
-            system.debug('Error===> ' + ex.getMessage() + ' ' + ex.getlineNumber());
-            throw new AuraHandledException(ex.getMessage());
+            throw new AuraHandledException(ex.getMessage() + ' ' + ex.getlineNumber());
         }
         return ppl;
     }
@@ -104,8 +99,7 @@ public without sharing class HousingRentalCollection_Ctrl extends Aura_Ctrl_Uplo
         try{
            insert newPaymentLineItem;
         }
-        catch(Exception ex){
-         
+        catch(Exception ex){   
             throw new AuraHandledException(ex.getMessage());
         }
     }
@@ -118,10 +112,6 @@ public without sharing class HousingRentalCollection_Ctrl extends Aura_Ctrl_Uplo
     
     @AuraEnabled
     public static awsBucket__c getAWSSetting(){
-    System.debug('awsBucket__c.getInstance() => '+awsBucket__c.getInstance('salesforce'));
-    return awsBucket__c.getInstance('salesforce');
-}
-    
-
-
+        return awsBucket__c.getInstance('salesforce');
+    }
 }

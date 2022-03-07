@@ -1,3 +1,4 @@
+//test class HousingRentalCollection_CtrlTest
 public inherited sharing class PaymentLineItemService {
     
     static string sunShineCentre;
@@ -17,11 +18,9 @@ public inherited sharing class PaymentLineItemService {
             clonePpl.Type_of_Collection__c = 'Housing';
             paymentNewPpl.add(clonePpl);
         }
-        system.debug('###paymentNewPpl='+paymentNewPpl);
         paymentPlanLst.addAll(paymentNewPpl);
         paymentNewPpl.clear();
         return paymentPlanLst;
-
     }
 
     public static string processPayment(List<Payment_Plan_Line_Items__c> paymentPlanLst,
@@ -29,7 +28,6 @@ public inherited sharing class PaymentLineItemService {
                                         Card_Information__c cardDetails,
                                         decimal totalDueAmount,
                                         Boolean saveCardInformation){
-        system.debug('&&&&=>' + cardDetails.Id);
         
         if(cardDetails.Id != null){
               cardDetails = getCardDetail(cardDetails.ID);
@@ -42,10 +40,6 @@ public inherited sharing class PaymentLineItemService {
         //lstAuthInfo = new List<Authorize_Net_Transaction_Info__c>(); 
         pp = new PaymentAuthorization(paymentPlanLst[0].Id,cardDetails ,totalDueAmount,sunShineCentre);
         string paymentLineItem = updateRecordLineItemAfterResponse(paymentPlanLst,pp,cardDetails,fileName,totalDueAmount);
-        system.debug('=====>' + paymentLineItem);
-        system.debug('lstAuthTransInfo=====>' + lstAuthTransInfo);
-        system.debug('paymentPlanLst=====>' + paymentPlanLst);
-        system.debug('paymentPlanLst=====>' + paymentPlanLst.size());
         insert lstAuthTransInfo;   
         upsert paymentPlanLst;
         if(saveCardInformation){
@@ -59,9 +53,6 @@ public inherited sharing class PaymentLineItemService {
         return paymentLineItem;
     }
     
-    
-   
-    
     static Card_Information__c getCardDetail(string cardID){
         
          Card_Information__c iCard = [select id, Card_Number__c, Name_On_Card__c, Expiration_Month__c, Expiration_Year__c, CVV__c, AWS_Link__c, 
@@ -73,19 +64,17 @@ public inherited sharing class PaymentLineItemService {
     
     static void validateCardDetail(Card_Information__c cardInfo){
       
-      Integer currentYear = System.Today().year(); 
-      Integer currentMonth = System.Today().month();
-      String str = cardInfo.Expiration_Year__c;
-      if(str.length()==2){
-        str='20'+ cardInfo.Expiration_Year__c;
-      }
-      Integer cardYear = Integer.valueof(str);
-      Integer cardMonth = Integer.valueof(cardInfo.Expiration_Month__c);
-        if(cardYear< currentYear || ( cardMonth < currentMonth && cardYear == currentYear)){
-      
-            throw new PaymentPlanException ('Invalid Card Expiration Month-Year');
-      
-      }
+        Integer currentYear = System.Today().year(); 
+        Integer currentMonth = System.Today().month();
+        String str = cardInfo.Expiration_Year__c;
+        if(str.length()==2){
+            str='20'+ cardInfo.Expiration_Year__c;
+        }
+        Integer cardYear = Integer.valueof(str);
+        Integer cardMonth = Integer.valueof(cardInfo.Expiration_Month__c);
+        if(cardYear< currentYear || ( cardMonth < currentMonth && cardYear == currentYear)){  
+            throw new PaymentPlanException ('Invalid Card Expiration Month-Year');  
+        }
     }
     
     static List<Payment_Plan_Line_Items__c> getOpenPaymentPlan(List<Payment_Plan_Line_Items__c> paymentPlanLst){
@@ -94,7 +83,7 @@ public inherited sharing class PaymentLineItemService {
         List<Payment_Plan_Line_Items__c> openPaymentPlan = new List<Payment_Plan_Line_Items__c>();
         refIds = new List<string>();
         for(Payment_Plan_Line_Items__c ppl : paymentPlanLst){
-            if(ppl.Status__c.equals('Open')){
+            if(ppl.Status__c?.equals('Open')){
                 openPaymentPlan.add(ppl);
                 refIds.add(ppl.Id);
             }
@@ -130,35 +119,35 @@ public inherited sharing class PaymentLineItemService {
         Set<string> setOfLineItemId = new Set<String>();
         for(Payment_Plan_Line_Items__c paymentLine : lstPaymentLine){
         
-          if(paymentLine.Status__c=='Open'){
-            authTransInfo = new Authorize_Net_Transaction_Info__c(Payment_Plan_Line_Items__c = paymentLine.ID,
-                                                        Outbound_API_JSON__c = jsonRequest,
-                                                        Inbound_API_Response__c = jsonRespone,
-                                                        Total_Amount__c = string.valueOf(paymentLine.Amount_For_Collection__c));
-            paymentLine.Actual_Mode_of_Collection__c = 'Debit/Credit Card';
-            paymentLine.Card_Information__c = ci.Id;
-            paymentLine.Collection_Reference_ID__c = responseObj?.transactionResponse?.transId;
-            paymentLine.Card_Transaction_Message__c = errorMsg;
-            string receipt = 'http://revenuecollections.s3.amazonaws.com/Sandbox/ClinicalPortal/Reimbursement/' + fileName + '_'+paymentLine.Id+'.pdf';
-            captureOtherInfo(paymentLine,responseObj,authTransInfo);
-            paymentLine.Payment_Receipt_URL__c = (paymentLine.Card_Transaction_Status__c == 'Approved') ?  receipt : '';
-            if(paymentLine.Card_Transaction_Status__c != 'Approved'){
-          
-               isValidTransaction  = false;
+            if(paymentLine.Status__c=='Open'){
+                authTransInfo = new Authorize_Net_Transaction_Info__c(Payment_Plan_Line_Items__c = paymentLine.ID,
+                                                            Outbound_API_JSON__c = jsonRequest,
+                                                            Inbound_API_Response__c = jsonRespone,
+                                                            Total_Amount__c = string.valueOf(paymentLine.Amount_For_Collection__c));
+                paymentLine.Actual_Mode_of_Collection__c = 'Debit/Credit Card';
+                paymentLine.Card_Information__c = ci.Id;
+                paymentLine.Collection_Reference_ID__c = responseObj?.transactionResponse?.transId;
+                paymentLine.Card_Transaction_Message__c = errorMsg;
+                string receipt = 'http://revenuecollections.s3.amazonaws.com/Sandbox/ClinicalPortal/Reimbursement/' + fileName + '_'+paymentLine.Id+'.pdf';
+                captureOtherInfo(paymentLine,responseObj,authTransInfo);
+                paymentLine.Payment_Receipt_URL__c = (paymentLine.Card_Transaction_Status__c == 'Approved') ?  receipt : '';
+                if(paymentLine.Card_Transaction_Status__c != 'Approved'){
+                
+                    isValidTransaction  = false;
+                }
+                setOfLineItemId.add(paymentLine.Id);
+                lstAuthTransInfo.add(authTransInfo);
             }
-            setOfLineItemId.add(paymentLine.Id);
-            lstAuthTransInfo.add(authTransInfo);
-         }
-         }
-         if(isValidTransaction == false){
-             return '';
-         }
-         return Json.serialize(setOfLineItemId);
+        }
+        if(isValidTransaction == false){
+            return '';
+        }
+        return Json.serialize(setOfLineItemId);
     }
     
     static string createPdfUrl(Id authId, Id paymentPLanLineItem){
         
-        PageReference pdf = Page.PaymentPlanReceiptTemplate;
+        PageReference pdf = Page.PaymentPlanReceipt_Aura;
         pdf.getParameters().put('Id',authId);
         Blob body; 
         string bodyContent = 'test';
@@ -166,11 +155,9 @@ public inherited sharing class PaymentLineItemService {
             body = pdf.getContentAsPDF();
             bodyContent =  EncodingUtil.base64Encode(body);
         }  
-        return JSON.serialize(new WrapperClass(bodyContent,paymentPLanLineItem));
-       
+        return JSON.serialize(new WrapperClass(bodyContent,paymentPLanLineItem));    
     }
-    
-   
+     
     public class WrapperClass {
      
         public String pdfContent;
@@ -181,38 +168,36 @@ public inherited sharing class PaymentLineItemService {
             this.paymentLineItemId = paymentLineItemId;
         }
     }
-    
-    
-    
+      
     static void captureOtherInfo(Payment_Plan_Line_Items__c paymentline, 
                                  AuthorizeNetResponse responseObj,
                                  Authorize_Net_Transaction_Info__c authObj){
-         switch on responseObj.transactionResponse.responseCode {
-                when '1' {       
-                    paymentline.Card_Transaction_Status__c='Approved';
-                    paymentline.Status__c = 'Closed';
-                    paymentline.Closed_Date__c = date.Today();
-                    authObj.Authorization_Code__c=responseObj.transactionResponse.authCode;
-                    authObj.Transaction_ID__c=responseObj.transactionResponse.transId;
-                    authObj.Transaction_Type__c='Authorization w/ Auto Capture';
-                    authObj.Card_Number__c=responseObj.transactionResponse.accountNumber;
-                    authObj.Submit_Date_Time__c= string.valueOfGmt(system.now());
-                    authObj.Transaction_Status__c='Captured';
-                    authObj.Card_Type__c= responseObj.transactionResponse.accountType;
-                }   
-                when '2' {      
-                    paymentline.Card_Transaction_Status__c='Declined';
-                    authObj.Transaction_Status__c='Declined';
-                }
-                when '3' {       
-                    paymentline.Card_Transaction_Status__c='Error';
-                    authObj.Transaction_Status__c='Error';
-                }
-                when '4' {       
-                    paymentline.Card_Transaction_Status__c='Held for Review';
-                    authObj.Transaction_Status__c='Held for Review';
-                }
+        switch on responseObj.transactionResponse.responseCode {
+            when '1' {       
+                paymentline.Card_Transaction_Status__c='Approved';
+                paymentline.Status__c = 'Closed';
+                paymentline.Closed_Date__c = date.Today();
+                authObj.Authorization_Code__c=responseObj.transactionResponse.authCode;
+                authObj.Transaction_ID__c=responseObj.transactionResponse.transId;
+                authObj.Transaction_Type__c='Authorization w/ Auto Capture';
+                authObj.Card_Number__c=responseObj.transactionResponse.accountNumber;
+                authObj.Submit_Date_Time__c= string.valueOfGmt(system.now());
+                authObj.Transaction_Status__c='Captured';
+                authObj.Card_Type__c= responseObj.transactionResponse.accountType;
+            }   
+            when '2' {      
+                paymentline.Card_Transaction_Status__c='Declined';
+                authObj.Transaction_Status__c='Declined';
             }
+            when '3' {       
+                paymentline.Card_Transaction_Status__c='Error';
+                authObj.Transaction_Status__c='Error';
+            }
+            when '4' {       
+                paymentline.Card_Transaction_Status__c='Held for Review';
+                authObj.Transaction_Status__c='Held for Review';
+            }
+        }
     }
 
     public static List<string> processPdfs(List<string> lstPli){
@@ -232,37 +217,6 @@ public inherited sharing class PaymentLineItemService {
         }
         return lstWrapperResponse;
     }
-    
-    public static void updateKipuChart(List<Payment_Plan_Line_Items__c> paymentLineItems){
-        
-        Map<Id,List<Payment_Plan_Line_Items__c>> opportunityMap = new Map<Id,List<Payment_Plan_Line_Items__c>>();
-        
-        for(Payment_Plan_Line_Items__c paymentLineItem : paymentLineItems){
-            
-            if(paymentLineItem.KIPU_Chart_Audit__c != null){
-                continue;
-            }
-            if(opportunityMap.containsKey(paymentLineItem.Opportunity__c)){
-                opportunityMap.get(paymentLineItem.Opportunity__c).add(paymentLineItem);
-            }
-        }
-        
-        if(opportunityMap.size() == 0){
-             return;
-        }
- 
-        for(KIPU_Chart_Audit__c kipuAudi : [Select Id, Opportunity__c FROM KIPU_Chart_Audit__c WHERE
-                                                         Opportunity__c IN : opportunityMap.keySet()]){
-                                                         
-              for(Payment_Plan_Line_Items__c paymentLineItem : opportunityMap.get(kipuAudi.Opportunity__c)){
-                  paymentLineItem.KIPU_Chart_Audit__c = kipuAudi.Id;
-              }
-                                                 
-        }
-        
-    
-       
-    }
-    
+
     public class PaymentPlanException extends Exception {}
 }

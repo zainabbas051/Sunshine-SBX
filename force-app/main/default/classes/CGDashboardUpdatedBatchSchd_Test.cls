@@ -12,6 +12,11 @@ public class CGDashboardUpdatedBatchSchd_Test {
          
          
          
+        String sch4 = '0 0 2 * * ?'; 
+        PaymentLineItemCreation_Schd sh5 = new PaymentLineItemCreation_Schd();
+        system.schedule('PaymentLineItemCreation_Schd', sch, sh2); 
+         
+         
         CGDashboardUpdatedBatch shn = new CGDashboardUpdatedBatch(System.Label.CGDashboard_ID_2);
         shn.execute(null,null); 
         database.executeBatch(shn );

@@ -45,8 +45,12 @@ public awsBucket__c bucket {get;set;} //Bucket permission set
        
        
     }
+     @AuraEnabled
+    public static awsBucket__c getAWSSetting(){
+        return awsBucket__c.getInstance('salesforce');
+    }
     
-    @AuraEnabled
+   /* @AuraEnabled
     public static String uploadFileToAWS(
                                         String strfileName, String fileType,
                                         String fileContent){
@@ -119,6 +123,6 @@ public awsBucket__c bucket {get;set;} //Bucket permission set
         return '';
     }
     
-    
+  */  
    
 }

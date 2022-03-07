@@ -65,6 +65,10 @@ private class HousingRentalCollection_CtrlTest{
           HousingRentalCollection_Ctrl.processPayment(ppli,'test',ci,50.0,false);
           HousingRentalCollection_Ctrl.processPdf(new List<string> { ppli[0].Id });
           HousingRentalCollection_Ctrl.fetchUser();
+          Authorize_Net_Transaction_Info__c auth = [Select Id from Authorize_Net_Transaction_Info__c 
+                                                    Limit 1];
+          ApexPages.currentPage().getParameters().put('Id',auth.Id);
+          ctrl_GeneratePaymentReceiptv2 payment = new ctrl_GeneratePaymentReceiptv2();
       
       }
       
@@ -72,8 +76,11 @@ private class HousingRentalCollection_CtrlTest{
       
           Opportunity oppty = [Select id from opportunity limit 1];
           List<Payment_Plan_Line_Items__c> ppli = [Select id, Status__c,Payment_Plan__c, Amount_For_Collection__c, Sunshine_Center__c from Payment_Plan_Line_Items__c  where Status__c = 'Open' limit 1];
+          Payment_Plan_Line_Items__c ppliClone = ppli[0].clone(false,false);
           Card_Information__c ci=[Select id,Card_Number__c,Name_on_Card__c,Payment_Plan__c,Expiration_Year__c,Expiration_Month__c from Card_Information__c where Payment_Plan__c =:ppli[0].Payment_Plan__c limit 1 ];
           HousingRentalCollection_Ctrl.createPaymentLineItem(ppli,40);
+          HousingRentalCollection_Ctrl.savePaymentLineItem(new List<Payment_Plan_Line_Items__c> { ppliClone });
+          HousingRentalCollection_Ctrl.getOpptyDetail(oppty.Id);
       
       }
 

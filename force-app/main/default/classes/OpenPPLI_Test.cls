@@ -1,4 +1,4 @@
-    @isTest
+@isTest
     public with sharing class OpenPPLI_Test {
 
     Public static Account a;
