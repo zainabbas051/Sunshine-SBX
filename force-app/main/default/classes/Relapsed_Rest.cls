@@ -34,7 +34,7 @@ global without sharing class Relapsed_Rest {
             }
             
             string appDetailId = RestContext.request.headers.get('id');
-            Alumni_App_Detail__c appDetail = [select id, Relapsed__c, Date_Time_Relapsed__c,
+            Alumni_App_Detail__c appDetail = [select id, Relapsed__c, Date_Time_Relapsed__c, Current_Checkin_Streak__c,
                                                         Total_Number_of_Sobreity_Checkins__c, Longest_Checkin__c,Number_of_Days_Sober__c,
                                                         Opportunity__c, account__c, (select id, Opportunity__c, Opportunity__r.Name,Opportunity__r.OwnerId,
                                                         Opportunity__r.Email__c, Opportunity__r.Phone__c from App_Detail_Histories__r where 
@@ -49,8 +49,8 @@ global without sharing class Relapsed_Rest {
             
             if(appDetail != null && appDetail.App_Detail_Histories__r.size() > 0)
             {
-                lead l = [select id from lead where App_Detail_History__c =: appDetail.App_Detail_Histories__r[0].id];
-                if(l != null && l.Id != null){
+                lead[] l = [select id from lead where App_Detail_History__c =: appDetail.App_Detail_Histories__r[0].id];
+                if(l.size() > 0){
                     mapOfRequest = new Map<string,string>();
                     mapOfRequest.put('success','true');
                     mapOfRequest.put('message','Successfully Relapsed Again');
@@ -120,7 +120,8 @@ global without sharing class Relapsed_Rest {
                     //post on Opp record
                     feedItemInput.subjectId = appDetail.App_Detail_Histories__r[0].Opportunity__c;
                     //post the chatter
-                    ConnectApi.FeedElement feedElement = ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), feedItemInput); 
+                    if(!test.isRunningTest())
+                        ConnectApi.FeedElement feedElement = ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), feedItemInput); 
                     
                     Lead newLead = new Lead();
                     newLead.LastName = appDetail.App_Detail_Histories__r[0].Opportunity__r.name;
@@ -141,6 +142,7 @@ global without sharing class Relapsed_Rest {
 
             list<Alumni_App_Detail__c> lstAppD = AppDetailsUtil.resetNextEligibleChallenges(new list<Alumni_App_Detail__c>{appDetail});
             appDetail.Longest_Checkin__c = 0;
+            appDetail.Current_Checkin_Streak__c = 0;
             if(lstAppD.size() > 0)
             {
                 appDetail.Next_Eligible_Checkin_Streak__c = lstAppD[0].Next_Eligible_Checkin_Streak__c !=  null? lstAppD[0].Next_Eligible_Checkin_Streak__c : 0;

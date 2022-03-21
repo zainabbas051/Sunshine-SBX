@@ -51,6 +51,41 @@ public class EmployeeService implements Queueable{
         }
     }
     
+    public static void updateBudgetRecord(List<Employee__c> lstEmp){
+    
+         double this_year= System.Today().year();
+        List<Budget_Utilization__c> budgetList = [select id,RelatedEmployee__r.Tier_Allocation__c from Budget_Utilization__c where RelatedEmployee__c IN: lstEmp and year__c =: this_year ];
+        List<Budget_Utilization__c> updatedbudgetList = new List<Budget_Utilization__c>();
+         
+         
+          for(Budget_Utilization__c bu : budgetList)
+        {
+          integer budgetAllocation;
+           switch on bu.RelatedEmployee__r.Tier_Allocation__c {
+           
+            when 'Tier 1' {       // when block 1
+                budgetAllocation=Integer.ValueOf(Label.Tier_1_Budget);
+            }   
+            when 'Tier 2' {       // when block 2
+                budgetAllocation=Integer.ValueOf(Label.Tier_2_Budget);
+            }
+            when 'Tier 3' {       // when block 3
+                budgetAllocation=Integer.ValueOf(Label.Tier_3_Budget);
+            }
+            when else {       // default block, optional
+                budgetAllocation=0;
+            }
+            
+            }
+            
+            bu.Available_Budget__c=budgetAllocation;
+            updatedbudgetList.add(bu);
+            
+          }
+          
+          update updatedbudgetList;
+    }
+    
     public static void resetUltimateParent(Employee__c empObj,Employee__c oldEmp){
       
       if(empObj.Supervisor_Name__c != oldEmp.Supervisor_Name__c && empObj.Supervisor_Name__c == null ){

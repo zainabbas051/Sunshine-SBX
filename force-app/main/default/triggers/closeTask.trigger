@@ -1,14 +1,18 @@
 //test class : SendEmailConfirmation_CtrlTest
-trigger closeTask on Payment_Plan_Line_Items__c (after insert, after update) {
+trigger closeTask on Payment_Plan_Line_Items__c (before insert,before update,after insert, after update) {
+    
+    
+    if(trigger.isBefore){
+        HousingPPLIService.updateKipuChart(trigger.new);
+        return;
+    }
     
     list<id> ppliIdList = new List<Id>();
     list<task> taskUpdateList = new List<task>();
     
     for(Payment_Plan_Line_Items__c ppli : Trigger.New){
         if(trigger.isInsert){
-        if(ppli.Type_of_Collection__c=='Housing' && ppli.KIPU_Chart_Audit__c== null){
-        HousingPPLIService.updateRelatedKIPUAuditChart(Trigger.New);
-            }
+       
             if(ppli.Status__c == 'Closed'){
                 ppliIdList.add(ppli.id);
             }

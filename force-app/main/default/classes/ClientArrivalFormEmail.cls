@@ -1,4 +1,4 @@
-global class ClientArrivalFormEmail{
+global without sharing class ClientArrivalFormEmail{
 
     webservice static String ClientArrivalFormEmail(String oppId){
          system.debug('oppId::::'+oppId);
@@ -6,7 +6,7 @@ global class ClientArrivalFormEmail{
          Opportunity opp = new Opportunity();
 
          if(oppId != null){
-             for(Opportunity o : [select id, Name,LeadSource, CloseDate, Age__c, Allergies__c, Allergic_Reaction__c, Incoming_Number__c, Family_Contact_Name__c, Family_Contact_Relationship__c,
+             for(Opportunity o : [select id, AccountID, Name,LeadSource, CloseDate, Email__c, Age__c, Allergies__c, Allergic_Reaction__c, Incoming_Number__c, Family_Contact_Name__c, Family_Contact_Relationship__c,
                      Family_Contact_Phone__c, Client_Aware_of_No_Return_Flight__c, Cash_Client__c, Date__c, Arrival_Time__c, Arrival_Date_Time__c, Arriving_Airport__c, Travel_Notes__c,
                      Airport__c, Airline__c, Flight_Number__c, Drug_of_Choice_1__c, Drug_of_Choice_2__c, Drug_of_Choice_3__c, Current_Use_Details_Drug_1__c,
                      Current_Use_Details_Drug_2__c, Current_Use_Details_Drug_3__c, Date_of_Last_Use_Drug_1__c, Date_of_Last_Use_Drug_2__c, Date_of_Last_Use_Drug_3__c,
@@ -18,8 +18,64 @@ global class ClientArrivalFormEmail{
          }
          system.debug('opportunity id ::'+opp.id);
          String emailBody;
+         string MobAppUsername = '';
+         string MobAppPassword = '';
          if(opp.id != null){
-         
+
+            //Added by Zain Abbas - Update in Relpased Logic in Mobile App
+            
+            if(opp.AccountId != null){
+                Alumni_App_Detail__c appDet = new Alumni_App_Detail__c();
+                for(Alumni_App_Detail__c app : [select id, Username__c, Password__c, (select id from App_Detail_Histories__r where Opportunity__c =: opp.id)
+                                                         from Alumni_App_Detail__c where Account__c =: opp.accountId Limit 1]){
+                    appDet = app;                    
+                }
+                
+                if(appDet != null && appDet.id != null){
+                    MobAppUsername = appDet.Username__c;
+                    MobAppPassword = appDet.Password__c;
+
+                    if(appDet.App_Detail_Histories__r.size() == 0){
+                        App_Detail_History__c appH = new App_Detail_History__c();
+                        appH.Opportunity__c = opp.Id;
+                        appH.Alumni_App_Detail__c = appDet.id;
+                        insert appH;
+                    }
+                    appDet.Current_Opportunity_Closed_Date__c = opp.CloseDate;
+                    update appDet;
+                }
+                else{
+                    if(!String.isBlank(opp.email__c)){
+                        try{
+                            Alumni_App_Detail__c appDetToCreate = new Alumni_App_Detail__c();
+                            appDetToCreate.Username__c = opp.email__c;
+                            appDetToCreate.User_Email__c = opp.email__c;
+                            appDetToCreate.Password__c = 'Pa$$word';
+                            appDetToCreate.Account__c = opp.AccountId;
+                            appDetToCreate.Current_Opportunity_Closed_Date__c = opp.CloseDate;
+                            insert appDetToCreate;
+                            
+                            App_Detail_History__c appHisToCreate = new App_Detail_History__c();
+                            appHisToCreate.Opportunity__c = opp.Id;
+                            appHisToCreate.Alumni_App_Detail__c = appDetToCreate.id;
+
+                            insert appHisToCreate;
+                            
+                            MobAppUsername = appDetToCreate.Username__c;
+                            MobAppPassword = appDetToCreate.Password__c;
+                        
+                        }catch(exception e){
+                            system.debug('the email failed to send : '+e.getMessage());
+                            result = 'OOOPS, Some thing went wrong ::::'+e.getMessage(); 
+                            return result;   
+                        }
+                        
+                    }
+                    
+                }
+                
+            }
+             
          ////////// Added by Safia Osman for Case:00227974
          
          if(opp.LeadSource=='Biz Dev'){
@@ -65,7 +121,7 @@ global class ClientArrivalFormEmail{
                                  opp.Psychiatric_Co_occurring_Issues__c +'\n\nDIET INFORMATION \n Diet : '+opp.Diet__c+'\n\nFMLA Needed INFORMATION \n FMLA Needed: '+opp.FMLA_Needed__c;
             
             }
-            
+            emailBody = emailBody + '\n Sunshine Mobile App Username : ' + MobAppUsername + '\n Sunshine Mobile App Password : ' + MobAppPassword; 
             System.debug('++emailbody'+emailBody);
             
             String emailSubject = 'Client Arrival Form For : '+opp.Name;
@@ -121,10 +177,9 @@ global class ClientArrivalFormEmail{
                     opp.Client_Arrival_Form_Email_Sent_Date_Time__c = dateTime.Now();
                     
                     try{
-                        Messaging.SingleEmailMessage[] messages =
-                            new List<Messaging.SingleEmailMessage> {message};
-                                 Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
-                        
+                        Messaging.SingleEmailMessage[] messages = new List<Messaging.SingleEmailMessage> {message};
+                        Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
+                    
                         insert fi;
                         update opp;
                                             

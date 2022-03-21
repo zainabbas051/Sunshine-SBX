@@ -29,4 +29,28 @@ public without sharing class EmailUtility {
         // email.setWhatId(aRecordId);
         Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[] {emailMessage});
     }
+    
+    public static void sendEmailwithVFBody(string emailAddress,string templateID,string fromAddress,string recordId){
+      try{  
+        Messaging.SingleEmailMessage emailMessage = new Messaging.SingleEmailMessage();
+        OrgWideEmailAddress owa = [select id, DisplayName, Address from OrgWideEmailAddress where Address =:fromAddress  limit 1];
+         User cnt = [SELECT Id, Email FROM User WHERE Profile.Name = 'System Administrator' limit 1];
+         Anonymous_Concern__c an =[select id from Anonymous_Concern__c where id=:Id.ValueOf(recordId) ];
+        emailMessage.setTargetObjectId(cnt.id);
+        emailMessage.setToAddresses(emailAddress.split(';'));
+        emailMessage.setOrgWideEmailAddressId(owa.id);
+        emailMessage.saveAsActivity = false;
+
+         EmailTemplate emailTemplate =[Select Id,Subject,Description,
+                                 HtmlValue,DeveloperName,Body
+                                 from EmailTemplate where id =:Id.ValueOf(templateID)];
+        // email.setWhatId(aRecordId);
+        emailMessage.setTemplateID(emailTemplate.Id);
+        emailMessage.setWhatId(an.id);
+        Messaging.SendEmailResult [] r = Messaging.sendEmail(new Messaging.SingleEmailMessage[] {emailMessage});
+        }
+        catch(Exception ex){
+        system.debug(ex.getStackTraceString());
+        }
+    }
 }

@@ -4,5 +4,6 @@
     "**/bower_components": true,
     "**/.sfdx": true
   },
-  "salesforcedx-vscode-apex.java.home": "C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-11.0.13.8-hotspot"
+  "salesforcedx-vscode-apex.java.home": "C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-11.0.13.8-hotspot",
+  "workbench.editor.enablePreviewFromQuickOpen": true
 }
